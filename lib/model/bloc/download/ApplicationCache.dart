@@ -2,19 +2,22 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-class OfflineCacheManager extends BaseCacheManager {
+class OfflineCacheManager extends CacheManager {
   static const key = "offlineCachedImageData";
 
-  static OfflineCacheManager _instance;
+  static OfflineCacheManager? _instance;
 
   factory OfflineCacheManager() {
-    if (_instance == null) {
-      _instance = new OfflineCacheManager._();
-    }
-    return _instance;
+    _instance ??= OfflineCacheManager._();
+    return _instance!;
   }
 
-  OfflineCacheManager._() : super(key, maxAgeCacheObject: Duration(days: 365), maxNrOfCacheObjects:4096,);
+  OfflineCacheManager._()
+      : super(Config(
+          key,
+          stalePeriod: const Duration(days: 365),
+          maxNrOfCacheObjects: 4096,
+        ));
 
   Future<String> getFilePath() async {
     var directory = await getApplicationSupportDirectory();

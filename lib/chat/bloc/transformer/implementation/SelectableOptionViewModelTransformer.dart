@@ -7,7 +7,7 @@ class SelectableOptionViewModelTransformer
     implements
         ObjectTransformer<SelectableOptionEntity, SelectableOptionViewModel> {
   @override
-  SelectableOptionViewModel transform({SelectableOptionEntity from}) {
+  SelectableOptionViewModel transform({required SelectableOptionEntity from}) {
     return SelectableOptionViewModel(
       id: from.id,
       title: from.title,

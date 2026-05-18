@@ -32,33 +32,33 @@ class RecommendationDetailCardStyle {
   final Color imageAddedOverlayColor;
 
   const RecommendationDetailCardStyle({
-    this.titleTextStyle,
-    this.subtitleTagStyle,
-    this.actionStyle,
-    this.contentPadding,
-    this.imageRadius,
-    this.imageSize,
-    this.actionBoxDecoration,
-    this.imageOverlayColor,
-    this.imageOverlayHeight,
-    this.imageOverlayWidth,
-    this.iconAssetOverlay,
-    this.imageAddedOverlayColor,
+    required this.titleTextStyle,
+    required this.subtitleTagStyle,
+    required this.actionStyle,
+    required this.contentPadding,
+    required this.imageRadius,
+    required this.imageSize,
+    required this.actionBoxDecoration,
+    required this.imageOverlayColor,
+    required this.imageOverlayHeight,
+    required this.imageOverlayWidth,
+    required this.iconAssetOverlay,
+    required this.imageAddedOverlayColor,
   });
 
   RecommendationDetailCardStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle subtitleTagStyle,
-    RoundedButtonStyle actionStyle,
-    EdgeInsets contentPadding,
-    BorderRadius imageRadius,
-    double imageSize,
-    BoxDecoration actionBoxDecoration,
-    Color imageOverlayColor,
-    double imageOverlayHeight,
-    double imageOverlayWidth,
-    String iconAssetOverlay,
-    Color imageAddedOverlayColor,
+    TextStyle? titleTextStyle,
+    DogTagStyle? subtitleTagStyle,
+    RoundedButtonStatefulStyle? actionStyle,
+    EdgeInsets? contentPadding,
+    BorderRadius? imageRadius,
+    double? imageSize,
+    BoxDecoration? actionBoxDecoration,
+    Color? imageOverlayColor,
+    double? imageOverlayHeight,
+    double? imageOverlayWidth,
+    String? iconAssetOverlay,
+    Color? imageAddedOverlayColor,
   }) {
     return RecommendationDetailCardStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -70,7 +70,7 @@ class RecommendationDetailCardStyle {
       actionBoxDecoration: actionBoxDecoration ?? this.actionBoxDecoration,
       imageOverlayColor: imageOverlayColor ?? this.imageOverlayColor,
       imageOverlayHeight: imageOverlayHeight ?? this.imageOverlayHeight,
-      imageOverlayWidth: imageOverlayHeight ?? this.imageOverlayHeight,
+      imageOverlayWidth: imageOverlayWidth ?? this.imageOverlayWidth,
       iconAssetOverlay: iconAssetOverlay ?? this.iconAssetOverlay,
       imageAddedOverlayColor:
           imageAddedOverlayColor ?? this.imageAddedOverlayColor,
@@ -79,27 +79,8 @@ class RecommendationDetailCardStyle {
 }
 
 class _DefaultStyle extends RecommendationDetailCardStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 27,
-    fontWeight: FontWeight.bold,
-  );
-
-  final DogTagStyle subtitleTagStyle = const DogTagStyle(
-    backgroundColor: Color(0x1624d900),
-    titleTextStyle: TextStyle(
-        color: Color(0xff21c400), fontSize: 11, fontWeight: FontWeight.w500),
-    borderRadius: BorderRadius.all(Radius.circular(20.0)),
-    edgePadding: EdgeInsets.only(top: 8.5, right: 12, left: 12, bottom: 8),
-    maxLines: 1,
-    iconSize: 8,
-    spacing: 5.5,
-  );
-
-  final RoundedButtonStatefulStyle actionStyle = defaultRoundedButtonStyle;
-
   static const defaultRoundedButtonStyle = RoundedButtonStatefulStyle(
-    activeRoundedButtonStyle: const RoundedButtonStyle(
+    activeRoundedButtonStyle: RoundedButtonStyle(
       backgroundColor: Color(0xff24d900),
       borderRadius: BorderRadius.all(Radius.circular(12)),
       buttonTextStyle: TextStyle(
@@ -114,7 +95,7 @@ class _DefaultStyle extends RecommendationDetailCardStyle {
       iconButtonColor: Color(0xFFFFFFFF),
       buttonShape: BoxShape.rectangle,
     ),
-    inactiveRoundedButtonStyle: const RoundedButtonStyle(
+    inactiveRoundedButtonStyle: RoundedButtonStyle(
       backgroundColor: Color(0xFFFFFFFF),
       borderRadius: BorderRadius.all(Radius.circular(12)),
       buttonTextStyle: TextStyle(
@@ -128,39 +109,48 @@ class _DefaultStyle extends RecommendationDetailCardStyle {
     ),
   );
 
-  final EdgeInsets contentPadding = const EdgeInsets.all(32.0);
-  final BorderRadius imageRadius = const BorderRadius.all(Radius.circular(12));
-  final double imageSize = 80;
-  final Color imageOverlayColor = const Color(0x1924d900);
-  final Color imageAddedOverlayColor = const Color(0x3325df0c);
-  final double imageOverlayHeight = 26;
-  final double imageOverlayWidth = 26;
-  final String iconAssetOverlay = 'assets/icons/tick_large.png';
-
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-    DogTagStyle subtitleTagStyle,
-    RoundedButtonStyle actionStyle,
-    EdgeInsets contentPadding,
-    BorderRadius imageRadius,
-    double imageSize,
-    Color imageOverlayColor,
-    double imageOverlayHeight,
-    double imageOverlayWidth,
-    String iconAssetOverlay,
-    Color imageAddedOverlayColor,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+          ),
+          subtitleTagStyle: const DogTagStyle(
+            backgroundColor: Color(0x1624d900),
+            titleTextStyle: TextStyle(
+                color: Color(0xff21c400),
+                fontSize: 11,
+                fontWeight: FontWeight.w500),
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            edgePadding:
+                EdgeInsets.only(top: 8.5, right: 12, left: 12, bottom: 8),
+            maxLines: 1,
+            iconSize: 8,
+            spacing: 5.5,
+          ),
+          actionStyle: defaultRoundedButtonStyle,
+          contentPadding: const EdgeInsets.all(32.0),
+          imageRadius: const BorderRadius.all(Radius.circular(12)),
+          imageSize: 80,
+          actionBoxDecoration: const BoxDecoration(),
+          imageOverlayColor: const Color(0x1924d900),
+          imageOverlayHeight: 26,
+          imageOverlayWidth: 26,
+          iconAssetOverlay: 'assets/icons/tick_large.png',
+          imageAddedOverlayColor: const Color(0x3325df0c),
+        );
 }
 
-const RecommendationDetailCardStyle _defaultStyle = const _DefaultStyle();
+const RecommendationDetailCardStyle _defaultStyle = _DefaultStyle();
 
 class RecommendationDetailCard extends StatefulWidget {
   final RecommendationDetailCardStyle _style;
   final RecommendationCardViewModel _viewModel;
 
   RecommendationDetailCard({
-    Key key,
-    RecommendationCardViewModel viewModel,
+    Key? key,
+    required RecommendationCardViewModel viewModel,
     RecommendationDetailCardStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -172,7 +162,7 @@ class RecommendationDetailCard extends StatefulWidget {
 }
 
 class _RecommendationDetailCardState extends State<RecommendationDetailCard> {
-  bool isAddedState;
+  late bool isAddedState;
 
   @override
   void initState() {
@@ -223,7 +213,7 @@ class _RecommendationDetailCardState extends State<RecommendationDetailCard> {
 
   void _buildAddActionAndChangeStyle() {
     if (!isAddedState) {
-      widget._viewModel.addAction();
+      widget._viewModel.addAction?.call();
     }
     setState(() {
       isAddedState = true;
@@ -255,7 +245,7 @@ class _RecommendationDetailCardState extends State<RecommendationDetailCard> {
           showOverlayIcon: isAddedState,
           overlayIconWidth: widget._style.imageOverlayWidth,
           overlayIcon: widget._style.iconAssetOverlay,
-          overlayIconHeight: widget._style.imageOverlayWidth,
+          overlayIconHeight: widget._style.imageOverlayHeight,
           overlayColor: isAddedState
               ? widget._style.imageAddedOverlayColor
               : widget._style.imageOverlayColor,
@@ -272,7 +262,7 @@ class _RecommendationDetailCardState extends State<RecommendationDetailCard> {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           Text(
-            widget._viewModel.title,
+            widget._viewModel.title ?? '',
             style: widget._style.titleTextStyle,
             maxLines: _Constants.titleMaxLines,
             overflow: TextOverflow.ellipsis,
@@ -281,7 +271,7 @@ class _RecommendationDetailCardState extends State<RecommendationDetailCard> {
             height: _Constants.titleSpace,
           ),
           DogTag(
-            viewModel: DogTagViewModel(title: widget._viewModel.subtitle),
+            viewModel: DogTagViewModel(title: widget._viewModel.subtitle ?? ''),
             style: widget._style.subtitleTagStyle,
           ),
         ],

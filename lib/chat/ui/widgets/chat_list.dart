@@ -13,82 +13,75 @@ class ChatListStyle {
   final EdgeInsetsGeometry listPadding;
 
   const ChatListStyle({
-    this.shrinkWrap,
-    this.reverse,
-    this.listPadding,
+    this.shrinkWrap = true,
+    this.reverse = true,
+    this.listPadding = const EdgeInsets.all(_Constants.defaultPadding),
   });
 
   ChatListStyle copyWith({
-    bool shrinkWrap,
-    bool reverse,
-    EdgeInsetsGeometry outerContainerMargins,
+    bool? shrinkWrap,
+    bool? reverse,
+    EdgeInsetsGeometry? listPadding,
   }) {
     return ChatListStyle(
       shrinkWrap: shrinkWrap ?? this.shrinkWrap,
       reverse: reverse ?? this.reverse,
-      listPadding: outerContainerMargins ?? this.listPadding,
+      listPadding: listPadding ?? this.listPadding,
     );
   }
 }
 
-class _DefaultStyle extends ChatListStyle {
-  final bool shrinkWrap = true;
-  final bool reverse = true;
-  final EdgeInsetsGeometry listPadding =
-      const EdgeInsets.all(_Constants.defaultPadding);
-
-  const _DefaultStyle({
-    bool shrinkWrap,
-    bool reverse,
-    EdgeInsetsGeometry outerContainerMargins,
-  });
-}
-
-const ChatListStyle _defaultStyle = const _DefaultStyle();
+const ChatListStyle _defaultStyle = ChatListStyle();
 
 class ChatList extends StatelessWidget {
   final ChatListStyle _style;
   final ScrollController _scrollController;
-  final Function _onTapMessage;
+  final VoidCallback _onTapMessage;
   final List<MessageBubbleViewModel> _messages;
 
   ChatList({
+    Key? key,
     ChatListStyle style = _defaultStyle,
-    Function onTapMessage,
-    @required List<MessageBubbleViewModel> messages,
-    @required ScrollController scrollController,
-  })  : this._style = style,
-        this._onTapMessage = onTapMessage ?? (() => {}),
-        this._messages = messages,
-        this._scrollController = scrollController;
+    VoidCallback? onTapMessage,
+    required List<MessageBubbleViewModel> messages,
+    required ScrollController scrollController,
+  })  : _style = style,
+        _onTapMessage = onTapMessage ?? _defaultOnTap,
+        _messages = messages,
+        _scrollController = scrollController,
+        super(key: key);
+
+  static void _defaultOnTap() {}
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.builder(
-          controller: _scrollController,
-          shrinkWrap: _style.shrinkWrap,
-          itemCount: _messages.length,
-          reverse: _style.reverse,
-          padding: _style.listPadding,
-          itemBuilder: (BuildContext context, int index) {
-            return _buildMessage(index);
-          }),
+        controller: _scrollController,
+        shrinkWrap: _style.shrinkWrap,
+        itemCount: _messages.length,
+        reverse: _style.reverse,
+        padding: _style.listPadding,
+        itemBuilder: (BuildContext context, int index) {
+          return _buildMessage(index);
+        },
+      ),
     );
   }
 
-  _buildMessage(int index) {
+  Widget _buildMessage(int index) {
     if (_messages.isNotEmpty) {
-      MessageBubbleViewModel message = _messages[index];
+      final MessageBubbleViewModel message = _messages[index];
       return MessageBubble(
         viewModel: message,
         style: _getStyleByMessageType(message),
         onTap: _onTapMessage,
       );
     }
+    return const SizedBox.shrink();
   }
 
-  _getStyleByMessageType(MessageBubbleViewModel message) {
+  MessageBubbleStyle _getStyleByMessageType(MessageBubbleViewModel message) {
     switch (message.messageType) {
       case MessageType.sent:
         return MessageBubbleStyles.buildStyleSent();
@@ -104,8 +97,6 @@ class ChatList extends StatelessWidget {
         return MessageBubbleStyles.buildStyleReceivedStackBottom();
       case MessageType.receivedStackBetween:
         return MessageBubbleStyles.buildStyleReceivedStackBetween();
-      default:
-        return MessageBubbleStyles.buildStyleSent();
     }
   }
 }

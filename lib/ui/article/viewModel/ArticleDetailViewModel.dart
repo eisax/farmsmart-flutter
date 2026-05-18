@@ -16,7 +16,7 @@ class ArticleDetailViewModel {
   final String body;
   final Future<String> shareLink;
   final String contentLink;
-  GetList<ArticleListItemViewModel> getRelated;
+  final GetList<ArticleListItemViewModel> getRelated;
 
   /*
           String deepLink = await buildArticleDeeplink(articleID);
@@ -35,5 +35,6 @@ class ArticleDetailViewModel {
     this.contentLink,
     this.contentLinkDescription,
     this.contentLinkIcon,
+    this.getRelated,
   );
 }

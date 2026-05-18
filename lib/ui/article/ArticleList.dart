@@ -16,15 +16,15 @@ class ArticleListStyle {
   final bool heroEnabled;
 
   const ArticleListStyle({
-    this.titleTextStyle,
-    this.titleEdgePadding,
-    this.heroEnabled,
+    required this.titleTextStyle,
+    required this.titleEdgePadding,
+    required this.heroEnabled,
   });
 
   ArticleListStyle copyWith({
-    TextStyle titleTextStyle,
-    EdgeInsets titleEdgePadding,
-    bool heroEnabled,
+    TextStyle? titleTextStyle,
+    EdgeInsets? titleEdgePadding,
+    bool? heroEnabled,
   }) {
     return ArticleListStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -35,24 +35,21 @@ class ArticleListStyle {
 }
 
 class _DefaultStyle extends ArticleListStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    fontSize: 27,
-    fontWeight: FontWeight.bold,
-    color: Color(0xFF1a1b46),
-  );
-  final EdgeInsets titleEdgePadding = const EdgeInsets.only(
-    left: 34.0,
-    right: 34.0,
-    top: 35.0,
-    bottom: 30.0,
-  );
-  final bool heroEnabled = false;
-
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-    EdgeInsets titleEdgePadding,
-    bool heroEnabled,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1a1b46),
+          ),
+          titleEdgePadding: const EdgeInsets.only(
+            left: 34.0,
+            right: 34.0,
+            top: 35.0,
+            bottom: 30.0,
+          ),
+          heroEnabled: false,
+        );
 }
 
 const ArticleListStyle _defaultStyle = const _DefaultStyle();
@@ -64,8 +61,8 @@ class ArticleList extends StatelessWidget {
   final ArticleListStyle _style;
 
   ArticleList(
-      {Key key,
-      ViewModelProvider<ArticleListViewModel> viewModelProvider,
+      {Key? key,
+      required ViewModelProvider<ArticleListViewModel> viewModelProvider,
       ArticleListStyle style = _defaultStyle})
       : this._style = style,
         this._viewModelProvider = viewModelProvider,
@@ -79,7 +76,7 @@ class ArticleList extends StatelessWidget {
     );
   }
 
-  Widget buildHeader({ArticleListViewModel viewModel}) {
+  Widget buildHeader({required ArticleListViewModel viewModel}) {
     return Container(
       padding: _style.titleEdgePadding,
       child: Row(
@@ -95,7 +92,7 @@ class ArticleList extends StatelessWidget {
   }
 
   IndexedWidgetBuilder bodyListBuilder(
-      {List<ArticleListItemViewModel> viewModels}) {
+      {required List<ArticleListItemViewModel> viewModels}) {
     return (BuildContext context, int index) {
       final viewModel = viewModels[index];
       final tapFunction = () => _tappedListItem(
@@ -119,29 +116,31 @@ class ArticleList extends StatelessWidget {
   }
 
   void _tappedListItem({
-    BuildContext context,
-    ArticleDetailViewModel viewModel,
+    required BuildContext context,
+    required ArticleDetailViewModel viewModel,
   }) {
-    AnalyticsInterface.implementation().interaction(ArticleDetail.analyticsName, context: viewModel.title);
+    AnalyticsInterface.implementation()
+        .interaction(ArticleDetail.analyticsName, context: viewModel.title);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ArticleDetail(viewModel: viewModel),
-        settings: RouteSettings(name:ArticleDetail.analyticsName)
+        settings: const RouteSettings(name: ArticleDetail.analyticsName),
       ),
     );
   }
 
   Widget _buildSuccess({
-    BuildContext context,
-    AsyncSnapshot<ArticleListViewModel> snapshot,
+    BuildContext? context,
+    AsyncSnapshot<ArticleListViewModel>? snapshot,
   }) {
-    final viewModel = snapshot.data;
-    AnalyticsInterface.implementation().impression(analyticsName, context: viewModel.title);
+    final viewModel = snapshot!.data!;
+    AnalyticsInterface.implementation()
+        .impression(analyticsName, context: viewModel.title);
     return HeaderAndFooterListView(
         itemCount: viewModel.articleListItemViewModels.length,
         itemBuilder:
             bodyListBuilder(viewModels: viewModel.articleListItemViewModels),
-        physics: ScrollPhysics(),
+        physics: const ScrollPhysics(),
         shrinkWrap: true,
         headers: [buildHeader(viewModel: viewModel)]);
   }

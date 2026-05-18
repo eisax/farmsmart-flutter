@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ErrorRetry extends StatelessWidget {
-  final _retryFunction;
-  final _errorMessage;
-  final _retryActionLabel;
+  final String errorMessage;
+  final String retryActionLabel;
+  final VoidCallback retryFunction;
 
-  const ErrorRetry({Key key, String retryActionLabel, String errorMessage, Function retryFunction }) : this._errorMessage = errorMessage, this._retryActionLabel =  retryActionLabel, this._retryFunction = retryFunction, super(key: key);
-  
+  const ErrorRetry({
+    Key? key,
+    required this.retryActionLabel,
+    required this.errorMessage,
+    required this.retryFunction,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -15,12 +19,17 @@ class ErrorRetry extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          AlertDialog(title: Text(_errorMessage), actions: <Widget>[
-            FlatButton(child: Text(_retryActionLabel), onPressed: _retryFunction)
-          ])
+          AlertDialog(
+            title: Text(errorMessage),
+            actions: <Widget>[
+              TextButton(
+                child: Text(retryActionLabel),
+                onPressed: retryFunction,
+              )
+            ],
+          )
         ],
       ),
     );
   }
-    
 }

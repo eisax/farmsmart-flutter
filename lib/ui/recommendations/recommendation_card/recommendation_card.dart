@@ -17,21 +17,21 @@ class _Constants {
 }
 
 class RecommendationCardStyle {
-  final TextStyle titleTextStyle;
-  final TextStyle subtitleTextStyle;
-  final TextStyle descriptionTextStyle;
-  final RoundedButtonStatefulStyle leftActionButtonStyle;
-  final RoundedButtonStatefulStyle rightActionButtonStyle;
-  final double imageHeight;
-  final BorderRadiusGeometry imageBorderRadius;
-  final int descriptionMaxLines;
-  final EdgeInsets contentPadding;
-  final BoxDecoration rightActionBoxDecoration;
-  final Color overlayColor;
-  final Color addedOverlayColor;
-  final double overlayIconHeight;
-  final double overlayIconWidth;
-  final String overlayIcon;
+  final TextStyle? titleTextStyle;
+  final TextStyle? subtitleTextStyle;
+  final TextStyle? descriptionTextStyle;
+  final RoundedButtonStatefulStyle? leftActionButtonStyle;
+  final RoundedButtonStatefulStyle? rightActionButtonStyle;
+  final double? imageHeight;
+  final BorderRadiusGeometry? imageBorderRadius;
+  final int? descriptionMaxLines;
+  final EdgeInsets? contentPadding;
+  final BoxDecoration? rightActionBoxDecoration;
+  final Color? overlayColor;
+  final Color? addedOverlayColor;
+  final double? overlayIconHeight;
+  final double? overlayIconWidth;
+  final String? overlayIcon;
 
   const RecommendationCardStyle({
     this.titleTextStyle,
@@ -52,21 +52,21 @@ class RecommendationCardStyle {
   });
 
   RecommendationCardStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    TextStyle descriptionTextStyle,
-    RoundedButtonStyle leftActionButtonStyle,
-    RoundedButtonStyle rightActionButtonStyle,
-    double imageHeight,
-    BorderRadiusGeometry imageBorderRadius,
-    int descriptionMaxLines,
-    EdgeInsets contentPadding,
-    BoxDecoration rightBoxDecoration,
-    Color overlayColor,
-    Color addedOverlayColor,
-    double overlayIconHeight,
-    double overlayIconWidth,
-    String overlayIcon,
+    TextStyle? titleTextStyle,
+    TextStyle? subtitleTextStyle,
+    TextStyle? descriptionTextStyle,
+    RoundedButtonStatefulStyle? leftActionButtonStyle,
+    RoundedButtonStatefulStyle? rightActionButtonStyle,
+    double? imageHeight,
+    BorderRadiusGeometry? imageBorderRadius,
+    int? descriptionMaxLines,
+    EdgeInsets? contentPadding,
+    BoxDecoration? rightBoxDecoration,
+    Color? overlayColor,
+    Color? addedOverlayColor,
+    double? overlayIconHeight,
+    double? overlayIconWidth,
+    String? overlayIcon,
   }) {
     return RecommendationCardStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -92,36 +92,36 @@ class RecommendationCardStyle {
 }
 
 class _DefaultStyle extends RecommendationCardStyle {
-  final TextStyle titleTextStyle = const TextStyle(
+  final TextStyle? titleTextStyle = const TextStyle(
     color: Color(0xff1a1b46),
     fontSize: 17,
     fontWeight: FontWeight.w500,
   );
-  final TextStyle subtitleTextStyle = const TextStyle(
+  final TextStyle? subtitleTextStyle = const TextStyle(
     color: Color(0xff1a1b46),
     fontSize: 17,
   );
-  final TextStyle descriptionTextStyle = const TextStyle(
+  final TextStyle? descriptionTextStyle = const TextStyle(
     color: Color(0xff767690),
     fontSize: 14,
   );
-  final RoundedButtonStatefulStyle leftActionButtonStyle =
+  final RoundedButtonStatefulStyle? leftActionButtonStyle =
       defaultRoundedButtonStyle;
-  final RoundedButtonStatefulStyle rightActionButtonStyle =
+  final RoundedButtonStatefulStyle? rightActionButtonStyle =
       defaultRoundedButtonStyle;
-  final double imageHeight = 152;
-  final BorderRadiusGeometry imageBorderRadius =
+  final double? imageHeight = 152;
+  final BorderRadiusGeometry? imageBorderRadius =
       const BorderRadius.all(Radius.circular(12.0));
-  final int descriptionMaxLines = 2;
+  final int? descriptionMaxLines = 2;
 
-  final EdgeInsets contentPadding = const EdgeInsets.all(32.0);
+  final EdgeInsets? contentPadding = const EdgeInsets.all(32.0);
 
-  final Color overlayColor = const Color(0x1924d900);
-  final Color addedOverlayColor = const Color(0x3325df0c);
-  final double overlayIconHeight = 54;
-  final double overlayIconWidth = 54;
+  final Color? overlayColor = const Color(0x1924d900);
+  final Color? addedOverlayColor = const Color(0x3325df0c);
+  final double? overlayIconHeight = 54;
+  final double? overlayIconWidth = 54;
 
-  final String overlayIcon = 'assets/icons/tick_large.png';
+  final String? overlayIcon = 'assets/icons/tick_large.png';
 
   static const defaultRoundedButtonStyle = RoundedButtonStatefulStyle(
     activeRoundedButtonStyle: const RoundedButtonStyle(
@@ -153,35 +153,20 @@ class _DefaultStyle extends RecommendationCardStyle {
     ),
   );
 
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    TextStyle descriptionTextStyle,
-    RoundedButtonStatefulStyle leftActionButtonStyle,
-    RoundedButtonStatefulStyle rightActionButtonStyle,
-    double imageHeight,
-    BorderRadiusGeometry imageBorderRadius,
-    int descriptionMaxLines,
-    EdgeInsets contentPadding,
-    Color overlayColor,
-    double overlayIconHeight,
-    double overlayIconWidth,
-    String overlayIcon,
-    Color addedOverlayColor,
-  });
+  const _DefaultStyle();
 }
 
 const RecommendationCardStyle _defaultStyle = const _DefaultStyle();
 
 class RecommendationCard extends StatelessWidget {
   final RecommendationCardStyle _style;
-  final Function _detailAction;
+  final VoidCallback? _detailAction;
   final RecommendationCardViewModel _viewModel;
 
   RecommendationCard({
-    Key key,
-    @required RecommendationCardViewModel viewModel,
-    Function detailAction,
+    Key? key,
+    required RecommendationCardViewModel viewModel,
+    VoidCallback? detailAction,
     RecommendationCardStyle style = _defaultStyle,
   })  : this._style = style,
         this._viewModel = viewModel,
@@ -193,20 +178,20 @@ class RecommendationCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: _style.contentPadding,
+        padding: _style.contentPadding ?? EdgeInsets.zero,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildTopRoundedImage(),
             Text(
-              _viewModel.title,
+              _viewModel.title ?? '',
               style: _style.titleTextStyle,
               maxLines: _Constants.titleMaxLines,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              _viewModel.subtitle,
+              _viewModel.subtitle ?? '',
               style: _style.subtitleTextStyle,
               maxLines: _Constants.subtitleMaxLines,
               overflow: TextOverflow.ellipsis,
@@ -238,7 +223,7 @@ class RecommendationCard extends StatelessWidget {
     return Padding(
       padding: _Constants.descriptionPadding,
       child: Text(
-        _viewModel.description,
+        _viewModel.description ?? '',
         style: _style.descriptionTextStyle,
         maxLines: _style.descriptionMaxLines,
         overflow: TextOverflow.ellipsis,
@@ -256,7 +241,7 @@ class RecommendationCard extends StatelessWidget {
               style: _style.leftActionButtonStyle,
               viewModel: RoundedButtonStatefulViewModel(
                 roundedButtonViewModel: RoundedButtonViewModel(
-                  title: _viewModel.detailActionText,
+                  title: _viewModel.detailActionText ?? '',
                   onTap: _detailAction,
                 ),
               ),
@@ -274,7 +259,7 @@ class RecommendationCard extends StatelessWidget {
                 viewModel: RoundedButtonStatefulViewModel(
                   isActive: !_viewModel.isAdded,
                   roundedButtonViewModel: RoundedButtonViewModel(
-                    title: _viewModel.addActionText,
+                    title: _viewModel.addActionText ?? '',
                     onTap: _viewModel.addAction,
                   ),
                 ),

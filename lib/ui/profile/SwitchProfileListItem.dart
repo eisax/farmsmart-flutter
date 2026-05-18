@@ -3,7 +3,6 @@ import 'package:farmsmart_flutter/model/entities/ImageURLProvider.dart';
 import 'package:farmsmart_flutter/ui/common/ProfileAvatar.dart';
 import 'package:farmsmart_flutter/ui/profile/Profile.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class _Icons {
   static final checkBox = "assets/icons/radio_button_default.png";
@@ -19,20 +18,20 @@ class _Constants {
 
 class SwitchProfileListItemViewModel {
   final String title;
-  ImageURLProvider image;
+  final ImageURLProvider image;
   final String icon;
-  Function tapAction;
-  Function switchAction;
+  final Function tapAction;
+  final Function switchAction;
   bool isSelected;
   final ViewModelProvider<ProfileViewModel> avatarViewModelProvider;
 
   SwitchProfileListItemViewModel({
-    this.title,
-    this.image,
-    this.icon,
-    this.tapAction,
-    this.switchAction,
-    this.avatarViewModelProvider,
+    required this.title,
+    required this.image,
+    required this.icon,
+    required this.tapAction,
+    required this.switchAction,
+    required this.avatarViewModelProvider,
     this.isSelected = false,
   });
 }
@@ -41,11 +40,11 @@ class SwitchProfileListItemStyle {
   final TextStyle titleTextStyle;
 
   const SwitchProfileListItemStyle({
-    this.titleTextStyle,
+    required this.titleTextStyle,
   });
 
   SwitchProfileListItemStyle copyWith({
-    TextStyle titleTextStyle,
+    TextStyle? titleTextStyle,
   }) {
     return SwitchProfileListItemStyle(
         titleTextStyle: titleTextStyle ?? this.titleTextStyle);
@@ -53,27 +52,26 @@ class SwitchProfileListItemStyle {
 }
 
 class _DefaultStyle extends SwitchProfileListItemStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 17,
-    fontWeight: FontWeight.w400,
-    fontStyle: FontStyle.normal,
-  );
-
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 17,
+            fontWeight: FontWeight.w400,
+            fontStyle: FontStyle.normal,
+          ),
+        );
 }
 
-const SwitchProfileListItemStyle _defaultStyle = const _DefaultStyle();
+const SwitchProfileListItemStyle _defaultStyle = _DefaultStyle();
 
 class SwitchProfileListItem extends StatelessWidget {
   final SwitchProfileListItemViewModel _viewModel;
   final SwitchProfileListItemStyle _style;
 
   const SwitchProfileListItem({
-    Key key,
-    SwitchProfileListItemViewModel viewModel,
+    Key? key,
+    required SwitchProfileListItemViewModel viewModel,
     SwitchProfileListItemStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -86,7 +84,11 @@ class SwitchProfileListItem extends StatelessWidget {
         _viewModel.title,
         style: _style.titleTextStyle,
       ),
-      leading: ProfileAvatar(viewModelProvider: _viewModel.avatarViewModelProvider,width: _Constants.imageSize,height: _Constants.imageSize,),
+      leading: ProfileAvatar(
+        viewModelProvider: _viewModel.avatarViewModelProvider,
+        width: _Constants.imageSize,
+        height: _Constants.imageSize,
+      ),
       trailing: Image.asset(
         _viewModel.isSelected ? _Icons.activeCheckBox : _Icons.checkBox,
         height: _Constants.iconSize,

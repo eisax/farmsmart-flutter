@@ -5,6 +5,7 @@ class MockInputAlertViewModel {
   static InputAlertViewModel build() {
     return InputAlertViewModel(
       titleText: _mockTitle.random(),
+      initialValue: '',
       hint: _mockHint.random(),
       cancelActionText: "Cancel",
       confirmActionText: "Confirm",

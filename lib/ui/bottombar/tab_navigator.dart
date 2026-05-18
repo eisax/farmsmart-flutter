@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 class TabNavigator extends StatelessWidget {
   TabNavigator({
-    @required this.child,
-    @required this.barItem,
-    @required this.analyticsName,
+    required this.child,
+    required this.barItem,
+    required this.analyticsName,
   });
 
   final Widget child;

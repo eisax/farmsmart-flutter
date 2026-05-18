@@ -1,5 +1,4 @@
 import 'package:farmsmart_flutter/ui/common/roundedButton.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class _Constants {
@@ -28,12 +27,12 @@ class InputAlertViewModel {
   Function(String) confirmInputAction;
 
   InputAlertViewModel({
-    @required this.cancelActionText,
-    @required this.confirmActionText,
-    @required this.titleText,
-    this.initialValue,
-    this.hint,
-    this.confirmInputAction,
+    required this.cancelActionText,
+    required this.confirmActionText,
+    required this.titleText,
+    required this.initialValue,
+    required this.hint,
+    required this.confirmInputAction,
   });
 }
 
@@ -46,21 +45,21 @@ class InputAlertStyle {
   final TextStyle actionTextStyle;
 
   const InputAlertStyle({
-    this.backgroundColor,
-    this.titleTextStyle,
-    this.detailTextStyle,
-    this.actionBackgroundColor,
-    this.destructiveActionBackgroundColor,
-    this.actionTextStyle,
+    required this.backgroundColor,
+    required this.titleTextStyle,
+    required this.detailTextStyle,
+    required this.actionBackgroundColor,
+    required this.destructiveActionBackgroundColor,
+    required this.actionTextStyle,
   });
 
   InputAlertStyle copyWith({
-    Color backgroundColor,
-    TextStyle titleTextStyle,
-    TextStyle detailTextStyle,
-    Color actionBackgroundColor,
-    Color destructiveActionBackgroundColor,
-    TextStyle actionTextStyle,
+    Color? backgroundColor,
+    TextStyle? titleTextStyle,
+    TextStyle? detailTextStyle,
+    Color? actionBackgroundColor,
+    Color? destructiveActionBackgroundColor,
+    TextStyle? actionTextStyle,
   }) {
     return InputAlertStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -76,36 +75,30 @@ class InputAlertStyle {
 }
 
 class _DefaultStyle extends InputAlertStyle {
-  final backgroundColor = const Color(0xffffffff);
-  final titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 27,
-    fontWeight: FontWeight.bold,
-  );
-  final detailTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 17,
-    height: 1.1,
-    fontWeight: FontWeight.normal,
-  );
-  final actionBackgroundColor = const Color(0xff24d900);
-  final destructiveActionBackgroundColor = const Color(0xffff6060);
-  final actionTextStyle = const TextStyle(
-    color: Color(0xffffffff),
-    fontSize: 15,
-  );
-
-  const _DefaultStyle({
-    Color backgroundColor,
-    TextStyle titleTextStyle,
-    TextStyle detailTextStyle,
-    Color actionBackgroundColor,
-    Color destructiveActionBackgroundColor,
-    TextStyle actionTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          backgroundColor: const Color(0xffffffff),
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+          ),
+          detailTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 17,
+            height: 1.1,
+            fontWeight: FontWeight.normal,
+          ),
+          actionBackgroundColor: const Color(0xff24d900),
+          destructiveActionBackgroundColor: const Color(0xffff6060),
+          actionTextStyle: const TextStyle(
+            color: Color(0xffffffff),
+            fontSize: 15,
+          ),
+        );
 }
 
-const InputAlertStyle _defaultStyle = const _DefaultStyle();
+const InputAlertStyle _defaultStyle = _DefaultStyle();
 
 class InputAlert extends StatefulWidget {
   final InputAlertViewModel _viewModel;
@@ -120,8 +113,8 @@ class InputAlert extends StatefulWidget {
   }
 
   InputAlert({
-    Key key,
-    InputAlertViewModel viewModel,
+    Key? key,
+    required InputAlertViewModel viewModel,
     InputAlertStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -141,7 +134,7 @@ class _InputAlertState extends State<InputAlert> {
     _selectAllOnFocusListener();
     super.initState();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -233,8 +226,7 @@ class _InputAlertState extends State<InputAlert> {
   }
 
   confirmAndDismiss(BuildContext context) {
-    if (_textFieldController.text != null &&
-        _textFieldController.text.isNotEmpty) {
+    if (_textFieldController.text.isNotEmpty) {
       widget._viewModel.confirmInputAction(_textFieldController.text);
       Navigator.of(context).pop();
     }

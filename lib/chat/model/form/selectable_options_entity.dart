@@ -11,7 +11,7 @@ class SelectableOptionsEntity {
   );
 
   int maxSelection;
-  List<SelectableOptionEntity> options;
+  List<SelectableOptionEntity>? options;
 
   factory SelectableOptionsEntity.fromJson(Map<String, dynamic> json) =>
       _$SelectableOptionsEntityFromJson(json);

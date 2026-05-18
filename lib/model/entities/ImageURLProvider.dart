@@ -8,9 +8,9 @@ abstract class ImageURLProvider {
     Future<String> urlToFit({double width,double height});
     String cacheIdentifier({double width, double height});
 
-    static String sizeIdentifier({double width, double height}) {
-      final widthString = width?.toString() ?? "";
-      final heightString = height?.toString() ?? "";
+    static String sizeIdentifier({double width=0, double height=0}) {
+      final widthString = width.toString();
+      final heightString = height.toString();
       return _Strings.prefix + widthString + _Strings.divider + heightString;
     }
 }

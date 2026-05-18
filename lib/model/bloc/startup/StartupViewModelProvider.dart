@@ -18,7 +18,7 @@ import '../ViewModelProvider.dart';
 
 class _LocalisedStrings {
   static String detailText() =>
-      Intl.message('A network and knowledge source for farmers in Kenya');
+      Intl.message('A network and knowledge source for farmers in Zimbabwe');
 
   static String actionText() => Intl.message('Get Started');
 
@@ -34,13 +34,13 @@ class _Assets {
 class StartupViewModelProvider implements ViewModelProvider<StartupViewModel> {
   final AccountRepositoryInterface _accountRepository;
   final OfflineDownloader _downloader;
-  StartupViewModel _snapshot;
+  StartupViewModel? _snapshot;
   final StreamController<StartupViewModel> _controller =
       StreamController<StartupViewModel>.broadcast();
 
   StartupViewModelProvider(this._accountRepository, this._downloader);
 
-  NewAccountFlowCoordinator _accountFlow;
+  late NewAccountFlowCoordinator _accountFlow;
 
   @override
   StartupViewModel initial() {
@@ -51,35 +51,31 @@ class StartupViewModelProvider implements ViewModelProvider<StartupViewModel> {
       );
       _accountFlow.init();
       _accountRepository.observeAuthorized().listen((account) {
-        if (account != null) {
-          account.profileRepository.observeCurrent().listen((currentProfile) {
-            _updateState(currentProfile);
-          });
-          account.profileRepository.getCurrent().then((currentProfile) {
-            _updateState(currentProfile);
-          });
-        } else {
-          _updateState(null);
-        }
-      });
+        account.profileRepository.observeCurrent().listen((currentProfile) {
+          _updateState(currentProfile);
+        });
+        account.profileRepository.getCurrent().then((currentProfile) {
+          _updateState(currentProfile);
+        });
+            });
       _setState(false, loading: true);
       _refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   void _accountFlowStatusChanged(FlowCoordinator coordinator) {}
 
-  void _updateState(ProfileEntity currentProfile) {
+  void _updateState(ProfileEntity? currentProfile) {
     _setState(
-      (currentProfile != null),
+      currentProfile != null,
       loading: false,
     );
   }
 
   @override
   StartupViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
@@ -98,7 +94,7 @@ class StartupViewModelProvider implements ViewModelProvider<StartupViewModel> {
       _landingViewModel(),
       _downloadViewModelProvider(),
     );
-    _controller.sink.add(_snapshot);
+    _controller.sink.add(_snapshot!);
   }
 
   LandingPageViewModel _landingViewModel() {
@@ -127,7 +123,13 @@ class StartupViewModelProvider implements ViewModelProvider<StartupViewModel> {
   }
 
   void _refresh() {
-    _accountRepository.authorized();
+    _accountRepository.authorized().then((account) {
+      account.profileRepository.getCurrent().then((currentProfile) {
+        _updateState(currentProfile);
+      });
+    }).catchError((_) {
+      _setState(false, loading: false);
+    });
   }
 
   void dispose() {

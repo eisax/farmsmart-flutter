@@ -1,6 +1,5 @@
 import 'package:farmsmart_flutter/ui/profitloss/RecordTransaction.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class _Constants {
@@ -37,11 +36,11 @@ enum RecordCellType {
 }
 
 class RecordTransactionListItemViewModel {
-  RecordCellType type;
-  DateTime selectedDate = DateTime.now();
-  List<String> listOfCrops = [];
-  String selectedItem;
-  String description;
+  RecordCellType? type;
+  DateTime? selectedDate = DateTime.now();
+  List<String>? listOfCrops = [];
+  String? selectedItem;
+  String? description;
   bool isEditable;
 
   RecordTransactionListItemViewModel({
@@ -50,26 +49,26 @@ class RecordTransactionListItemViewModel {
     this.listOfCrops,
     this.selectedItem,
     this.description,
-    this.isEditable: true,
+    this.isEditable = true,
   });
 }
 
 class RecordTransactionListItemStyle {
-  final TextStyle titleTextStyle;
-  final TextStyle pendingDetailTextStyle;
-  final TextStyle detailTextStyle;
+  final TextStyle? titleTextStyle;
+  final TextStyle? pendingDetailTextStyle;
+  final TextStyle? detailTextStyle;
 
-  final EdgeInsets actionItemEdgePadding;
-  final EdgeInsets cardMargins;
+  final EdgeInsets? actionItemEdgePadding;
+  final EdgeInsets? cardMargins;
 
-  final Offset pickerPosition;
+  final Offset? pickerPosition;
 
-  final double iconHeight;
-  final double iconLineSpace;
-  final double detailTextSpacing;
-  final double descriptionLineSpace;
+  final double? iconHeight;
+  final double? iconLineSpace;
+  final double? detailTextSpacing;
+  final double? descriptionLineSpace;
 
-  final int maxLines;
+  final int? maxLines;
 
   const RecordTransactionListItemStyle({
     this.titleTextStyle,
@@ -86,17 +85,17 @@ class RecordTransactionListItemStyle {
   });
 
   RecordTransactionListItemStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle pendingDetailTextStyle,
-    TextStyle detailTextStyle,
-    EdgeInsets actionItemEdgePadding,
-    EdgeInsets cardMargins,
-    Offset pickerPosition,
-    double iconHeight,
-    double iconLineSpace,
-    double detailTextSpacing,
-    double descriptionLineSpace,
-    int maxLines,
+    TextStyle? titleTextStyle,
+    TextStyle? pendingDetailTextStyle,
+    TextStyle? detailTextStyle,
+    EdgeInsets? actionItemEdgePadding,
+    EdgeInsets? cardMargins,
+    Offset? pickerPosition,
+    double? iconHeight,
+    double? iconLineSpace,
+    double? detailTextSpacing,
+    double? descriptionLineSpace,
+    int? maxLines,
   }) {
     return RecordTransactionListItemStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -148,19 +147,7 @@ class _DefaultStyle extends RecordTransactionListItemStyle {
 
   final int maxLines = 5;
 
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-    TextStyle pendingDetailTextStyle,
-    TextStyle detailTextStyle,
-    EdgeInsets actionItemEdgePadding,
-    EdgeInsets cardMargins,
-    Offset pickerPosition,
-    double iconHeight,
-    double iconLineSpace,
-    double detailTextSpacing,
-    double descriptionLineSpace,
-    int maxLines,
-  });
+  const _DefaultStyle();
 }
 
 const RecordTransactionListItemStyle _defaultStyle = const _DefaultStyle();
@@ -168,18 +155,17 @@ const RecordTransactionListItemStyle _defaultStyle = const _DefaultStyle();
 class RecordTransactionListItem extends StatefulWidget {
   final RecordTransactionListItemStyle _style;
   final RecordTransactionListItemViewModel _viewModel;
-  final GlobalKey _pickerKey = new GlobalKey();
+  final GlobalKey _pickerKey = GlobalKey();
 
-  RecordTransactionState parent;
+  final RecordTransactionState parent;
 
-  RecordTransactionListItem(
-      {Key key,
-      RecordTransactionListItemViewModel viewModel,
-      RecordTransactionListItemStyle style = _defaultStyle,
-      RecordTransactionState parent})
-      : this._viewModel = viewModel,
+  RecordTransactionListItem({
+    Key? key,
+    required RecordTransactionListItemViewModel viewModel,
+    RecordTransactionListItemStyle style = _defaultStyle,
+    required this.parent,
+  })  : this._viewModel = viewModel,
         this._style = style,
-        this.parent = parent,
         super(key: key);
 
   @override
@@ -230,6 +216,8 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
       case RecordCellType.description:
         listBuilder.add(_buildDescription(viewModel, style));
         break;
+      case null:
+        break;
     }
     return listBuilder;
   }
@@ -242,10 +230,10 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
         children: <Widget>[
           Image.asset(
             _Constants.dateIcon,
-            height: style.iconHeight,
+            height: style.iconHeight ?? 0,
           ),
           SizedBox(
-            width: style.iconLineSpace,
+            width: style.iconLineSpace ?? 0,
           ),
           Expanded(
             child: Row(
@@ -272,7 +260,7 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
       trailing: viewModel.isEditable
           ? Image.asset(
               _Constants.arrowIcon,
-              height: style.detailTextSpacing,
+              height: style.detailTextSpacing ?? 0,
             )
           : null,
       dense: true,
@@ -312,10 +300,10 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
       children: <Widget>[
         Image.asset(
           _Constants.cropIcon,
-          height: style.iconHeight,
+          height: style.iconHeight ?? 0,
         ),
         SizedBox(
-          width: style.iconLineSpace,
+          width: style.iconLineSpace ?? 0,
         ),
         Expanded(
           child: Row(
@@ -329,7 +317,7 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
               Text(
                 initialSelectedItem == null
                     ? _LocalisedStrings.select()
-                    : initialSelectedItem,
+                    : initialSelectedItem ?? '',
                 textAlign: TextAlign.end,
                 style: style.detailTextStyle,
               ),
@@ -346,7 +334,7 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
   ) {
     return PopupMenuButton(
       key: widget._pickerKey,
-      offset: style.pickerPosition,
+      offset: style.pickerPosition ?? Offset.zero,
       onSelected: (selectedItem) => _setSelectedDropDownItem(selectedItem),
       itemBuilder: (BuildContext context) => _getDropDownMenuItems(viewModel),
       child: Row(
@@ -354,10 +342,10 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
         children: <Widget>[
           Image.asset(
             _Constants.cropIcon,
-            height: style.iconHeight,
+            height: style.iconHeight ?? 0,
           ),
           SizedBox(
-            width: style.iconLineSpace,
+            width: style.iconLineSpace ?? 0,
           ),
           Expanded(
             child: Row(
@@ -375,7 +363,7 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
                         style: style.pendingDetailTextStyle,
                       )
                     : Text(
-                        initialSelectedItem,
+                        initialSelectedItem ?? '',
                         textAlign: TextAlign.end,
                         style: style.detailTextStyle,
                       ),
@@ -402,9 +390,9 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
             children: <Widget>[
               Image.asset(
                 _Constants.descriptionIcon,
-                height: style.iconHeight,
+                height: style.iconHeight ?? 0,
               ),
-              SizedBox(width: style.iconLineSpace),
+              SizedBox(width: style.iconLineSpace ?? 0),
               Expanded(
                 child: viewModel.isEditable
                     ? _buildEditableDescription(style, viewModel)
@@ -412,7 +400,7 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
               ),
             ],
           ),
-          SizedBox(height: style.descriptionLineSpace)
+          SizedBox(height: style.descriptionLineSpace ?? 0)
         ],
       ),
       dense: true,
@@ -426,7 +414,7 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
     RecordTransactionListItemStyle style,
   ) =>
       Text(
-        viewModel.description,
+        viewModel.description ?? '',
         style: style.titleTextStyle,
       );
 
@@ -465,13 +453,13 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
     popUpMenuState.showButtonMenu();
   }
 
-  Future<Null> _setSelectedDate(
+  Future<void> _setSelectedDate(
     BuildContext context,
     RecordTransactionListItemViewModel viewModel,
   ) async {
-    final DateTime picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: initialDate,
+      initialDate: initialDate ?? _Constants.currentDate,
       firstDate: _Constants.minDateLimit,
       lastDate: _Constants.maxDateLimit,
     );
@@ -485,23 +473,21 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
     }
   }
 
-  String _formatDate(DateTime selectedDate) =>
-      _Constants.dateFormatter.format(selectedDate);
+  String _formatDate(DateTime? selectedDate) =>
+      _Constants.dateFormatter.format(selectedDate ?? _Constants.currentDate);
 
   List<PopupMenuItem> _getDropDownMenuItems(
     RecordTransactionListItemViewModel viewModel,
   ) {
-    return viewModel.listOfCrops
+    return (viewModel.listOfCrops ?? [])
         .map((crop) => PopupMenuItem(value: crop, child: Text(crop)))
         .toList();
   }
 
   void _setDescription(RecordTransactionListItemViewModel viewModel) {
     setState(() {
-      if (_textFieldController.text != null) {
-        viewModel.description = _textFieldController.text;
-        widget.parent.userData.description = _textFieldController.text;
-      }
+      viewModel.description = _textFieldController.text;
+      widget.parent.userData.description = _textFieldController.text;
     });
   }
 
@@ -516,10 +502,10 @@ class _RecordTransactionListItemState extends State<RecordTransactionListItem> {
 
   void _initializeValues() {
     initialDescription = widget._viewModel.description;
-    initialDate = widget._viewModel.selectedDate;
+    initialDate = widget._viewModel.selectedDate ?? _Constants.currentDate;
     initialSelectedItem = widget._viewModel.selectedItem;
 
-    if(initialDescription != null && initialDescription.isNotEmpty){
+    if (initialDescription != null && initialDescription.isNotEmpty) {
       _textFieldController.text = initialDescription;
     }
   }

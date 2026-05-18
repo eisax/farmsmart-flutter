@@ -11,9 +11,9 @@ class MockImageEntity {
   MockImageEntity({int seed = 0}) : _rand = Random(seed);
 
   ImageEntity build() {
-    int width = _rand.nextInt(768);
-    int height = _rand.nextInt(768);
-    String path = "https://picsum.photos/";
+    final width = 200 + _rand.nextInt(400);
+    final height = 200 + _rand.nextInt(400);
+    final path = 'https://picsum.photos/$width/$height';
     return ImageEntity(width, height, path, PathImageProvider(path));
   }
 

@@ -1,7 +1,6 @@
 import 'package:farmsmart_flutter/model/analytics_interface.dart';
 import 'package:farmsmart_flutter/model/bloc/ViewModelProvider.dart';
 import 'package:farmsmart_flutter/ui/article/ArticleDetail.dart';
-import 'package:farmsmart_flutter/ui/article/viewModel/ArticleListItemViewModel.dart';
 import 'package:farmsmart_flutter/ui/common/ActionSheet.dart';
 import 'package:farmsmart_flutter/ui/common/ActionSheetListItem.dart';
 import 'package:farmsmart_flutter/ui/common/Alert.dart';
@@ -12,11 +11,12 @@ import 'package:farmsmart_flutter/ui/common/ViewModelProviderBuilder.dart';
 import 'package:farmsmart_flutter/ui/common/carousel_view.dart';
 import 'package:farmsmart_flutter/ui/common/headerAndFooterListView.dart';
 import 'package:farmsmart_flutter/ui/common/stage_card.dart';
+import 'package:farmsmart_flutter/model/bloc/StaticViewModelProvider.dart';
 import 'package:farmsmart_flutter/ui/crop/CropDetail.dart';
 import 'package:farmsmart_flutter/ui/crop/viewmodel/CropDetailViewModel.dart';
 import 'package:farmsmart_flutter/ui/myplot/PlotListItem.dart';
 import 'package:farmsmart_flutter/ui/myplot/viewmodel/PlotDetailViewModel.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselView;
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -65,7 +65,7 @@ abstract class PlotDetailStyle {
 }
 
 class _DefaultStyle implements PlotDetailStyle {
-  final TextStyle titleTextStyle = null;
+  final TextStyle titleTextStyle = const TextStyle();
   final double stageSectionHeight = 162;
   final EdgeInsets cardPadding = const EdgeInsets.all(8.0);
   final EdgeInsets edgePadding =
@@ -78,13 +78,12 @@ class PlotDetail extends StatefulWidget {
   static const analyticsName = 'plot_detail';
   final ViewModelProvider<PlotDetailViewModel> _viewModelProvider;
   final PlotDetailStyle _style;
-  ArticleDetail _articleDetail;
 
-  PlotDetail(
-      {Key key,
-      ViewModelProvider<PlotDetailViewModel> provider,
-      PlotDetailStyle style = const _DefaultStyle()})
-      : this._viewModelProvider = provider,
+  PlotDetail({
+    Key? key,
+    required ViewModelProvider<PlotDetailViewModel> provider,
+    PlotDetailStyle style = const _DefaultStyle(),
+  })  : this._viewModelProvider = provider,
         this._style = style,
         super(key: key);
 
@@ -97,8 +96,9 @@ class PlotDetail extends StatefulWidget {
 class _PlotDetailState extends State<PlotDetail> {
   int _selectedStage = 0;
   int _currentStage = 0;
-  PageController _pageController;
+  late PageController _pageController;
 
+  @override
   void initState() {
     super.initState();
     final viewModel = widget._viewModelProvider.initial();
@@ -119,8 +119,9 @@ class _PlotDetailState extends State<PlotDetail> {
   }
 
   Widget _successBuilder(
-      {BuildContext context, AsyncSnapshot<PlotDetailViewModel> snapshot}) {
-    final viewModel = snapshot.data;
+      {required BuildContext context,
+      required AsyncSnapshot<PlotDetailViewModel> snapshot}) {
+    final viewModel = snapshot.data!;
     AnalyticsInterface.implementation()
         .impression(PlotDetail.analyticsName, context: viewModel.title);
     if (_currentStage != viewModel.currentStage) {
@@ -136,10 +137,13 @@ class _PlotDetailState extends State<PlotDetail> {
     }
 
     final PlotListItemViewModel headerViewModel = PlotListItemViewModel(
-        title: viewModel.title,
-        detail: viewModel.detailText,
-        progress: viewModel.progress,
-        imageProvider: viewModel.imageProvider);
+      title: viewModel.title,
+      subtitle: viewModel.detailText,
+      detail: '${(viewModel.progress * 100).round()}%',
+      progress: viewModel.progress,
+      imageProvider: viewModel.imageProvider,
+      provider: StaticViewModelProvider(viewModel),
+    );
     final articleViewModel = viewModel.stageArticleViewModels[_selectedStage];
     final header = PlotListItem().buildListItem(
       viewModel: headerViewModel,
@@ -163,28 +167,26 @@ class _PlotDetailState extends State<PlotDetail> {
       ),
     );
 
-    widget._articleDetail = ArticleDetail(
+    final articleDetail = ArticleDetail(
       viewModel: articleViewModel,
       articleHeader: Container(),
       articleFooter: _viewCropDetailsButton(context, viewModel),
+      embedded: true,
     );
     final topSection = HeaderAndFooterListView(
+      itemBuilder: (context, index) => SizedBox.shrink(),
+      itemCount: 0,
       headers: <Widget>[header, stages],
     );
 
-    return FutureBuilder(
-        future: widget._articleDetail.fetchReleated(),
-        builder: (BuildContext context,
-            AsyncSnapshot<List<ArticleListItemViewModel>> relatedArticles) {
-          final sectionedList = SectionedListView(
-            sections: [topSection, widget._articleDetail],
-          );
+    final sectionedList = SectionedListView(
+      sections: [topSection, ListViewWidgetSection(articleDetail)],
+    );
 
-          return Scaffold(
-            appBar: _buildAppBar(context, viewModel),
-            body: sectionedList,
-          );
-        });
+    return Scaffold(
+      appBar: _buildAppBar(context, viewModel),
+      body: sectionedList,
+    );
   }
 
   List<Widget> _stageCardDataSource(PlotDetailViewModel viewModel) {
@@ -198,19 +200,20 @@ class _PlotDetailState extends State<PlotDetail> {
       padding: const EdgeInsets.all(8.0),
       child: StageCard(
         viewModel: viewModel,
-        style: viewModel.style,
+        style: viewModel.style ?? const StageCardStyle(),
       ),
     );
   }
 
-  Widget _buildAppBar(BuildContext context, PlotDetailViewModel viewModel) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, PlotDetailViewModel viewModel) {
     return ContextualAppBar(
       moreAction: () {
         AnalyticsInterface.implementation()
             .interaction(_AnalyticsNames.more, context: viewModel.title);
         _moreTapped(context, _moreMenu(viewModel));
       },
-    ).build(context);
+    );
   }
 
   Widget _viewCropDetailsButton(
@@ -282,25 +285,35 @@ class _PlotDetailState extends State<PlotDetail> {
   ActionSheet _moreMenu(PlotDetailViewModel viewModel) {
     final actions = [
       ActionSheetListItemViewModel(
-          title: _LocalisedStrings.renameAction(),
-          type: ActionType.simple,
-          onTap: () => _renameAction(viewModel)),
+        title: _LocalisedStrings.renameAction(),
+        icon: '',
+        type: ActionType.simple,
+        checkBoxIcon: '',
+        onTap: () => _renameAction(viewModel),
+      ),
       ActionSheetListItemViewModel(
-          title: _LocalisedStrings.removeAction(),
-          type: ActionType.simple,
-          isDestructive: true,
-          onTap: () => _removeAction(viewModel)),
+        title: _LocalisedStrings.removeAction(),
+        icon: '',
+        type: ActionType.simple,
+        checkBoxIcon: '',
+        isDestructive: true,
+        onTap: () => _removeAction(viewModel),
+      ),
     ];
-    final actionSheetViewModel =
-        ActionSheetViewModel(actions, _LocalisedStrings.cancelAction());
+    final actionSheetViewModel = ActionSheetViewModel(
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancelAction(),
+      confirmButtonTitle: _LocalisedStrings.confirm(),
+    );
     return ActionSheet(
-        viewModel: actionSheetViewModel,
-        style: ActionSheetStyle.defaultStyle());
+      viewModel: actionSheetViewModel,
+      style: ActionSheetStyle.defaultStyle(),
+    );
   }
 
   void _tappedDetail({
-    BuildContext context,
-    ViewModelProvider<CropDetailViewModel> provider,
+    required BuildContext context,
+    required ViewModelProvider<CropDetailViewModel> provider,
   }) {
     Navigator.of(context).push(
       MaterialPageRoute(

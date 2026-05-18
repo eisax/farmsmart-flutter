@@ -12,11 +12,9 @@ FormEntity _$FormEntityFromJson(Map<String, dynamic> json) {
       json['title'] as String,
       json['subtitle'] as String,
       json['origin'] as String,
-      (json['items'] as List)
-          ?.map((e) => e == null
-              ? null
-              : FormItemEntity.fromJson(e as Map<String, dynamic>))
-          ?.toList(),
+      (json['items'] as List<dynamic>?)
+          ?.map((e) => FormItemEntity.fromJson(e as Map<String, dynamic>))
+          .toList(),
       json['formResponse'] == null
           ? null
           : FormResponseEntity.fromJson(

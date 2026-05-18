@@ -11,7 +11,7 @@ class MockDate {
   final List<DateTime> _library;
   final Random _rand;
 
-  MockDate({List<DateTime> library, int seed = 0})
+  MockDate({List<DateTime> library = const [], int seed = 0})
     : _library = library,
     _rand = Random(seed);
 
@@ -23,14 +23,14 @@ class MockDate {
     return _library[index];
   }
 
-  DateTime random({DateTime from, DateTime to}) {
+  DateTime random({DateTime? from, DateTime? to}) {
     if (from == null && to == null) {
       return  _buildLibraryDate();
     }
     return _randomBetween(from: from, to: to);
   }
 
-  DateTime _randomBetween({DateTime from, DateTime to}) {
+  DateTime _randomBetween({DateTime? from, DateTime? to}) {
     final start = (from != null) ? from.millisecondsSinceEpoch : 0 ;
     final end =  (to != null) ? to.millisecondsSinceEpoch : (start + _Constants.endOfWorld);
     final expanse = end - start;

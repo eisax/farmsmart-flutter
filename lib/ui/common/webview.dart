@@ -8,21 +8,30 @@ class _Constants {
 }
 
 class WebView extends StatefulWidget {
-  final url;
+  final String url;
 
-  const WebView({Key key, this.url}) : super(key: key);
+  const WebView({Key? key, required this.url}) : super(key: key);
 
   @override
   _WebViewState createState() => _WebViewState();
 }
 
 class _WebViewState extends State<WebView> {
-  int _stackToView;
+  late int _stackToView;
+  late final FlutterWebView.WebViewController _controller;
 
   @override
   void initState() {
-    _stackToView = _Constants.loadingIndex;
     super.initState();
+    _stackToView = _Constants.loadingIndex;
+    _controller = FlutterWebView.WebViewController()
+      ..setJavaScriptMode(FlutterWebView.JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        FlutterWebView.NavigationDelegate(
+          onPageFinished: _handlePageLoaded,
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.url));
   }
 
   void _handlePageLoaded(String value) {
@@ -48,21 +57,17 @@ class _WebViewState extends State<WebView> {
 
   Expanded _buildWebView() {
     return Expanded(
-      child: FlutterWebView.WebView(
-        initialUrl: widget.url,
-        javascriptMode: FlutterWebView.JavascriptMode.unrestricted,
-        onPageFinished: _handlePageLoaded,
-      ),
+      child: FlutterWebView.WebViewWidget(controller: _controller),
     );
   }
 
   Widget _buildProgress() {
-     return Container(
-          color: Colors.white,
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 
   Widget _buildAppbar(BuildContext context) =>

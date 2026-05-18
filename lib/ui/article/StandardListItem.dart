@@ -5,11 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'ArticleListItemStyle.dart';
 
-class _Strings {
-  static const titleDefault = "";
-  static const summaryDefault = "";
-}
-
 class _DefaultStyle implements ArticleListItemStyle {
   static const Color titleColor = Color(0xFF1a1b46);
   static const Color bodyColor = Color(0xFF767690);
@@ -39,10 +34,12 @@ class _DefaultStyle implements ArticleListItemStyle {
 
 class StandardListItem extends StatelessWidget {
   final ArticleListItemViewModel _viewModel;
-  final Function _onTap;
+  final VoidCallback? _onTap;
 
   const StandardListItem(
-      {Key key, ArticleListItemViewModel viewModel, Function onTap})
+      {Key? key,
+      required ArticleListItemViewModel viewModel,
+      VoidCallback? onTap})
       : this._viewModel = viewModel,
         this._onTap = onTap,
         super(key: key);
@@ -100,12 +97,12 @@ class StandardListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(viewModel.title ?? _Strings.titleDefault,
+          Text(viewModel.title,
               maxLines: itemStyle.maxLinesPerTitle,
               overflow: TextOverflow.ellipsis,
               style: itemStyle.titleTextStyle),
           SizedBox(height: itemStyle.textLineSpace),
-          Text(viewModel.summary ?? _Strings.summaryDefault,
+          Text(viewModel.summary,
               maxLines: itemStyle.maxLinesPerSummary,
               overflow: TextOverflow.ellipsis,
               style: itemStyle.summaryTextStyle),

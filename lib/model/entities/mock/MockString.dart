@@ -4,7 +4,7 @@ class MockString {
   final Random _rand;
   final List<String> _library;
 
-  MockString({List<String> library, int seed = 0})
+  MockString({List<String> library = const [], int seed = 0})
       : _library = library,
         _rand = Random(seed);
 
@@ -32,7 +32,7 @@ class MockString {
       return indexed(text: text, index: _rand.nextInt(limit));
   }
 
-  String indexed({String text = "index", int index}) {
+  String indexed({String text = "index", int index = 0}) {
     return text + " " + index.toString();
   }
   
@@ -40,7 +40,7 @@ class MockString {
     return _library;
   }
 
-  List<String> indexedList({String text = "index", int count}) {
+  List<String> indexedList({String text = "index", int count = 0}) {
     List<String> list = [];
     for (var i = 0; i < count; i++) {
       list.add(indexed(text: text, index: i));

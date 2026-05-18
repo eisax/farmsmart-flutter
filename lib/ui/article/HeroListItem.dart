@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'ArticleListItemStyle.dart';
 
 class _DefaultStyle implements ArticleListItemStyle {
-  static const Color titleColor = Color(0xFF1a1b46);
+  static const Color titleColor = Color(0xFF121212);
   static const Color textColor = Color(0xFF767690);
 
   final TextStyle titleTextStyle = const TextStyle(
@@ -34,10 +34,12 @@ class _DefaultStyle implements ArticleListItemStyle {
 
 class HeroListItem extends StatelessWidget {
   final ArticleListItemViewModel _viewModel;
-  final Function _onTap;
+  final VoidCallback? _onTap;
 
   const HeroListItem(
-      {Key key, ArticleListItemViewModel viewModel, Function onTap})
+      {Key? key,
+      required ArticleListItemViewModel viewModel,
+      VoidCallback? onTap})
       : this._viewModel = viewModel,
         this._onTap = onTap,
         super(key: key);

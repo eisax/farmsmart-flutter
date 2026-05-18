@@ -14,23 +14,23 @@ class HeaderMessageStyle {
   final TextStyle subtitleTextStyle;
 
   const HeaderMessageStyle({
-    this.outerContainerMargin,
-    this.titleMargins,
-    this.avatarRadius,
-    this.avatarBackgroundColour,
-    this.subtitleMargins,
-    this.titleTextStyle,
-    this.subtitleTextStyle,
+    required this.outerContainerMargin,
+    required this.titleMargins,
+    required this.avatarRadius,
+    required this.avatarBackgroundColour,
+    required this.subtitleMargins,
+    required this.titleTextStyle,
+    required this.subtitleTextStyle,
   });
 
   HeaderMessageStyle copyWith({
-    EdgeInsetsGeometry outerContainerMargin,
-    Color avatarBackgroundColour,
-    double avatarRadius,
-    EdgeInsetsGeometry titleMargins,
-    EdgeInsetsGeometry subtitleMargins,
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
+    EdgeInsetsGeometry? outerContainerMargin,
+    Color? avatarBackgroundColour,
+    double? avatarRadius,
+    EdgeInsetsGeometry? titleMargins,
+    EdgeInsetsGeometry? subtitleMargins,
+    TextStyle? titleTextStyle,
+    TextStyle? subtitleTextStyle,
   }) {
     return HeaderMessageStyle(
         outerContainerMargin: outerContainerMargin ?? this.outerContainerMargin,
@@ -56,25 +56,31 @@ class _DefaultStyle extends HeaderMessageStyle {
   final TextStyle subtitleTextStyle =
       const TextStyle(fontSize: 15, color: Color(0xFF4C4C6D));
 
-  const _DefaultStyle({
-    EdgeInsetsGeometry outerContainerMargin,
-    Color avatarBackgroundColour,
-    double avatarRadius,
-    EdgeInsetsGeometry titleMargins,
-    EdgeInsetsGeometry subtitleMargins,
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          outerContainerMargin:
+              const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          avatarBackgroundColour: const Color(0xFF00CD9F),
+          avatarRadius: 32.0,
+          titleMargins: const EdgeInsets.only(top: 23.0),
+          subtitleMargins: const EdgeInsets.only(top: 20.0),
+          titleTextStyle: const TextStyle(
+              fontSize: 27,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1B1B34)),
+          subtitleTextStyle:
+              const TextStyle(fontSize: 15, color: Color(0xFF4C4C6D)),
+        );
 }
 
-const HeaderMessageStyle _defaultStyle = const _DefaultStyle();
+const HeaderMessageStyle _defaultStyle = _DefaultStyle();
 
 class HeaderMessage extends StatelessWidget {
   final HeaderMessageViewModel _viewModel;
   final HeaderMessageStyle _style;
 
   HeaderMessage({
-    HeaderMessageViewModel viewModel,
+    required HeaderMessageViewModel viewModel,
     HeaderMessageStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style;
@@ -97,7 +103,7 @@ class HeaderMessage extends StatelessWidget {
   Widget _buildAvatar() {
     return CircleAvatar(
       backgroundColor: _style.avatarBackgroundColour,
-      backgroundImage: AssetImage(_viewModel?.backgroundAssetImageSource ?? ""),
+      backgroundImage: AssetImage(_viewModel.backgroundAssetImageSource),
       radius: _style.avatarRadius,
     );
   }

@@ -1,21 +1,21 @@
 import 'package:farmsmart_flutter/model/entities/ImageURLProvider.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import 'image_provider_view.dart';
 
 class RoundedImageOverlay extends StatelessWidget {
-  final ImageURLProvider image;
-  final double imageHeight;
-  final double imageWidth;
-  final BorderRadiusGeometry imageBorderRadius;
-  final Color overlayColor;
+  final ImageURLProvider? image;
+  final double? imageHeight;
+  final double? imageWidth;
+  final BorderRadiusGeometry? imageBorderRadius;
+  final Color? overlayColor;
   final bool showOverlayIcon;
-  final String overlayIcon;
-  final double overlayIconHeight;
-  final double overlayIconWidth;
+  final String? overlayIcon;
+  final double? overlayIconHeight;
+  final double? overlayIconWidth;
 
   const RoundedImageOverlay({
-    @required this.image,
+    this.image,
     this.imageHeight = double.infinity,
     this.imageWidth = double.infinity,
     this.imageBorderRadius = const BorderRadius.all(Radius.circular(12.0)),
@@ -36,17 +36,18 @@ class RoundedImageOverlay extends StatelessWidget {
 
   Widget _buildMainImage() {
     return Container(
-      width: imageWidth,
-      height: imageHeight,
+      width: imageWidth ?? double.infinity,
+      height: imageHeight ?? double.infinity,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: imageBorderRadius,
       ),
       child: ImageProviderView(
         imageURLProvider: image,
-        imageBorderRadius: imageBorderRadius,
-        width: imageWidth,
-        height: imageHeight,
+        imageBorderRadius:
+            imageBorderRadius ?? BorderRadius.all(Radius.circular(0)),
+        width: imageWidth ?? double.infinity,
+        height: imageHeight ?? double.infinity,
       ),
     );
   }
@@ -54,11 +55,11 @@ class RoundedImageOverlay extends StatelessWidget {
   Widget _buildOverlay() {
     return Container(
       width: double.infinity,
-      height: imageHeight,
+      height: imageHeight ?? double.infinity,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: imageBorderRadius,
-        color: overlayColor,
+        color: overlayColor ?? Colors.transparent,
       ),
       child: Center(
         child: _buildOverlayIcon(),
@@ -67,12 +68,13 @@ class RoundedImageOverlay extends StatelessWidget {
   }
 
   _buildOverlayIcon() {
-    if (showOverlayIcon) {
+    if (showOverlayIcon && overlayIcon != null) {
       return Image(
-        image: AssetImage(overlayIcon),
-        width: overlayIconWidth,
-        height: overlayIconHeight,
+        image: AssetImage(overlayIcon!),
+        width: overlayIconWidth ?? double.infinity,
+        height: overlayIconHeight ?? double.infinity,
       );
     }
+    return SizedBox.shrink();
   }
 }

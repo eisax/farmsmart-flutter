@@ -10,10 +10,11 @@ class SelectableOptionsViewModelTransformer
     implements
         ObjectTransformer<InputRequestEntity, SelectableOptionsViewModel> {
   @override
-  SelectableOptionsViewModel transform({InputRequestEntity from}) {
+  SelectableOptionsViewModel transform({required InputRequestEntity from}) {
+    final args = from.args;
     return SelectableOptionsViewModel(
-      maxSelection: from.args.maxSelection,
-      options: _transformOptions(from.args.options),
+      maxSelection: args?.maxSelection ?? 0,
+      options: _transformOptions(args?.options ?? []),
     );
   }
 

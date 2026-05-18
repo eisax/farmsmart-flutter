@@ -9,59 +9,66 @@ class _Strings {
 }
 
 class MockAccountRepository implements AccountRepositoryInterface {
-
   final AccountEntity _account;
   final _streamController = StreamController<AccountEntity>.broadcast();
-  bool _created=false;
-  
+  bool _created = false;
+
   MockAccountRepository._(this._account);
 
   factory MockAccountRepository(ProfileRepositoryInterface profileRepository) {
-    return MockAccountRepository._(AccountEntity(_Strings.accountID, profileRepository));
+    final repository = MockAccountRepository._(
+        AccountEntity(_Strings.accountID, profileRepository));
+    repository._signIn();
+    return repository;
   }
-  
+
+  void _signIn() {
+    _created = true;
+    _streamController.add(_account);
+  }
+
   @override
   Future<AccountEntity> authorize(String username, String password) {
-    final futureAccount = Future.value(_account);
-    _streamController.sink.add(_account);
-    return futureAccount;
+    _signIn();
+    return Future.value(_account);
   }
 
   @override
   Future<AccountEntity> create(String username, String password) {
-    final futureAccount = Future.value(_account);
-    _created = true;
-     _streamController.sink.add(_account);
-    return futureAccount;
+    _signIn();
+    return Future.value(_account);
   }
 
   @override
   Future<AccountEntity> authorized() {
-    return _created ? Future.value(_account) :  Future.value(null);
+    return _created
+        ? Future.value(_account)
+        : Future<AccountEntity>.error(StateError('no authorized account'));
   }
 
   @override
   Future<AccountEntity> anonymous() {
-     final futureAccount = Future.value(_account);
-    _streamController.sink.add(_account);
-    return futureAccount;
+    _signIn();
+    return Future.value(_account);
   }
 
   @override
   Future<bool> deauthorize() {
     _created = false;
-    _streamController.sink.add(null);
+    _streamController.addError(StateError('deauthorized'));
     return Future.value(true);
   }
 
   @override
-  Stream<AccountEntity> observeAuthorized() {
-    return _streamController.stream;
+  Stream<AccountEntity> observeAuthorized() async* {
+    if (_created) {
+      yield _account;
+    }
+    yield* _streamController.stream;
   }
 
-  void deinit(){
+  void deinit() {
     _streamController.sink.close();
     _streamController.close();
   }
-
 }

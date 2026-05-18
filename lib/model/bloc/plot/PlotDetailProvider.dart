@@ -11,7 +11,7 @@ import 'StageBusinessLogic.dart';
 import 'StageToStageCardViewModel.dart';
 
 class PlotDetailProvider implements ViewModelProvider<PlotDetailViewModel> {
-  PlotDetailViewModel _snapshot;
+  PlotDetailViewModel? _snapshot;
 
   PlotEntity _plot;
   final PlotRepositoryInterface _repo;
@@ -25,14 +25,12 @@ class PlotDetailProvider implements ViewModelProvider<PlotDetailViewModel> {
     if (_snapshot == null) {
       _snapshot = _viewModel();
       _repo.observeSingle(_plot.uri).listen((plot) {
-        if(plot != null){
-           _plot = plot;
-          _snapshot = _viewModel();
-          _controller.sink.add(_snapshot);
-        }
-      });
+         _plot = plot;
+        _snapshot = _viewModel();
+          _controller.sink.add(_snapshot!);
+            });
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
@@ -42,7 +40,7 @@ class PlotDetailProvider implements ViewModelProvider<PlotDetailViewModel> {
   
   @override
   PlotDetailViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   PlotDetailViewModel _viewModel() {
@@ -66,7 +64,7 @@ class PlotDetailProvider implements ViewModelProvider<PlotDetailViewModel> {
     final beginNext = stage != plot.stages.last;
     _repo.completeStage(plot, stage).then((plot) {
       final currentStage = _logic.currentStage(plot.stages);
-      if (beginNext) {
+      if (beginNext && currentStage != null) {
         _repo.beginStage(plot, currentStage).then((plot) {
           _plot = plot;
         });

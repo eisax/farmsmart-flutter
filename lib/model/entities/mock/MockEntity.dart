@@ -14,14 +14,13 @@ abstract class MockEntity<T> {
 class MockEntityCollection<T> implements EntityCollection<T> {
   final _delay = Duration(milliseconds: 200);
   final MockEntity<T> _builder;
-  List<T> _library;
+  List<T>? _library;
   MockEntityCollection(this._builder);
 
   @override
   Future<List<T>> getEntities({int limit = 0}) {
-    if (_library == null) {
-      _library = (limit <= 0) ? _builder.list() : _builder.list(count: limit);
-    }
-    return Future.delayed(_delay, () => _library);
+    _library ??=
+        (limit <= 0) ? _builder.list() : _builder.list(count: limit);
+    return Future.delayed(_delay, () => _library!);
   }
 }

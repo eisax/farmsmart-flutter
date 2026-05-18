@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:farmsmart_flutter/model/entities/loading_status.dart';
 import 'package:farmsmart_flutter/ui/common/LoadableViewModel.dart';
 import 'package:farmsmart_flutter/ui/common/RefreshableViewModel.dart';
@@ -8,15 +9,12 @@ class ArticleListViewModel implements LoadableViewModel, RefreshableViewModel {
   final LoadingStatus loadingStatus;
 
   final List<ArticleListItemViewModel> articleListItemViewModels;
-  final Function refresh;
+  final VoidCallback refresh;
 
   ArticleListViewModel({
-    String title,
-    LoadingStatus status,
-    List<ArticleListItemViewModel> articleListItemViewModels,
-    Function refresh,
-  })  : this.title = title,
-        this.loadingStatus = status,
-        this.articleListItemViewModels = articleListItemViewModels,
-        this.refresh = refresh;
+    required this.title,
+    required LoadingStatus status,
+    required this.articleListItemViewModels,
+    required this.refresh,
+  }) : this.loadingStatus = status;
 }

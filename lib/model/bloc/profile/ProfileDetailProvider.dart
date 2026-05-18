@@ -20,6 +20,7 @@ import 'package:farmsmart_flutter/model/repositories/locale/locale_repository_in
 import 'package:farmsmart_flutter/model/repositories/plot/PlotRepositoryInterface.dart';
 import 'package:farmsmart_flutter/model/repositories/profile/ProfileRepositoryInterface.dart';
 import 'package:farmsmart_flutter/model/repositories/profile/implementation/ProfileEntityTransformers.dart';
+import 'package:farmsmart_flutter/model/repositories/image/implementation/PathImageProvider.dart';
 import 'package:farmsmart_flutter/ui/profile/Profile.dart';
 import 'package:flutter/widgets.dart';
 
@@ -29,6 +30,10 @@ class _AnalyticsNames {
   static const updatedImage = 'profile_image_updated';
 }
 
+class _DefaultLocale {
+  static final current =
+      ContentLocale(const Locale('en', 'KE'), 'English (Zimbabwe)');
+}
 
 class ProfileDetailProvider
     extends ObjectTransformer<ProfileEntity, ProfileViewModel>
@@ -37,30 +42,30 @@ class ProfileDetailProvider
   final PlotRepositoryInterface _plotRepository;
   final LocaleRepositoryInterface _localesRepository;
   final OfflineDownloader _downloader;
-  ProfileRepositoryInterface _profileRepository;
+  ProfileRepositoryInterface? _profileRepository;
   int _activeCrops = 0;
   int _completedCrops = 0;
-  ProfileViewModel _snapshot;
-  ProfileEntity _currentProfile;
-  LocaleState _localeState;
-  PlotStatistics _plotStatistics = PlotStatistics();
+  ProfileViewModel? _snapshot;
+  ProfileEntity? _currentProfile;
+  LocaleState? _localeState;
+  final PlotStatistics _plotStatistics = PlotStatistics();
   LoadingStatus _loadingStatus = LoadingStatus.LOADING;
   bool _canDeleteProfile = false;
   final StreamController<ProfileViewModel> _controller =
       StreamController<ProfileViewModel>.broadcast();
 
-  NewAccountFlowCoordinator _accountFlow;
-  EditProfileFlowCoordinator _editProfileFlow;
+  late NewAccountFlowCoordinator _accountFlow;
+  late EditProfileFlowCoordinator _editProfileFlow;
 
   ProfileDetailProvider(
-      {@required AccountRepositoryInterface accountRepo,
-      @required PlotRepositoryInterface plotRepo,
-      @required LocaleRepositoryInterface localeRepo,
-      @required OfflineDownloader downloader})
-      : this._accountRepository = accountRepo,
-        this._plotRepository = plotRepo,
-        this._localesRepository = localeRepo,
-        this._downloader = downloader;
+      {required AccountRepositoryInterface accountRepo,
+      required PlotRepositoryInterface plotRepo,
+      required LocaleRepositoryInterface localeRepo,
+      required OfflineDownloader downloader})
+      : _accountRepository = accountRepo,
+        _plotRepository = plotRepo,
+        _localesRepository = localeRepo,
+        _downloader = downloader;
 
   @override
   Stream<ProfileViewModel> stream() {
@@ -69,28 +74,25 @@ class ProfileDetailProvider
 
   @override
   ProfileViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
   ProfileViewModel initial() {
     if (_snapshot == null) {
       _accountRepository.observeAuthorized().listen((currentAccount) {
-        _profileRepository = currentAccount?.profileRepository;
-        currentAccount?.profileRepository
-            ?.observeCurrent()
-            ?.listen((currentProfile) {
+        _profileRepository = currentAccount.profileRepository;
+        currentAccount.profileRepository.observeCurrent().listen((currentProfile) {
           _localesRepository.getLocaleState().then((localeState) {
             _localeState = localeState;
             _loadingStatus = LoadingStatus.SUCCESS;
             _currentProfile = currentProfile;
-            _snapshot = transform(
-                from: currentProfile);
-            _controller.sink.add(_snapshot);
+            _snapshot = transform(from: currentProfile);
+            _controller.sink.add(_snapshot!);
           });
         });
 
-        _profileRepository?.get()?.then((profiles) {
+        _profileRepository?.get().then((profiles) {
           _canDeleteProfile = profiles.length > 1;
           _localesRepository.getLocaleState().then((localeState) {
             _localeState = localeState;
@@ -117,14 +119,13 @@ class ProfileDetailProvider
       );
 
       _snapshot = transform(from: null);
-      _snapshot.refresh();
+      _snapshot!.refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
-  ProfileViewModel transform(
-      {ProfileEntity from}) {
+  ProfileViewModel transform({ProfileEntity? from}) {
     final switchProfileProvider =
         SwitchProfileListProvider(accountRepo: _accountRepository);
     final personName = PersonName(from?.name ?? "");
@@ -135,19 +136,20 @@ class ProfileDetailProvider
       refresh: _refresh,
       remove: _canDeleteProfile ? () => _remove() : null,
       logout: () => _logout(),
-      image: from?.avatar,
+      image: from?.avatar ?? PathImageProvider(''),
       activeCrops: _activeCrops,
       completedCrops: _completedCrops,
       switchProfileProvider: switchProfileProvider,
-      farmDetails: from?.lastPlotInfo,
+      farmDetails: from?.lastPlotInfo ?? {},
       switchLanguageTapped: (language, country) =>
           _switchLanguage(language, country),
       newAccountFlow: _accountFlow,
       saveProfileImage: (file) => _saveProfileImage(file, from),
       renameProfile: (username) => _renameProfile(username),
       editProfileFlow: _editProfileFlow,
-      supportedLocales: _localeState?.availableLocales,
-      currentLocale: _localeState?.currentLocale,
+      supportedLocales:
+          _localeState?.availableLocales ?? [_DefaultLocale.current],
+      currentLocale: _localeState?.currentLocale ?? _DefaultLocale.current,
       downloaderViewModelProvider: OfflineDownloaderProvider(_downloader),
     );
   }
@@ -166,10 +168,12 @@ class ProfileDetailProvider
   }
 
   Future<bool> _remove() {
-    return _profileRepository.remove(_currentProfile).then((success) {
-      _profileRepository.get().then((profiles) {
+    return _profileRepository!.remove(_currentProfile!).then((success) {
+      _profileRepository!.get().then((profiles) {
         final profile = profiles.isNotEmpty ? profiles.first : null;
-        _profileRepository.switchTo(profile);
+        if (profile != null) {
+          _profileRepository!.switchTo(profile);
+        }
       });
       return success;
     });
@@ -178,9 +182,8 @@ class ProfileDetailProvider
   void _accountFlowStatusChanged(FlowCoordinator coordinator) {}
 
   void _update() {
-    _snapshot =
-        transform(from: _currentProfile);
-    _controller.sink.add(_snapshot);
+    _snapshot = transform(from: _currentProfile);
+    _controller.sink.add(_snapshot!);
   }
 
   void _refresh() {
@@ -195,25 +198,31 @@ class ProfileDetailProvider
     _controller.close();
   }
 
-  void _saveProfileImage(File file, ProfileEntity from) async {
+  void _saveProfileImage(File file, ProfileEntity? from) async {
+    if (from == null) {
+      return;
+    }
     LocalProfileImageProvider.localAvatarPath(from.id).then((savePath) {
-      imageCache.evict(FileImage(File(
-          savePath))); // we have to remove any cached image as the filename is the same
+      imageCache.evict(FileImage(File(savePath)));
       file.copy(savePath).then((result) {
-         AnalyticsInterface.implementation().effect(_AnalyticsNames.updatedImage);
-        _profileRepository.updateCurrent(from);
+        AnalyticsInterface.implementation()
+            .effect(_AnalyticsNames.updatedImage);
+        _profileRepository?.updateCurrent(from);
       });
     });
   }
 
   void _renameProfile(String username) {
+    if (_currentProfile == null) {
+      return;
+    }
     final updatedProfile = ProfileEntity(
-      _currentProfile.id,
-      _currentProfile.uri,
+      _currentProfile!.id,
+      _currentProfile!.uri,
       username,
-      _currentProfile.avatar,
-      _currentProfile.lastPlotInfo,
+      _currentProfile!.avatar,
+      _currentProfile!.lastPlotInfo,
     );
-    _profileRepository.updateCurrent(updatedProfile);
+    _profileRepository?.updateCurrent(updatedProfile);
   }
 }

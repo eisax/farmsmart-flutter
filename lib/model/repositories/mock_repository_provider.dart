@@ -10,6 +10,7 @@ import 'package:farmsmart_flutter/model/repositories/plot/PlotRepositoryInterfac
 import 'package:farmsmart_flutter/model/repositories/plot/implementation/MockPlotRepository.dart';
 import 'package:farmsmart_flutter/model/repositories/profile/ProfileRepositoryInterface.dart';
 import 'package:farmsmart_flutter/model/repositories/profile/implementation/MockProfileRepository.dart';
+import 'package:farmsmart_flutter/model/repositories/locale/implementation/mock_locale_repository.dart';
 import 'package:farmsmart_flutter/model/repositories/ratingEngine/RatingEngineRepositoryInterface.dart';
 import 'package:farmsmart_flutter/model/repositories/ratingEngine/implementation/MockRatingEngineRepository.dart';
 import 'package:flutter/widgets.dart';
@@ -17,18 +18,25 @@ import 'repository_provider.dart';
 import 'transaction/TransactionRepositoryInterface.dart';
 import 'transaction/implementation/MockTransactionRepository.dart';
 
-ProfileRepositoryInterface _profile = MockProfileRepository();// we won´t Mock account changing (i.e we always have the same account and so profiles)
+ProfileRepositoryInterface _profile = MockProfileRepository();
 
-class MockRepositoryProvider implements RepositoryProvider{
+class MockRepositoryProvider implements RepositoryProvider {
+  final PlotRepositoryInterface _plot = MockPlotRepository(_profile);
+  final CropRepositoryInterface _crop = MockCropRepository();
+  final TransactionRepositoryInterface _trans =
+      MockTransactionRepository(_profile);
+  final AccountRepositoryInterface _account = MockAccountRepository(_profile);
+  final RatingEngineRepositoryInterface _ratings = MockRatingEngineRepository();
+  final LocaleRepositoryInterface _localeRepository = MockLocaleRepository();
+  bool _initialized = false;
 
-  PlotRepositoryInterface _plot = MockPlotRepository(_profile);
-  CropRepositoryInterface _crop = MockCropRepository();
-  TransactionRepositoryInterface _trans = MockTransactionRepository(_profile);
-  AccountRepositoryInterface _account = MockAccountRepository(_profile);
-  RatingEngineRepositoryInterface _ratings = MockRatingEngineRepository();
-
-  init(BuildContext context){
-    //ignore
+  @override
+  void init(BuildContext context) {
+    if (_initialized) {
+      return;
+    }
+    _initialized = true;
+    _account.anonymous();
   }
   
   @override
@@ -50,13 +58,13 @@ class MockRepositoryProvider implements RepositoryProvider{
   AccountRepositoryInterface getAccountRepository() => _account;
 
   @override
+  ProfileRepositoryInterface getProfileRepository() => _profile;
+
+  @override
   OfflineDownloader getDownloader() {
     return OfflineDownloader(getArticleRepository(),getCropRepository(), getRatingsRepository());
   }
 
   @override
-  LocaleRepositoryInterface getLocaleRepository() {
-    throw UnimplementedError();
-  }
-
+  LocaleRepositoryInterface getLocaleRepository() => _localeRepository;
 }

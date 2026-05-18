@@ -4,21 +4,30 @@ import 'package:flutter/widgets.dart';
 
 class PlaygroundPresentButton extends StatelessWidget {
   final Widget child;
+  final void Function(Widget, BuildContext)? listener;
 
   const PlaygroundPresentButton({
-    Key key,
-    Function(Widget, BuildContext) listener,
-    Widget child,
-  })  : this.child = child,
-        super(key: key);
+    Key? key,
+    this.listener,
+    required this.child,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Text("Press Me"),
-        onPressed: () => NavigationScope.presentModal(context, child),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: const Text("Press Me"),
+        onPressed: () {
+          if (listener != null) {
+            listener!(child, context);
+          } else {
+            NavigationScope.presentModal(context, child);
+          }
+        },
       ),
     );
   }

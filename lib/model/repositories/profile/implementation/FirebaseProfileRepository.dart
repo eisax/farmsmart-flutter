@@ -9,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'ProfileEntityTransformers.dart';
 
-
 class _Fields {
   static const collectionName = "fs_users";
   static const profiles = "profiles";
@@ -21,32 +20,34 @@ String _identify(ProfileEntity entity) {
   return entity.uri;
 }
 
+Future<String> _uninitializedPath() {
+  throw StateError('Profile repository path not initialized');
+}
+
 class FirebaseProfileRepository extends FireStoreList<ProfileEntity>
     implements ProfileRepositoryInterface {
   final FirebaseAuth _auth;
   final _currentProfileController = StreamController<ProfileEntity>.broadcast();
 
-  Future<FirebaseUser> _user;
+  late Future<User?> _user;
   FirebaseProfileRepository(
-    Firestore firestore,
+    FirebaseFirestore firestore,
     FirebaseAuth auth,
-  )   : this._auth = auth,
+  )   : _auth = auth,
         super(
           firestore,
           ProfileEntityToDocumentTransformer(),
           DocumentToProfileEntityTransformer(),
-          null,
+          _uninitializedPath,
           _identify,
         ) {
-    super.path = profilesCollectionPath;
+    path = profilesCollectionPath;
     init();
   }
 
-  init() {
-    _user = _auth.currentUser().then((user) {
-      return user;
-    });
-    _auth.onAuthStateChanged.listen((user) {
+  void init() {
+    _user = Future.value(_auth.currentUser);
+    _auth.authStateChanges().listen((user) {
       _user = Future.value(user);
     });
   }
@@ -59,59 +60,59 @@ class FirebaseProfileRepository extends FireStoreList<ProfileEntity>
 
   @override
   Future<ProfileEntity> getCurrent() {
-    return _user.then((user) {
-      if (user != null) {
-        return firestore.document(_userPath(user)).get().then((userDocument) {
-          if (userDocument.data != null) {
-            final profileURI = userDocument.data[_Fields.currentProfile];
-            if (profileURI != null) {
-              return firestore.document(profileURI).get().then((profileDocument) {
-                return _updateWith(profileDocument);
-              });
-            }
-          }
-          return null;
-        });
+    return _user.then((user) async {
+      if (user == null) {
+        throw StateError('No authenticated user');
       }
-      return null;
+      final userDocument = await firestore.doc(_userPath(user)).get();
+      final userData = userDocument.data();
+      if (userData != null) {
+        final profileURI = userData[_Fields.currentProfile] as String?;
+        if (profileURI != null) {
+          final profileDocument = await firestore.doc(profileURI).get();
+          return _updateWith(profileDocument);
+        }
+      }
+      throw StateError('No current profile');
     });
   }
 
-  ProfileEntity _updateWith(DocumentSnapshot document) {
-    if (document.data != null) {
-          final profile = fromFirestoreTransformer.transform(from: document);
-          _currentProfileController.sink.add(profile);
-          return profile;
+  ProfileEntity _updateWith(
+      DocumentSnapshot<Map<String, dynamic>> document) {
+    if (document.data() != null) {
+      final profile = fromFirestoreTransformer.transform(from: document);
+      _currentProfileController.sink.add(profile);
+      return profile;
     }
-    return null;
+    throw StateError('Profile document has no data');
   }
 
   @override
   Future<ProfileEntity> updateCurrent(ProfileEntity updated) {
-    return _user.then((user) {
-      if (user != null) {
-        final firebaseObject = toFirestoreTransformer.transform(from: updated);
-        final profileURI = updated.uri;
-        return firestore.document(profileURI).setData(firebaseObject).then((_) {
-          return firestore.document(profileURI).get().then((document) {
-            return _updateWith(document);
-          });
-        });
+    return _user.then((user) async {
+      if (user == null) {
+        throw StateError('No authenticated user');
       }
-      return null;
+      final firebaseObject = toFirestoreTransformer.transform(from: updated);
+      final profileURI = updated.uri;
+      await firestore.doc(profileURI).set(firebaseObject);
+      final document = await firestore.doc(profileURI).get();
+      return _updateWith(document);
     });
   }
 
   @override
   Future<ProfileEntity> getSingle(String uri) {
-    // TODO: implement getSingle
-    return null;
+    return firestore.doc(uri).get().then((document) {
+      return fromFirestoreTransformer.transform(from: document);
+    });
   }
 
   @override
   Stream<ProfileEntity> observeSingle(String uri) {
-    // TODO: implement observe
-    return null;
+    return firestore.doc(uri).snapshots().map((document) {
+      return fromFirestoreTransformer.transform(from: document);
+    });
   }
 
   @override
@@ -121,24 +122,26 @@ class FirebaseProfileRepository extends FireStoreList<ProfileEntity>
 
   @override
   Future<bool> switchTo(ProfileEntity profile) {
-    return _user.then((user) {
-      final id = (profile != null) ? profile.uri : null;
-      final data = {_Fields.currentProfile: id};
-      return firestore.document(_userPath(user)).setData(data).then((result) {
-        _currentProfileController.sink.add(profile);
-        return true;
-      });
-    }, onError: (error) {
-      return false;
-    });
+    return _user.then((user) async {
+      if (user == null) {
+        return false;
+      }
+      final data = {_Fields.currentProfile: profile.uri};
+      await firestore.doc(_userPath(user)).set(data);
+      _currentProfileController.sink.add(profile);
+      return true;
+    }).catchError((_) => false);
   }
 
-  String _userPath(FirebaseUser user) {
+  String _userPath(User user) {
     return _Fields.collectionName + _Fields.separator + user.uid;
   }
 
   Future<String> profilesCollectionPath() {
     return _user.then((user) {
+      if (user == null) {
+        throw StateError('No authenticated user');
+      }
       return _userPath(user) + _Fields.separator + _Fields.profiles;
     });
   }

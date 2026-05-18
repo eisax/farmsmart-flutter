@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class RoundedButtonStatefulViewModel {
-  RoundedButtonViewModel roundedButtonViewModel;
+  RoundedButtonViewModel? roundedButtonViewModel;
   bool isActive;
 
   RoundedButtonStatefulViewModel({
@@ -13,8 +13,8 @@ class RoundedButtonStatefulViewModel {
 }
 
 class RoundedButtonStatefulStyle {
-  final RoundedButtonStyle activeRoundedButtonStyle;
-  final RoundedButtonStyle inactiveRoundedButtonStyle;
+  final RoundedButtonStyle? activeRoundedButtonStyle;
+  final RoundedButtonStyle? inactiveRoundedButtonStyle;
 
   const RoundedButtonStatefulStyle({
     this.activeRoundedButtonStyle,
@@ -22,8 +22,8 @@ class RoundedButtonStatefulStyle {
   });
 
   RoundedButtonStatefulStyle copyWith({
-    RoundedButtonStyle activeRoundedButtonStyle,
-    RoundedButtonStyle inactiveRoundedButtonStyle,
+    RoundedButtonStyle? activeRoundedButtonStyle,
+    RoundedButtonStyle? inactiveRoundedButtonStyle,
   }) {
     return RoundedButtonStatefulStyle(
       activeRoundedButtonStyle:
@@ -68,23 +68,20 @@ class _DefaultStyle extends RoundedButtonStatefulStyle {
     buttonShape: BoxShape.rectangle,
   );
 
-  const _DefaultStyle({
-    RoundedButtonStyle activeRoundedButtonStyle,
-    RoundedButtonStyle inactiveRoundedButtonStyle,
-  });
+  const _DefaultStyle();
 }
 
 const RoundedButtonStatefulStyle _defaultStyle = const _DefaultStyle();
 
 class RoundedButtonStateful extends StatefulWidget {
-  final RoundedButtonStatefulStyle _style;
+  final RoundedButtonStatefulStyle? _style;
   final RoundedButtonStatefulViewModel _viewModel;
 
   RoundedButtonStateful({
-    Key key,
-    RoundedButtonStatefulViewModel viewModel,
-    RoundedButtonStatefulStyle style = _defaultStyle,
-  })  : this._viewModel = viewModel,
+    Key? key,
+    RoundedButtonStatefulViewModel? viewModel,
+    RoundedButtonStatefulStyle? style = _defaultStyle,
+  })  : this._viewModel = viewModel ?? RoundedButtonStatefulViewModel(),
         this._style = style,
         super(key: key);
 
@@ -93,7 +90,7 @@ class RoundedButtonStateful extends StatefulWidget {
 }
 
 class _RoundedButtonStatefulState extends State<RoundedButtonStateful> {
-  bool _isEnabled;
+  bool _isEnabled = true;
 
   @override
   void initState() {
@@ -106,8 +103,8 @@ class _RoundedButtonStatefulState extends State<RoundedButtonStateful> {
     return RoundedButton(
       viewModel: widget._viewModel.roundedButtonViewModel,
       style: _isEnabled
-          ? widget._style.activeRoundedButtonStyle
-          : widget._style.inactiveRoundedButtonStyle,
+          ? widget._style?.activeRoundedButtonStyle
+          : widget._style?.inactiveRoundedButtonStyle,
     );
   }
 }

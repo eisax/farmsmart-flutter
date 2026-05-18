@@ -14,8 +14,8 @@ class FormEntity {
   String title;
   String subtitle;
   String origin;
-  List<FormItemEntity> items;
-  FormResponseEntity formResponse;
+  List<FormItemEntity>? items;
+  FormResponseEntity? formResponse;
   String processMessage;
   String processComplete;
 

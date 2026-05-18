@@ -26,37 +26,56 @@ String _getURI(TransactionEntity entity) {
   return entity.uri;
 }
 
+PathProvider _transactionPathProvider(
+    ProfileRepositoryInterface profileRepository) {
+  return () {
+    return profileRepository.getCurrent().then((profile) {
+      return profile.uri + _Fields.transactions;
+    });
+  };
+}
+
 class TransactionRepositoryFirestore extends FireStoreList<TransactionEntity>
     implements TransactionRepositoryInterface {
   final ProfileRepositoryInterface _profileRepository;
-  Future<ProfileEntity> _currentProfile;
-  TransactionAmount _balance;
-  StreamSubscription<List<TransactionEntity>> _balanceSubscription;
+  late Future<ProfileEntity> _currentProfile;
+  late TransactionAmount _balance;
+  StreamSubscription<List<TransactionEntity>>? _balanceSubscription;
 
   TransactionRepositoryFirestore(
-    Firestore firestore,
+    FirebaseFirestore firestore,
     ProfileRepositoryInterface profileRepository,
   )   : this._profileRepository = profileRepository,
         super(
           firestore,
           TransactionEntityToDocumentTransformer(),
           DocumentToTransactionEntityTransformer(),
-          null,
+          _transactionPathProvider(profileRepository),
           _getURI,
           orderField: _Fields.orderField,
           orderDecending: true,
         ) {
     path = _transactionsCollectionPath;
     _balance = _Constants.initalBalance;
+    _currentProfile = _profileRepository.getCurrent().then((profile) {
+      _startBalanceSubscription();
+      return profile;
+    }).catchError((Object _) {
+      return _profileRepository.observeCurrent().first.then((profile) {
+        _startBalanceSubscription();
+        return profile;
+      });
+    });
     _profileRepository.observeCurrent().listen((profile) {
       _currentProfile = Future.value(profile);
     });
-    _currentProfile = _profileRepository.getCurrent().then((profile) {
-      _balanceSubscription =
-          stream().listen((List<TransactionEntity> transactions) {
-        return _updateBalance(transactions);
-      });
-      return profile;
+  }
+
+  void _startBalanceSubscription() {
+    _balanceSubscription?.cancel();
+    _balanceSubscription =
+        stream().listen((List<TransactionEntity> transactions) {
+      _updateBalance(transactions);
     });
   }
 
@@ -73,39 +92,56 @@ class TransactionRepositoryFirestore extends FireStoreList<TransactionEntity>
 
   @override
   Future<TransactionEntity> getSingle(String uri) {
-    // TODO: implement getSingle
-    return null;
+    final transformer = DocumentToTransactionEntityTransformer();
+    return firestore.doc(uri).get().then((document) {
+      return transformer.transform(from: document);
+    });
   }
 
   @override
   Stream<TransactionEntity> observeSingle(String uri) {
-    // TODO: implement observe
-    return null;
+    final transformer = DocumentToTransactionEntityTransformer();
+    return firestore.doc(uri).snapshots().map((document) {
+      return transformer.transform(from: document);
+    });
   }
 
   @override
   Future<TransactionAmount> thisWeekCosts() {
-    // TODO: implement thisWeekCosts
-    return null;
+    final weekAgo = DateTime.now().subtract(Duration(days: 7));
+    return get().then((transactions) {
+      return transactions
+          .where((transaction) =>
+              transaction.timestamp.isAfter(weekAgo) &&
+              transaction.amount.isCost())
+          .map((transaction) => transaction.amount)
+          .fold<TransactionAmount>(TransactionAmount('0', false),
+              (TransactionAmount a, TransactionAmount b) => a + b);
+    });
   }
 
   @override
   Future<TransactionAmount> thisWeekSales() {
-    // TODO: implement thisWeekSales
-    return null;
+    final weekAgo = DateTime.now().subtract(Duration(days: 7));
+    return get().then((transactions) {
+      return transactions
+          .where((transaction) =>
+              transaction.timestamp.isAfter(weekAgo) &&
+              transaction.amount.isSale())
+          .map((transaction) => transaction.amount)
+          .fold<TransactionAmount>(TransactionAmount('0', false),
+              (TransactionAmount a, TransactionAmount b) => a + b);
+    });
   }
 
   Future<String> _transactionsCollectionPath() {
     return _currentProfile.then((profile) {
-      if (profile != null) {
-         return profile.uri + _Fields.transactions;
-      }
-      return null;
+      return profile.uri + _Fields.transactions;
     });
   }
 
   void _updateBalance(List<TransactionEntity> transactions) {
-    if(transactions.isEmpty) {
+    if (transactions.isEmpty) {
       _balance = _Constants.initalBalance;
       return;
     }
@@ -117,7 +153,7 @@ class TransactionRepositoryFirestore extends FireStoreList<TransactionEntity>
 
   @override
   void dispose() {
-    _balanceSubscription.cancel();
+    _balanceSubscription?.cancel();
     super.dispose();
   }
 }

@@ -14,7 +14,7 @@ final _mockDate = MockDate();
 class MockStage extends MockEntity<StageEntity> {
   final Random _rand;
 
-  MockStage({int seed}) : this._rand = Random(seed);
+  MockStage({int seed = 0}) : _rand = Random(seed);
 
   StageEntity build() {
     final start = _mockDate.randomMonthAgo();
@@ -34,8 +34,8 @@ class MockStage extends MockEntity<StageEntity> {
 
   //LH here we generate valid stage sequence starting and ending at the input dates, and ending at the input stage
   List<StageEntity> sequence(
-      {DateTime starting,
-      DateTime ending,
+      {required DateTime starting,
+      required DateTime ending,
       bool inProgress = true,
       int count = 10}) {
     final lastStage = inProgress ? _rand.nextInt(count) : count;
@@ -46,9 +46,9 @@ class MockStage extends MockEntity<StageEntity> {
     List<StageEntity> stages = [];
     int current = start;
     for (var i = 0; i < count; i++) {
-      DateTime startDate = DateTime.fromMillisecondsSinceEpoch(current);
+      DateTime? startDate = DateTime.fromMillisecondsSinceEpoch(current);
       final next = current + inc;
-      DateTime endDate = DateTime.fromMillisecondsSinceEpoch(next);
+      DateTime? endDate = DateTime.fromMillisecondsSinceEpoch(next);
       if (i == lastStage) {
         endDate = ending;
       } else if (i > lastStage) {

@@ -44,7 +44,7 @@ import 'package:farmsmart_flutter/ui/profitloss/mockRepositoryTryout/MockTransac
 import 'package:farmsmart_flutter/ui/recommendations/RecommentationsList.dart';
 import 'package:farmsmart_flutter/ui/recommendations/viewmodel/MockRecommendationsListViewModel.dart';
 import 'package:farmsmart_flutter/ui/recommendations/viewmodel/RecommendationsListViewModel.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselView;
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -138,7 +138,8 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
         child: Container(
           height: 162,
           child: CarouselView(
-            pageController: PageController(viewportFraction: 0.85, initialPage: 0),
+            pageController:
+                PageController(viewportFraction: 0.85, initialPage: 0),
             children: PlaygroundStageCardDataSource().getList(),
           ),
         ),
@@ -148,7 +149,11 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
           child: ArticleList(
               viewModelProvider: ArticleListProvider(
                   title: "Test",
-                  repository: MockArticlesRepository(articleCount: 2000)))),
+                  repository: MockArticlesRepository(articleCount: 2000),
+                  relatedTitle: '',
+                  contentLinkTitle: '',
+                  contentLinkDescription: '',
+                  contentLinkIcon: ''))),
       PlaygroundWidget(
         title: "FARM-48 Landing Page",
         child: PlaygroundPresentButton(
@@ -160,7 +165,13 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
       PlaygroundWidget(
         title: "SPIKE Chat page",
         child: PlaygroundPresentButton(
-          child: ChatPage(),
+          child: ChatPage(
+            viewModel: ChatPageViewModel(
+              '',
+              () {},
+              (_) {},
+            ),
+          ),
         ),
       ),
       PlaygroundWidget(
@@ -169,24 +180,28 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
           PlaygroundWidget(
             title: 'Record a Sale',
             child: RecordTransaction(
+              key: const Key('record-sale'),
               viewModel: MockRecordTransactionViewModel.buildSaleTransaction(),
             ),
           ),
           PlaygroundWidget(
             title: 'Record a Cost',
             child: RecordTransaction(
+              key: const Key('record-cost'),
               viewModel: MockRecordTransactionViewModel.buildCostTransaction(),
             ),
           ),
           PlaygroundWidget(
             title: 'View a Sale',
             child: RecordTransaction(
+              key: const Key('view-sale'),
               viewModel: MockRecordTransactionViewModel.buildViewSale(),
             ),
           ),
           PlaygroundWidget(
             title: 'View a Cost',
             child: RecordTransaction(
+              key: const Key('view-cost'),
               viewModel: MockRecordTransactionViewModel.buildViewCost(),
             ),
           ),
@@ -197,7 +212,11 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
         child: ArticleList(
           viewModelProvider: ArticleListProvider(
               title: "Test",
-              repository: MockArticlesRepository(articleCount: 2000)),
+              repository: MockArticlesRepository(articleCount: 2000),
+              relatedTitle: '',
+              contentLinkTitle: '',
+              contentLinkDescription: '',
+              contentLinkIcon: ''),
         ),
       ),
       PlaygroundWidget(
@@ -210,23 +229,25 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
       PlaygroundWidget(
         title: "FARM-67 Switch profiles",
         child: PlaygroundPresentButton(
-          child: SwitchProfileList(
-            provider: StaticViewModelProvider(MockSwitchProfile.build()),
-          )
-        ),
+            child: SwitchProfileList(
+          provider: StaticViewModelProvider(MockSwitchProfile.build()),
+        )),
       ),
       PlaygroundWidget(
           title: 'FARM-63 View Profile',
           child: PlaygroundView(widgetList: [
             PlaygroundWidget(
               title: 'Simple view',
-              child: Profile(provider: StaticViewModelProvider<ProfileViewModel>(MockProfileViewModel.build())),
+              child: Profile(
+                  provider: StaticViewModelProvider<ProfileViewModel>(
+                      MockProfileViewModel.build())),
             ),
             PlaygroundWidget(
-              title: 'Larger titles view',
-              child: Profile(
-                  provider: StaticViewModelProvider<ProfileViewModel>(MockProfileViewModel.buildLarger()),
-            )),
+                title: 'Larger titles view',
+                child: Profile(
+                  provider: StaticViewModelProvider<ProfileViewModel>(
+                      MockProfileViewModel.buildLarger()),
+                )),
           ])),
       PlaygroundWidget(
         title: "FARM-432 General Alert Widget",
@@ -238,7 +259,8 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
                 child: Alert(
                   viewModel: MockAlertWidgetViewModel.build(),
                 ),
-                listener: (alert, context) => Alert.present(alert, context),
+                listener: (alert, context) =>
+                    Alert.present(alert as Alert, context),
               ),
             ),
             PlaygroundWidget(
@@ -247,7 +269,8 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
                 child: Alert(
                   viewModel: MockAlertWidgetViewModel.buildDestructive(),
                 ),
-                listener: (alert, context) => Alert.present(alert, context),
+                listener: (alert, context) =>
+                    Alert.present(alert as Alert, context),
               ),
             ),
             PlaygroundWidget(
@@ -256,10 +279,10 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
                 child: InputAlert(
                   viewModel: MockInputAlertViewModel.build(),
                 ),
-                listener: (alert, context) => Alert.present(alert, context),
+                listener: (alert, context) =>
+                    Alert.present(alert as Alert, context),
               ),
             ),
-
           ],
         ),
       ),
@@ -270,10 +293,9 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
             PlaygroundWidget(
               title: "FARM-443 Show farm details",
               child: PlaygroundPresentButton(
-                child: FarmDetails(
-                  viewModel: MockFarmDetailsViewModel.build(),
-                )
-              ),
+                  child: FarmDetails(
+                viewModel: MockFarmDetailsViewModel.build(),
+              )),
             ),
           ],
         ),
@@ -300,12 +322,11 @@ class PlayGroundTasksDataSource implements PlaygroundDataSource {
               title: "TASK FARM-97 Mock repo",
               child: RecommendationsList(
                 provider: RecommendationListProvider(
-                  title: "Mock Repo",
-                  cropRepo: _mockCrop,
-                  plotRepo: _mockPlot,
-                  profileRepo: _mockProfile,
-                  ratingRepo: _mockRatingRepo
-                ),
+                    title: "Mock Repo",
+                    cropRepo: _mockCrop,
+                    plotRepo: _mockPlot,
+                    profileRepo: _mockProfile,
+                    ratingRepo: _mockRatingRepo),
               ),
             ),
           ],

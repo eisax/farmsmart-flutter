@@ -10,32 +10,33 @@ class RecommendationCardStyles {
   static RecommendationCardStyle _defaultRecommendationCardStyle =
       RecommendationCardStyle(
     titleTextStyle: const TextStyle(
-      color: Color(0xff1a1b46),
+      color: Color(0xFF121212),
       fontSize: 17,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
     ),
     subtitleTextStyle: const TextStyle(
-      color: Color(0xff1a1b46),
-      fontSize: 17,
+      color: Color(0xFF121212),
+      fontSize: 15,
+      fontWeight: FontWeight.w500,
     ),
     descriptionTextStyle: const TextStyle(
-      color: Color(0xff767690),
+      color: Color(0xFF6B6B6B),
       fontSize: 14,
     ),
     leftActionButtonStyle: _defaultLeftActionRoundedButtonStyle,
     rightActionButtonStyle: _defaultRightActionRoundedButtonStyle,
     imageHeight: 152,
-    imageBorderRadius: const BorderRadius.all(Radius.circular(12.0)),
+    imageBorderRadius: const BorderRadius.all(Radius.circular(20.0)),
     descriptionMaxLines: 2,
     contentPadding: const EdgeInsets.all(32.0),
     overlayIconWidth: 54,
     overlayIconHeight: 54,
-    overlayColor: Color(0x1425df0c),
+    overlayColor: Color(0x1A3D9140),
     overlayIcon: 'assets/icons/tick_large.png',
     rightActionBoxDecoration: BoxDecoration(
       border: Border.all(
         width: 1,
-        color: Color(0xffe9eaf2),
+        color: Color(0xFFEBEBEB),
       ),
       borderRadius: BorderRadius.circular(8),
     ),

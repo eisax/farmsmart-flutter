@@ -30,9 +30,9 @@ class LocaleSelectionViewModel
   factory LocaleSelectionViewModel.loading() {
     return LocaleSelectionViewModel(
       LoadingStatus.LOADING,
-      null,
-      null,
-      null,
+      () {},
+      (_) async {},
+      LocaleItemViewModel('', '', const Locale('en')),
       [],
     );
   }

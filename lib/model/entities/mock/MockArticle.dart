@@ -24,12 +24,12 @@ class MockArticle extends MockEntity<ArticleEntity> {
     return entity;
   }
 
-  ArticleEntity buildCrop(String title) {
+  ArticleEntity buildCrop(String title, {String? summary}) {
     final entity = ArticleEntity(
-      uri: mockPlainText.identifier(),
+      uri: 'crop-$title',
       content: mockRichTextNoImage.random(),
       status: Status.PUBLISHED,
-      summary: mockPlainText.random(),
+      summary: summary ?? mockPlainText.random(),
       title: title,
       published: _mockDate.randomYearAgo(),
     );

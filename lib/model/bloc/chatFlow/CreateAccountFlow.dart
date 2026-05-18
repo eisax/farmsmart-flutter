@@ -8,17 +8,17 @@ class NewAccountFlowCoordinator implements FlowCoordinator {
   final AccountRepositoryInterface _accountRepository;
   final Function _onStatusChanged;
   bool _creatingAccount = false;
-  NewProfileFlowCoordinator _newProfile;
+  late NewProfileFlowCoordinator _newProfile;
 
   NewAccountFlowCoordinator(AccountRepositoryInterface accountRepository, Function onStatusChanged)
-      : this._accountRepository = accountRepository, this._onStatusChanged = onStatusChanged;
+      : _accountRepository = accountRepository, _onStatusChanged = onStatusChanged;
 
   init() {
     _newProfile = NewProfileFlowCoordinator(_accountRepository, _profileFlowOnStatusChanged);
   }
 
-  void run(BuildContext context, {Function onSuccess, Function onFail}) {
-    _createAccount(context, onSuccess, onFail);
+  void run(BuildContext context, {Function? onSuccess, Function? onFail}) {
+    _createAccount(context, onSuccess ?? () {}, onFail ?? () {});
   }
 
   void _createAccount(
@@ -26,11 +26,7 @@ class NewAccountFlowCoordinator implements FlowCoordinator {
     _creatingAccount = true;
     _onStatusChanged(this);
     _accountRepository.anonymous().then((account) {
-      if (account != null) {
-        _newProfile.run(context, onSuccess: onSuccess, onFail: onFail);
-      } else {
-        onFail();
-      }
+      _newProfile.run(context, onSuccess: onSuccess, onFail: onFail);
       _creatingAccount = false;
     });
   }

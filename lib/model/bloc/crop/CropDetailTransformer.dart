@@ -60,10 +60,18 @@ class _Icons {
 class CropDetailTransformer
     extends ObjectTransformer<CropEntity, CropDetailViewModel> {
   @override
-  CropDetailViewModel transform({CropEntity from}) {
-    final detail = ArticleDetailViewModelTransformer();
+  CropDetailViewModel transform({CropEntity? from}) {
+    if (from == null || from.article == null) {
+      throw ArgumentError('CropEntity and article must not be null');
+    }
+    final detail = ArticleDetailViewModelTransformer(
+      relatedTitle: '',
+      contentLinkTitle: '',
+      contentLinkDescription: '',
+      contentLinkIcon: '',
+    );
     return CropDetailViewModel.fromArticle(
-      detail.transform(from: from.article),
+      detail.transform(from: from.article!),
       [
         _soilType(from),
         _complexity(from),
@@ -141,45 +149,38 @@ class CropDetailTransformer
     );
   }
 
-  String _cropTypeToString(CropType value) {
+  String _cropTypeToString(CropType? value) {
     switch (value) {
       case CropType.ROTATION:
         return _LocalisedStrings.rotation();
-        break;
       case CropType.SINGLE:
         return _LocalisedStrings.single();
-        break;
-    }
-    return _Strings.emptyString;
-  }
-
-  String _loHiToString(LoHi value) {
-    switch (value) {
-      case LoHi.LOW:
-        return _LocalisedStrings.low();
-        break;
-      case LoHi.MEDIUM:
-        return _LocalisedStrings.medium();
-        break;
-      case LoHi.HIGH:
-        return _LocalisedStrings.high();
-        break;
-       default:
+      default:
         return _Strings.emptyString;
     }
   }
 
-  String _complexityToString(CropComplexity value) {
+  String _loHiToString(LoHi? value) {
+    switch (value) {
+      case LoHi.LOW:
+        return _LocalisedStrings.low();
+      case LoHi.MEDIUM:
+        return _LocalisedStrings.medium();
+      case LoHi.HIGH:
+        return _LocalisedStrings.high();
+      default:
+        return _Strings.emptyString;
+    }
+  }
+
+  String _complexityToString(CropComplexity? value) {
     switch (value) {
       case CropComplexity.BEGINNER:
         return _LocalisedStrings.beginner();
-        break;
       case CropComplexity.INTERMEDIATE:
         return _LocalisedStrings.intermediate();
-        break;
       case CropComplexity.ADVANCED:
         return _LocalisedStrings.advance();
-        break;
       default:
         return _Strings.emptyString;
     }

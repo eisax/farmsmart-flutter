@@ -7,13 +7,15 @@ typedef String IdentifyEntity<T>(T value);
 
 class MockListRepository<T> implements BasicRepositoryInterface<T> {
   final IdentifyEntity<T> _identFunction;
-  final _streamController = StreamController<List<T>>.broadcast();
-  List<T> _objects;
+  final StreamController<List<T>> _streamController =
+      StreamController<List<T>>.broadcast();
+  late List<T> _objects;
 
-  var _observers = Map<String, StreamController<T>>();
+  final Map<String, StreamController<T>> _observers = {};
 
   MockListRepository(
-      {IdentifyEntity<T> identifyEntity, List<T> startingData = const []})
+      {required IdentifyEntity<T> identifyEntity,
+      List<T> startingData = const []})
       : this._identFunction = identifyEntity,
         this._objects = startingData;
 
@@ -26,16 +28,16 @@ class MockListRepository<T> implements BasicRepositoryInterface<T> {
   Future<T> getSingle(String uri) {
     final entity = _objects.singleWhere(
         (entity) => _identFunction(entity) == uri,
-        orElse: () => null);
-    return entity != null ? Future.value(entity) : Future.error(Error());
+        orElse: () => throw StateError('No entity found'));
+    return Future.value(entity);
   }
 
   @override
   Stream<T> observeSingle(String uri) {
-    if (_observers[uri] == null) {
+    if (!_observers.containsKey(uri)) {
       _observers[uri] = StreamController<T>.broadcast();
     }
-    return _observers[uri].stream;
+    return _observers[uri]!.stream;
   }
 
   Future<List<T>> getList({bool update = true}) {
@@ -72,12 +74,10 @@ class MockListRepository<T> implements BasicRepositoryInterface<T> {
   void _update() {
     _streamController.sink.add(_objects);
     //LH update any observers of the plots
-    if (_identFunction != null) {
-      for (var object in _objects) {
-        final controller = _observers[_identFunction(object)];
-        if (controller != null) {
-          controller.sink.add(object);
-        }
+    for (var object in _objects) {
+      final controller = _observers[_identFunction(object)];
+      if (controller != null) {
+        controller.sink.add(object);
       }
     }
   }

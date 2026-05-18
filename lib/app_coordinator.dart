@@ -14,7 +14,7 @@ class AppCoordinator extends StatefulWidget {
 }
 
 class _AppCoordinatorState extends State<AppCoordinator> {
-  RepositoryProvider repositoryProvider;
+  late RepositoryProvider repositoryProvider;
 
   @override
   void initState() {
@@ -27,11 +27,14 @@ class _AppCoordinatorState extends State<AppCoordinator> {
     repositoryProvider = AppConfig.of(context).repositoryProvider;
     HomeViewModelProvider homeViewModelProvider = HomeViewModelProvider(
         repositoryProvider.getAccountRepository(),
+        repositoryProvider.getProfileRepository(),
         !AppConfig.of(context).isProductionBuild());
     final downloader = repositoryProvider.getDownloader();
     return Startup(
-      provider:
-          StartupViewModelProvider(repositoryProvider.getAccountRepository(), downloader,),
+      provider: StartupViewModelProvider(
+        repositoryProvider.getAccountRepository(),
+        downloader,
+      ),
       home: Home(
         repositoryProvider: repositoryProvider,
         homeViewModelProvider: homeViewModelProvider,
@@ -39,10 +42,6 @@ class _AppCoordinatorState extends State<AppCoordinator> {
     );
   }
 
-  /*
-    TODO Implement the right action and the right deep link parameter,
-    This is just an example
-   */
   List<DeepLink> _deepLinks() {
     return [
       DeepLink(

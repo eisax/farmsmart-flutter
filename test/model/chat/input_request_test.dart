@@ -24,9 +24,10 @@ void main() {
       expect(inputRequest.validationRegex, '^[a-zA-Z]+\$');
       expect(inputRequest.responseText, 'None');
       expect(inputRequest.optional, false);
-      expect(inputRequest.args.maxSelection, 1);
+      final args = inputRequest.args!;
+      expect(args.maxSelection, 1);
 
-      var options = inputRequest.args.options;
+      final options = args.options!;
 
       expect(options.isNotEmpty, true);
       expect(options.first.id, 'OptionKey1');

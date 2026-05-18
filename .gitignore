@@ -71,7 +71,6 @@ coverage
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
-
 # Secrets
 GoogleService-Info.plist
 google-services.json
@@ -80,3 +79,6 @@ farmsmart_release_key.jks
 service-account.json
 key.properties
 local.properties
+
+# FVM Version Cache
+.fvm/

@@ -25,7 +25,7 @@ import 'package:farmsmart_flutter/ui/profile/ProfileListItem.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' as ImagePickerLib;
 import 'package:intl/intl.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'FarmDetails.dart';
 import 'SwitchProfileList.dart';
 
@@ -83,7 +83,7 @@ class _Icons {
   static final soil = 'assets/icons/detail_icon_best_soil.png';
   static final newProfile = 'assets/icons/detail_icon_new_profile.png';
   static final inviteFriends = 'assets/icons/detail_icon_invite.png';
-  static final downloadIcon =  "assets/icons/detail_icon_sale.png";
+  static final downloadIcon = "assets/icons/detail_icon_sale.png";
 }
 
 class _AnalyticsNames {
@@ -135,7 +135,7 @@ class ProfileViewModel implements RefreshableViewModel, LoadableViewModel {
   final ImageURLProvider image;
   final Function refresh;
   final Function logout;
-  final Function remove;
+  final Function? remove;
   final Function(String) renameProfile;
   final LoadingStatus loadingStatus;
   final Map<String, Map<String, String>> farmDetails;
@@ -145,28 +145,29 @@ class ProfileViewModel implements RefreshableViewModel, LoadableViewModel {
   EditProfileFlowCoordinator editProfileFlow;
   final List<ContentLocale> supportedLocales;
   final ContentLocale currentLocale;
-  final ViewModelProvider<OfflineDownloadPageViewModel> downloaderViewModelProvider;
+  final ViewModelProvider<OfflineDownloadPageViewModel>
+      downloaderViewModelProvider;
 
   ProfileViewModel({
-    this.loadingStatus,
-    this.username,
-    this.initials,
-    this.activeCrops,
-    this.completedCrops,
-    this.switchProfileProvider,
-    this.image,
-    this.refresh,
-    this.logout,
+    required this.loadingStatus,
+    required this.username,
+    required this.initials,
+    required this.activeCrops,
+    required this.completedCrops,
+    required this.switchProfileProvider,
+    required this.image,
+    required this.refresh,
+    required this.logout,
     this.remove,
-    this.farmDetails,
-    this.switchLanguageTapped,
-    this.newAccountFlow,
-    this.saveProfileImage,
-    this.renameProfile,
-    this.editProfileFlow,
-    this.supportedLocales,
-    this.currentLocale,
-    this.downloaderViewModelProvider,
+    required this.farmDetails,
+    required this.switchLanguageTapped,
+    required this.newAccountFlow,
+    required this.saveProfileImage,
+    required this.renameProfile,
+    required this.editProfileFlow,
+    required this.supportedLocales,
+    required this.currentLocale,
+    required this.downloaderViewModelProvider,
   });
 }
 
@@ -184,25 +185,25 @@ class ProfileStyle {
   final int maxLines;
 
   const ProfileStyle({
-    this.buttonColor,
-    this.titleTextStyle,
-    this.subtitleTextStyle,
-    this.detailTextStyle,
-    this.buttonTextStyle,
-    this.buttonHeight,
-    this.imageSize,
-    this.maxLines,
+    required this.buttonColor,
+    required this.titleTextStyle,
+    required this.subtitleTextStyle,
+    required this.detailTextStyle,
+    required this.buttonTextStyle,
+    required this.buttonHeight,
+    required this.imageSize,
+    required this.maxLines,
   });
 
   ProfileStyle copyWith({
-    Color buttonColor,
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    TextStyle detailTextStyle,
-    TextStyle buttonTextStyle,
-    double buttonHeight,
-    double imageSize,
-    int maxLines,
+    Color? buttonColor,
+    TextStyle? titleTextStyle,
+    TextStyle? subtitleTextStyle,
+    TextStyle? detailTextStyle,
+    TextStyle? buttonTextStyle,
+    double? buttonHeight,
+    double? imageSize,
+    int? maxLines,
   }) {
     return ProfileStyle(
       buttonColor: buttonColor ?? this.buttonColor,
@@ -218,58 +219,44 @@ class ProfileStyle {
 }
 
 class _DefaultStyle extends ProfileStyle {
-  final Color buttonColor = const Color(0xffe9eaf2);
-
-  final TextStyle titleTextStyle = const TextStyle(
-    fontSize: 27,
-    fontWeight: FontWeight.bold,
-    color: Color(0xff1a1b46),
-  );
-
-  final TextStyle subtitleTextStyle = const TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.w500,
-    color: Color(0xff4c4e6e),
-  );
-
-  final TextStyle detailTextStyle = const TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.normal,
-    color: Color(0xffb7b8c9),
-  );
-
-  final TextStyle buttonTextStyle = const TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.w500,
-    color: Color(0xff4c4e6e),
-  );
-
-  final double buttonHeight = 40;
-  final double imageSize = 72;
-
-  final int maxLines = 1;
-
-  const _DefaultStyle({
-    Color buttonColor,
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    TextStyle detailTextStyle,
-    TextStyle buttonTextStyle,
-    double buttonHeight,
-    double imageSize,
-    int maxLines,
-  });
+  const _DefaultStyle()
+      : super(
+          buttonColor: const Color(0xffe9eaf2),
+          titleTextStyle: const TextStyle(
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff1a1b46),
+          ),
+          subtitleTextStyle: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff4c4e6e),
+          ),
+          detailTextStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.normal,
+            color: Color(0xffb7b8c9),
+          ),
+          buttonTextStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff4c4e6e),
+          ),
+          buttonHeight: 40,
+          imageSize: 72,
+          maxLines: 1,
+        );
 }
 
-const ProfileStyle _defaultStyle = const _DefaultStyle();
+const ProfileStyle _defaultStyle = _DefaultStyle();
 
 class Profile extends StatelessWidget {
   final ViewModelProvider<ProfileViewModel> _viewModelProvider;
   final ProfileStyle _style;
 
   const Profile({
-    Key key,
-    ViewModelProvider<ProfileViewModel> provider,
+    Key? key,
+    required ViewModelProvider<ProfileViewModel> provider,
     ProfileStyle style = _defaultStyle,
   })  : this._viewModelProvider = provider,
         this._style = style,
@@ -284,15 +271,15 @@ class Profile extends StatelessWidget {
   }
 
   Widget _buildPage({
-    BuildContext context,
-    AsyncSnapshot<ProfileViewModel> snapshot,
+    BuildContext? context,
+    AsyncSnapshot<ProfileViewModel>? snapshot,
   }) {
-    final viewModel = snapshot.data;
+    final viewModel = snapshot!.data!;
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            _buildHeader(context, viewModel),
+            _buildHeader(context!, viewModel),
             _buildItemList(viewModel, context),
           ],
         ),
@@ -455,14 +442,15 @@ class Profile extends StatelessWidget {
   }
 
   void _tappedSwitchProfile({
-    BuildContext context,
-    ViewModelProvider<SwitchProfileListViewModel> provider,
+    required BuildContext context,
+    required ViewModelProvider<SwitchProfileListViewModel> provider,
   }) {
-    AnalyticsInterface.implementation().interaction(_AnalyticsNames.switchProfileInteraction);
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.switchProfileInteraction);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => SwitchProfileList(provider: provider),
-        settings: RouteSettings(name:SwitchProfileList.analyticsName),
+        settings: RouteSettings(name: SwitchProfileList.analyticsName),
       ),
     );
   }
@@ -503,14 +491,14 @@ class Profile extends StatelessWidget {
 
     items.add(ProfileListItemViewModel(
       title: _LocalisedStrings.privacyPolicy(),
-      icon: null,
+      icon: '',
       onTap: () => _openPrivacyPolicy(context),
       isDestructive: false,
     ));
 
     items.add(ProfileListItemViewModel(
       title: _LocalisedStrings.termsOfUse(),
-      icon: null,
+      icon: '',
       onTap: () => _openTermsOfUse(context),
       isDestructive: false,
     ));
@@ -518,15 +506,15 @@ class Profile extends StatelessWidget {
     if (viewModel.remove != null) {
       items.add(ProfileListItemViewModel(
         title: _LocalisedStrings.removeProfile(),
-        icon: null,
-        onTap: () => viewModel.remove(),
+        icon: '',
+        onTap: () => viewModel.remove?.call(),
         isDestructive: true,
       ));
     }
 
     items.add(ProfileListItemViewModel(
       title: _LocalisedStrings.logout(),
-      icon: null,
+      icon: '',
       onTap: () => viewModel.logout(),
       isDestructive: true,
     ));
@@ -538,7 +526,7 @@ class Profile extends StatelessWidget {
       context,
       FarmDetails(
         viewModel: FarmDetailsViewModel(
-          removeProfile: viewModel.remove,
+          removeProfile: viewModel.remove ?? () {},
           editProfile: () => _editProfile(viewModel, context),
           items: _mapToFarmItemViewModel(viewModel.farmDetails),
           buttonTitle: _LocalisedStrings.editFarmDetails(),
@@ -551,30 +539,35 @@ class Profile extends StatelessWidget {
   }
 
   void _editProfile(ProfileViewModel viewModel, BuildContext context) {
-    AnalyticsInterface.implementation().interaction(_AnalyticsNames.editProfileInteraction);
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.editProfileInteraction);
     return viewModel.editProfileFlow.run(
-          context,
-          onSuccess: () => _onEditProfileSuccess(context),
-        );
+      context,
+      onSuccess: () => _onEditProfileSuccess(context),
+    );
   }
 
   void _createNewProfile(ProfileViewModel viewModel, BuildContext context) {
-    AnalyticsInterface.implementation().interaction(_AnalyticsNames.createNewProfileInteraction);
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.createNewProfileInteraction);
     viewModel.newAccountFlow.run(context);
   }
 
   void _inviteFriends(BuildContext context) async {
-     AnalyticsInterface.implementation().interaction(_AnalyticsNames.inviteFriendsInteraction);
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.inviteFriendsInteraction);
     await Share.share('${_LocalisedStrings.shareText()} ${_Strings.shareLink}');
   }
 
   void _openPrivacyPolicy(BuildContext context) {
-    AnalyticsInterface.implementation().interaction(_AnalyticsNames.privacyPolicyInteraction);
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.privacyPolicyInteraction);
     _navigateToWebView(context, _Strings.privacyPolicyUrl);
   }
 
   void _openTermsOfUse(BuildContext context) {
-     AnalyticsInterface.implementation().impression(_AnalyticsNames.termsOfUseInteraction);
+    AnalyticsInterface.implementation()
+        .impression(_AnalyticsNames.termsOfUseInteraction);
     _navigateToWebView(context, _Strings.termsOfUseUrl);
   }
 
@@ -582,9 +575,10 @@ class Profile extends StatelessWidget {
       Map<String, Map<String, String>> farmDetails) {
     return farmDetails.entries.map(
       (MapEntry mapEntry) {
+        final item = mapEntry.value as Map<String, String>;
         return FarmDetailsListItemViewModel(
-          title: (mapEntry.value as Map<String, String>)[_Fields.title],
-          detail: (mapEntry.value as Map<String, String>)[_Fields.value],
+          title: item[_Fields.title] ?? '',
+          detail: item[_Fields.value] ?? '',
         );
       },
     ).toList();
@@ -604,24 +598,31 @@ class Profile extends StatelessWidget {
     final actions = [
       ActionSheetListItemViewModel(
         title: _LocalisedStrings.takePictureFromCamera(),
+        icon: '',
         type: ActionType.simple,
+        checkBoxIcon: '',
         onTap: () => _pickImage(ImagePickerLib.ImageSource.camera, viewModel),
       ),
       ActionSheetListItemViewModel(
         title: _LocalisedStrings.pickImageFromGallery(),
+        icon: '',
         type: ActionType.simple,
+        checkBoxIcon: '',
         onTap: () => _pickImage(ImagePickerLib.ImageSource.gallery, viewModel),
       ),
       ActionSheetListItemViewModel(
         title: _LocalisedStrings.renameProfile(),
+        icon: '',
         type: ActionType.simple,
+        checkBoxIcon: '',
         onTap: () => _renameProfileAction(viewModel, context),
       ),
     ];
 
     final actionSheetViewModel = ActionSheetViewModel(
-      actions,
-      _LocalisedStrings.cancel(),
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancel(),
+      confirmButtonTitle: _LocalisedStrings.cancel(),
     );
     return ActionSheet(
       viewModel: actionSheetViewModel,
@@ -630,7 +631,8 @@ class Profile extends StatelessWidget {
   }
 
   void _renameProfileAction(ProfileViewModel viewModel, BuildContext context) {
-    AnalyticsInterface.implementation().interaction(_AnalyticsNames.renameProfileInteraction);
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.renameProfileInteraction);
     InputAlert.present(_renameInputAlert(viewModel), context);
   }
 
@@ -663,8 +665,9 @@ class Profile extends StatelessWidget {
     );
   }
 
-  _showOffline(BuildContext context, ProfileViewModel viewModel){
-    final offlinePage = OfflineDownloadPage(provider: viewModel.downloaderViewModelProvider);
+  _showOffline(BuildContext context, ProfileViewModel viewModel) {
+    final offlinePage =
+        OfflineDownloadPage(provider: viewModel.downloaderViewModelProvider);
     OfflineDownloadPage.present(offlinePage, context);
   }
 

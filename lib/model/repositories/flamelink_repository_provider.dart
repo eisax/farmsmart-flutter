@@ -25,22 +25,28 @@ import 'repository_provider.dart';
 import 'transaction/implementation/TransactionRepositoryFirestore.dart';
 
 class FlameLinkRepositoryProvider implements RepositoryProvider {
-  FlameLink _cms;
-  Firestore _fireStore;
-  FirebaseAuth _firebaseAuth;
-  ProfileRepositoryInterface _profileRepo;
-  PlotRepositoryInterface _plotRepo;
-  TransactionRepositoryInterface _transactionRepo;
-  LocaleRepositoryInterface _localeRepository;
+  late final FlameLink _cms;
+  late final FirebaseFirestore _fireStore;
+  late final FirebaseAuth _firebaseAuth;
+  late final ProfileRepositoryInterface _profileRepo;
+  late final PlotRepositoryInterface _plotRepo;
+  late final TransactionRepositoryInterface _transactionRepo;
+  late final LocaleRepositoryInterface _localeRepository;
+  bool _initialized = false;
 
   init(BuildContext context) {
+    if (_initialized) {
+      return;
+    }
+    _initialized = true;
     final environment = AppConfig.of(context).environment;
-    this._fireStore = Firestore.instance;
-    this._fireStore.settings(persistenceEnabled: true);
+    this._fireStore = FirebaseFirestore.instance;
+    this._fireStore.settings = const Settings(persistenceEnabled: true);
     this._firebaseAuth = FirebaseAuth.instance;
     this._cms = FlameLink(
       store: _fireStore,
       environment: environment,
+      locale: FarmsmartLocalizations.defaultLocale.locale,
     );
     this._profileRepo = FirebaseProfileRepository(
       this._fireStore,
@@ -83,6 +89,9 @@ class FlameLinkRepositoryProvider implements RepositoryProvider {
   @override
   AccountRepositoryInterface getAccountRepository() =>
       AccountRepositoryFirebase(_firebaseAuth, _profileRepo);
+
+  @override
+  ProfileRepositoryInterface getProfileRepository() => _profileRepo;
 
   @override
   RatingEngineRepositoryInterface getRatingsRepository() =>

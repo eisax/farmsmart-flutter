@@ -17,14 +17,14 @@ class _LocalisedStrings {
 class SwitchProfileListProvider
     implements ViewModelProvider<SwitchProfileListViewModel> {
   final AccountRepositoryInterface _accountRepository;
-  SwitchProfileListViewModel _snapshot;
+  SwitchProfileListViewModel? _snapshot;
   final StreamController<SwitchProfileListViewModel> _controller =
       StreamController<SwitchProfileListViewModel>.broadcast();
-  ProfileEntity _currentProfile;
-  List<ProfileEntity> _profiles;
+  ProfileEntity? _currentProfile;
+  List<ProfileEntity> _profiles = [];
   SwitchProfileListProvider({
-    AccountRepositoryInterface accountRepo,
-  }) : this._accountRepository = accountRepo;
+    required AccountRepositoryInterface accountRepo,
+  }) : _accountRepository = accountRepo;
 
   @override
   Stream<SwitchProfileListViewModel> stream() {
@@ -33,14 +33,14 @@ class SwitchProfileListProvider
 
   @override
   SwitchProfileListViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
   SwitchProfileListViewModel initial() {
     if (_snapshot == null) {
       _accountRepository.observeAuthorized().listen((account){
-        account.profileRepository?.stream()?.listen((profiles) {
+        account.profileRepository.stream().listen((profiles) {
         _updateViewModel(
           status: LoadingStatus.SUCCESS,
           profiles: profiles,
@@ -52,14 +52,14 @@ class SwitchProfileListProvider
         controller: _controller,
         status: LoadingStatus.LOADING,
       );
-      _snapshot.refresh();
+      _snapshot!.refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   void _updateViewModel({
-    LoadingStatus status,
-    List<ProfileEntity> profiles,
+    required LoadingStatus status,
+    List<ProfileEntity>? profiles,
   }) {
     if (profiles != null) {
       _profiles = profiles;
@@ -68,12 +68,12 @@ class SwitchProfileListProvider
         controller: _controller,
         status: LoadingStatus.SUCCESS,
         profiles: _profiles);
-    _controller.sink.add(_snapshot);
+    _controller.sink.add(_snapshot!);
   }
 
   SwitchProfileListViewModel _viewModel({
-    StreamController controller,
-    LoadingStatus status,
+    required StreamController controller,
+    required LoadingStatus status,
     List<ProfileEntity> profiles = const [],
   }) {
     final transformer = SwitchProfileListItemViewModelTransformer(
@@ -87,6 +87,8 @@ class SwitchProfileListProvider
       title: _LocalisedStrings.switchProfile(),
       actionTitle: _LocalisedStrings.switchProfile(),
       items: listItems,
+      confirmedIndex: 0,
+      selectedIndex: 0,
       newProfileFlow: NewProfileFlowCoordinator(_accountRepository, _onFlowStatusChanged),
       refresh: _refresh,
       loadingStatus: status,

@@ -33,36 +33,36 @@ class _Constants {
 }
 
 abstract class RecommendedListStyle {
-  final TextStyle titleTextStyle;
-  final EdgeInsets titleEdgePadding;
-  final RoundedButtonStyle applyButtonStyle;
-  final Color backgroundColor;
+  final TextStyle? titleTextStyle;
+  final EdgeInsets? titleEdgePadding;
+  final RoundedButtonStyle? applyButtonStyle;
+  final Color? backgroundColor;
 
-  RecommendedListStyle(
-      this.titleTextStyle, this.titleEdgePadding, this.applyButtonStyle, this.backgroundColor);
+  RecommendedListStyle(this.titleTextStyle, this.titleEdgePadding,
+      this.applyButtonStyle, this.backgroundColor);
 
   RecommendedListStyle copyWith({
-    TextStyle titleTextStyle,
-    EdgeInsets titleEdgePadding,
-    Color backgroundColor,
+    TextStyle? titleTextStyle,
+    EdgeInsets? titleEdgePadding,
+    Color? backgroundColor,
   });
 }
 
 class _DefaultStyle implements RecommendedListStyle {
-  final TextStyle titleTextStyle;
-  final EdgeInsets titleEdgePadding;
-  final RoundedButtonStyle applyButtonStyle;
-  final Color backgroundColor;
-  const _DefaultStyle(
-      {TextStyle titleTextStyle,
-      EdgeInsets titleEdgePadding,
-      RoundedButtonStyle applyButtonStyle,
-      Color backgroundColor,})
-      : this.titleTextStyle = titleTextStyle ??
+  final TextStyle? titleTextStyle;
+  final EdgeInsets? titleEdgePadding;
+  final RoundedButtonStyle? applyButtonStyle;
+  final Color? backgroundColor;
+  const _DefaultStyle({
+    TextStyle? titleTextStyle,
+    EdgeInsets? titleEdgePadding,
+    RoundedButtonStyle? applyButtonStyle,
+    Color? backgroundColor,
+  })  : this.titleTextStyle = titleTextStyle ??
             const TextStyle(
-              fontSize: 27,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1a1b46),
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF121212),
             ),
         this.titleEdgePadding = titleEdgePadding ??
             const EdgeInsets.only(
@@ -74,7 +74,7 @@ class _DefaultStyle implements RecommendedListStyle {
         this.applyButtonStyle = applyButtonStyle ??
             const RoundedButtonStyle(
               borderRadius: BorderRadius.all(Radius.circular(16)),
-              backgroundColor: Color(0xff24d900),
+              backgroundColor: Color(0xFF121212),
               buttonTextStyle: TextStyle(
                 color: Color(0xffffffff),
                 fontSize: 17,
@@ -88,13 +88,13 @@ class _DefaultStyle implements RecommendedListStyle {
               iconButtonColor: Color(0xFFFFFFFF),
               buttonShape: BoxShape.rectangle,
             ),
-            this.backgroundColor = Colors.white;
+        this.backgroundColor = Colors.white;
 
   @override
   RecommendedListStyle copyWith({
-    TextStyle titleTextStyle,
-    EdgeInsets titleEdgePadding,
-    Color backgroundColor,
+    TextStyle? titleTextStyle,
+    EdgeInsets? titleEdgePadding,
+    Color? backgroundColor,
   }) {
     return _DefaultStyle(
         titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -110,8 +110,8 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
   final ViewModelProvider<RecommendationsListViewModel> _viewModelProvider;
 
   const RecommendationsList({
-    Key key,
-    ViewModelProvider<RecommendationsListViewModel> provider,
+    Key? key,
+    required ViewModelProvider<RecommendationsListViewModel> provider,
     RecommendedListStyle style = _defaultStyle,
   })  : this._style = style,
         this._viewModelProvider = provider,
@@ -156,12 +156,12 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
   }
 
   Widget _buildSuccess(
-      {BuildContext context,
-      AsyncSnapshot<RecommendationsListViewModel> snapshot}) {
-    final viewModel = snapshot.data;
+      {BuildContext? context,
+      AsyncSnapshot<RecommendationsListViewModel>? snapshot}) {
+    final viewModel = snapshot!.data!;
     return Scaffold(
-      appBar: _buildAppBar(context, viewModel),
-      backgroundColor: _style.backgroundColor,
+      appBar: _buildAppBar(context!, viewModel),
+      backgroundColor: _style.backgroundColor ?? Colors.white,
       body: Stack(
         children: <Widget>[
           _buildList(
@@ -183,7 +183,7 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
     Navigator.of(context).pop();
   }
 
-  Widget _buildAppBar(
+  PreferredSizeWidget _buildAppBar(
       BuildContext context, RecommendationsListViewModel viewModel) {
     return ContextualAppBar(
       moreAction: () => _moreTapped(
@@ -191,17 +191,17 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
         viewModel: viewModel,
       ),
       isModal: true,
-    ).build(context);
+    );
   }
 
   Widget _buildList({
-    BuildContext context,
-    RecommendationsListViewModel viewModel,
+    BuildContext? context,
+    RecommendationsListViewModel? viewModel,
   }) {
-    final footerList = viewModel.canApply
+    final footerList = viewModel!.canApply
         ? <Widget>[
             SizedBox(
-              height: _style.applyButtonStyle.height,
+              height: _style.applyButtonStyle?.height ?? 0,
             ),
           ]
         : <Widget>[];
@@ -220,14 +220,14 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
     return headedList;
   }
 
-  Widget _buildHeader({RecommendationsListViewModel viewModel}) {
+  Widget _buildHeader({RecommendationsListViewModel? viewModel}) {
     return Container(
-      padding: _style.titleEdgePadding,
+      padding: _style.titleEdgePadding ?? EdgeInsets.zero,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            viewModel.title,
+            viewModel?.title ?? '',
             style: _style.titleTextStyle,
           )
         ],
@@ -236,10 +236,10 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
   }
 
   Widget _buildApplyButton({
-    BuildContext context,
-    RecommendationsListViewModel viewModel,
+    BuildContext? context,
+    RecommendationsListViewModel? viewModel,
   }) {
-    final visible = viewModel.canApply;
+    final visible = viewModel!.canApply;
     return Visibility(
         visible: visible,
         child: Container(
@@ -251,7 +251,7 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
             child: RoundedButton(
               viewModel: RoundedButtonViewModel(
                   title: _LocalisedStrings.finish(),
-                  onTap: () => _applyAction(context, viewModel)),
+                  onTap: () => _applyAction(context!, viewModel)),
               style: _style.applyButtonStyle,
             ),
           ),
@@ -259,21 +259,21 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
   }
 
   void _tappedDetail({
-    BuildContext context,
-    ViewModelProvider<CropDetailViewModel> provider,
-    RecommendationCardViewModel recommendationCardViewModel,
+    BuildContext? context,
+    ViewModelProvider<CropDetailViewModel>? provider,
+    RecommendationCardViewModel? recommendationCardViewModel,
   }) {
+    if (provider == null || context == null) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CropDetail(
           provider: provider,
           header: RecommendationDetailCard(
-            viewModel: recommendationCardViewModel,
+            viewModel: recommendationCardViewModel!,
             style: RecommendationDetailCardStyles.build(),
           ),
-           
         ),
-         settings: RouteSettings(name:CropDetail.analyticsName),
+        settings: RouteSettings(name: CropDetail.analyticsName),
       ),
     );
   }
@@ -282,14 +282,17 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
     final actions = [
       ActionSheetListItemViewModel(
         title: _LocalisedStrings.clearAction(),
-        isDestructive: true,
+        icon: '',
         type: ActionType.simple,
+        checkBoxIcon: '',
+        isDestructive: true,
         onTap: viewModel.clear,
       ),
     ];
     final actionSheetViewModel = ActionSheetViewModel(
-      actions,
-      _LocalisedStrings.cancelAction(),
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancelAction(),
+      confirmButtonTitle: _LocalisedStrings.clearAction(),
     );
     return ActionSheet(
       viewModel: actionSheetViewModel,
@@ -298,8 +301,8 @@ class RecommendationsList extends StatelessWidget implements ListViewSection {
   }
 
   void _moreTapped({
-    BuildContext context,
-    RecommendationsListViewModel viewModel,
+    required BuildContext context,
+    required RecommendationsListViewModel viewModel,
   }) {
     ActionSheet.present(_moreMenu(viewModel), context);
   }

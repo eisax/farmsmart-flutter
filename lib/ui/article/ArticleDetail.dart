@@ -1,21 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:farmsmart_flutter/model/analytics_interface.dart';
-import 'package:farmsmart_flutter/model/bloc/download/ApplicationCache.dart';
 import 'package:farmsmart_flutter/ui/article/StandardListItem.dart';
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleDetailViewModel.dart';
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleListItemViewModel.dart';
 import 'package:farmsmart_flutter/ui/common/ContextualAppBar.dart';
-import 'package:farmsmart_flutter/ui/common/SectionListView.dart';
 import 'package:farmsmart_flutter/ui/common/headerAndFooterListView.dart';
 import 'package:farmsmart_flutter/ui/common/image_provider_view.dart';
 import 'package:farmsmart_flutter/ui/community/LinkBox.dart';
 import 'package:farmsmart_flutter/ui/community/LinkBoxStyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/image_properties.dart';
-import 'package:flutter_html/rich_text_parser.dart';
 import 'package:intl/intl.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class _LocalisedStrings {
@@ -29,8 +24,6 @@ class _Constants {
   static EdgeInsets externalLinkPadding = EdgeInsets.only(
     bottom: 20.0,
   );
-
- 
 }
 
 class _AnalyticsNames {
@@ -72,7 +65,7 @@ abstract class ArticleDetailStyle {
 }
 
 class _DefaultStyle implements ArticleDetailStyle {
-  static const Color titlesColor = Color(0xFF1a1b46);
+  static const Color titlesColor = Color(0xFF121212);
   static const Color footColor = Color(0xFF767690);
   static const Color bodyColor = Color(0xFF4c4e6e);
 
@@ -98,75 +91,79 @@ class _DefaultStyle implements ArticleDetailStyle {
   const _DefaultStyle();
 }
 
-class ArticleDetail extends StatelessWidget implements ListViewSection {
+class ArticleDetail extends StatefulWidget {
   static const analyticsName = 'article_detail';
   final ArticleDetailViewModel _viewModel;
   final ArticleDetailStyle _style;
-  final Widget _articleHeader;
-  final Widget _articleFooter;
+  final Widget? _articleHeader;
+  final Widget? _articleFooter;
   final bool _articleImageVisible;
-  List<ArticleListItemViewModel> _relatedViewModels = [];
+  final bool _embedded;
 
   ArticleDetail({
-    Key key,
-    ArticleDetailViewModel viewModel,
+    Key? key,
+    required ArticleDetailViewModel viewModel,
     ArticleDetailStyle style = const _DefaultStyle(),
-    Widget articleHeader,
-    Widget articleFooter,
+    Widget? articleHeader,
+    Widget? articleFooter,
     bool shouldShowArticleImage = true,
-    Widget relatedHeader,
+    bool embedded = false,
   })  : this._viewModel = viewModel,
+        this._style = style,
         this._articleHeader = articleHeader,
         this._articleFooter = articleFooter,
         this._articleImageVisible = shouldShowArticleImage,
-        this._style = style,
+        this._embedded = embedded,
         super(key: key);
 
-  Future<List<ArticleListItemViewModel>> fetchReleated() {
-    return _viewModel.getRelated().then((related) {
-      _relatedViewModels = related;
-      return related;
-    });
+  @override
+  _ArticleDetailState createState() => _ArticleDetailState();
+}
+
+class _ArticleDetailState extends State<ArticleDetail> {
+  Future<List<ArticleListItemViewModel>> fetchRelated() {
+    return widget._viewModel.getRelated();
   }
 
   @override
   Widget build(BuildContext context) {
-    final related =
-        _hasRelated() ? Future.value(_relatedViewModels) : fetchReleated();
-    AnalyticsInterface.implementation().impression(analyticsName, context: _viewModel.title);
-    return FutureBuilder(
+    final related = fetchRelated();
+    AnalyticsInterface.implementation().impression(ArticleDetail.analyticsName,
+        context: widget._viewModel.title);
+    return FutureBuilder<List<ArticleListItemViewModel>>(
       future: related,
       builder: (BuildContext context,
           AsyncSnapshot<List<ArticleListItemViewModel>> relatedArticles) {
+        final relatedItems = relatedArticles.data ?? [];
+        final content = _content(relatedItems);
+        if (widget._embedded) {
+          return content;
+        }
         return Scaffold(
           appBar: _buildAppBar(context),
-          body: Container(
-            child: _content(),
-          ),
+          body: content,
         );
       },
     );
   }
 
-  bool _hasRelated() {
-    return ((_relatedViewModels != null) && (_relatedViewModels.isNotEmpty));
-  }
-
   Widget _relatedHeader() {
     return Container(
-      padding: _style.titlePagePadding,
+      padding: widget._style.titlePagePadding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(_viewModel.relatedTitle ?? "", style: _style.titlePageStyle)
+          Text(widget._viewModel.relatedTitle,
+              style: widget._style.titlePageStyle)
         ],
       ),
     );
   }
 
   void _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     }
 
     //TODO: LH add error popp up (when we have the widget)
@@ -174,36 +171,42 @@ class ArticleDetail extends StatelessWidget implements ListViewSection {
 
   Widget _externalLinkSection() {
     final linkBoxViewModel = LinkBoxViewModel(
-        titleText: _viewModel.contentLinkTitle ??
-            _viewModel.title ??
-            _LocalisedStrings.viewMore(),
-        detailText: _viewModel.contentLinkDescription ?? _LocalisedStrings.viewMore(),
-        image: _viewModel.contentLinkIcon,
+        titleText: widget._viewModel.contentLinkTitle.isNotEmpty
+            ? widget._viewModel.contentLinkTitle
+            : widget._viewModel.title,
+        detailText: widget._viewModel.contentLinkDescription.isNotEmpty
+            ? widget._viewModel.contentLinkDescription
+            : _LocalisedStrings.viewMore(),
+        image: widget._viewModel.contentLinkIcon,
         icon: _Icons.defaultExternalLinkIcon,
         onTap: () {
-          AnalyticsInterface.implementation().interaction(_AnalyticsNames.more, context: _viewModel.title);
-          _launchURL(_viewModel.contentLink);
+          AnalyticsInterface.implementation().interaction(_AnalyticsNames.more,
+              context: widget._viewModel.title);
+          _launchURL(widget._viewModel.contentLink);
         });
     return Padding(
       padding: _Constants.externalLinkPadding,
       child: LinkBox(
         viewModel: linkBoxViewModel,
-        style: _viewModel.contentLinkIcon != null
-            ? LinkBoxStyles.buildWhatsAppStyle()
-            : LinkBoxStyles.buildBrowserStyle(),
+        style: LinkBoxStyles.buildWhatsAppStyle(),
       ),
     );
   }
 
-  HeaderAndFooterListView _content() {
-    final List<Widget> relatedTitle = _hasRelated() ? [_relatedHeader()] : [];
+  HeaderAndFooterListView _content(
+      List<ArticleListItemViewModel> relatedItems) {
+    final List<Widget> relatedTitle =
+        relatedItems.isNotEmpty ? [_relatedHeader()] : [];
     final List<Widget> contentLink =
-        (_viewModel.contentLink != null && _viewModel.contentLink.trimRight().isNotEmpty) ? [_externalLinkSection()] : [];
+        (widget._viewModel.contentLink.trimRight().isNotEmpty)
+            ? [_externalLinkSection()]
+            : [];
 
-    final List<Widget> articleHeaders =
-        (_articleHeader != null) ? [_articleHeader] : [_buildDefaultHeader()];
+    final List<Widget> articleHeaders = (widget._articleHeader != null)
+        ? [widget._articleHeader!]
+        : [_buildDefaultHeader()];
     final List<Widget> articleFooters =
-        (_articleFooter != null) ? [_articleFooter] : [];
+        (widget._articleFooter != null) ? [widget._articleFooter!] : [];
 
     final headers = articleHeaders +
         [buildArticle()] +
@@ -212,48 +215,39 @@ class ArticleDetail extends StatelessWidget implements ListViewSection {
         relatedTitle;
 
     return HeaderAndFooterListView(
-      itemCount: _relatedViewModels.length,
+      itemCount: relatedItems.length,
       itemBuilder: (BuildContext context, int index) {
-        final viewModel = _relatedViewModels[index];
+        final viewModel = relatedItems[index];
         return StandardListItem(
           viewModel: viewModel,
           onTap: () => _tappedListItem(
               context: context, viewModel: viewModel.detailViewModel),
         ).build(context);
       },
-      physics: ScrollPhysics(),
+      physics: const ScrollPhysics(),
       shrinkWrap: true,
       headers: headers,
     );
   }
 
-  @override
-  itemBuilder() {
-    return _content().itemBuilder();
-  }
-
-  @override
-  int itemCount() {
-    return _content().itemCount();
-  }
-
   void _share(BuildContext context) async {
-    final link = await _viewModel.shareLink;
-    AnalyticsInterface.implementation().interaction(_AnalyticsNames.share, context: _viewModel.title);
+    final link = await widget._viewModel.shareLink;
+    AnalyticsInterface.implementation()
+        .interaction(_AnalyticsNames.share, context: widget._viewModel.title);
     await Share.share(_LocalisedStrings.shareText() + link);
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return ContextualAppBar(
       shareAction: () => _share(context),
-    ).build(context);
+    );
   }
 
   Widget _buildDefaultHeader() {
     final List<Widget> titleSection =
-        (_viewModel.title.isNotEmpty) ? [_buildTitle()] : [];
+        (widget._viewModel.title.isNotEmpty) ? [_buildTitle()] : [];
     final List<Widget> subtitleSection =
-        (_viewModel.subtitle.isNotEmpty) ? [_buildSubtitle()] : [];
+        (widget._viewModel.subtitle.isNotEmpty) ? [_buildSubtitle()] : [];
     final List<Widget> headerWidgets = titleSection + subtitleSection;
     return Column(
       children: headerWidgets,
@@ -261,21 +255,19 @@ class ArticleDetail extends StatelessWidget implements ListViewSection {
   }
 
   Widget buildArticle() {
-    final image = _buildImage();
-    final body = _buildBody();
+    final Widget? image = _buildImage();
+    final Widget body = _buildBody();
     final List<Widget> imageSection = image != null
         ? [
-            SizedBox(height: _style.spaceBetweenElements),
+            SizedBox(height: widget._style.spaceBetweenElements),
             image,
           ]
         : [];
-    final List<Widget> bodySection = body != null
-        ? [
-            SizedBox(height: _style.spaceBetweenDataAndImage),
-            body,
-            SizedBox(height: _style.spaceBetweenElements)
-          ]
-        : [SizedBox(height: _style.spaceBetweenElements)];
+    final List<Widget> bodySection = [
+      SizedBox(height: widget._style.spaceBetweenDataAndImage),
+      body,
+      SizedBox(height: widget._style.spaceBetweenElements)
+    ];
     final List<Widget> articleWidgets = imageSection + bodySection;
     return Column(
       children: articleWidgets,
@@ -283,27 +275,29 @@ class ArticleDetail extends StatelessWidget implements ListViewSection {
   }
 
   void _tappedListItem(
-      {BuildContext context, ArticleDetailViewModel viewModel}) {
-        AnalyticsInterface.implementation().interaction(ArticleDetail.analyticsName, context:analyticsName);
+      {required BuildContext context,
+      required ArticleDetailViewModel viewModel}) {
+    AnalyticsInterface.implementation()
+        .interaction(ArticleDetail.analyticsName, context: viewModel.title);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => ArticleDetail(viewModel: viewModel),
-        settings: RouteSettings(name:ArticleDetail.analyticsName)
+        settings: const RouteSettings(name: ArticleDetail.analyticsName),
       ),
     );
   }
 
   Widget _buildTitle() {
     return Container(
-        padding: _style.titlePagePadding,
+        padding: widget._style.titlePagePadding,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Expanded(
               child: Text(
-                _viewModel.title,
-                style: _style.titlePageStyle,
-                maxLines: _style.maxLinesPerTitle,
+                widget._viewModel.title,
+                style: widget._style.titlePageStyle,
+                maxLines: widget._style.maxLinesPerTitle,
               ),
             )
           ],
@@ -312,58 +306,35 @@ class ArticleDetail extends StatelessWidget implements ListViewSection {
 
   Widget _buildSubtitle() {
     return Container(
-        padding: _style.leftRightPadding,
+        padding: widget._style.leftRightPadding,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Expanded(
               child: Text(
-                _viewModel.subtitle,
-                style: _style.dateStyle,
+                widget._viewModel.subtitle,
+                style: widget._style.dateStyle,
               ),
             )
           ],
         ));
   }
 
-  Widget _buildImage() {
-    if (!_articleImageVisible) {
-      return null;
-    }
-    if (_viewModel.image == null) {
+  Widget? _buildImage() {
+    if (!widget._articleImageVisible) {
       return null;
     }
     return ImageProviderView(
-        imageURLProvider: _viewModel.image, height: _style.imageHeight);
+        imageURLProvider: widget._viewModel.image,
+        height: widget._style.imageHeight);
   }
 
   Widget _buildBody() {
-    Function function = (
-        {String src,
-        String alt,
-        double width,
-        double height,
-        ImageProperties imageProperties,
-        bool shrinkToFit,
-        nextContext: ParseContext}) {
-      return CachedNetworkImage(cacheManager: OfflineCacheManager(),
-        imageUrl: src,
-        width: (width ?? -1) > 0 ? width : null,
-        height: (height ?? -1) > 0 ? height : null,
-        matchTextDirection: imageProperties?.matchTextDirection ?? false,
-        alignment: imageProperties?.alignment ?? Alignment.center,
-        colorBlendMode: imageProperties?.colorBlendMode,
-        fit: imageProperties?.fit,
-        color: imageProperties?.color,
-        repeat: imageProperties?.repeat ?? ImageRepeat.noRepeat,
-      );
-    };
     return Container(
-        padding: _style.bodyPadding,
-        child: Html(
-          data: _viewModel.body,
-          useRichText: true,
-          customImgRender: function,
-        ));
+      padding: widget._style.bodyPadding,
+      child: Html(
+        data: widget._viewModel.body,
+      ),
+    );
   }
 }

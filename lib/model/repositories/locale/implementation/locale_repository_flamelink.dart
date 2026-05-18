@@ -23,12 +23,14 @@ class LocaleRepositoryFlameLink implements LocaleRepositoryInterface {
     return _cms
         .getSingle(schema: _Constants.globalSettingsSchema)
         .then((snapshot) {
-      final supportedLocales = snapshot.data[_Constants.supportedLocales];
+      final Map<String, dynamic> data = snapshot.data() ?? {};
+      final List<dynamic> supportedLocales =
+          (data[_Constants.supportedLocales] as List<dynamic>?) ?? [];
       return supportedLocales
           .map<ContentLocale>((locale) => ContentLocale(
-              Locale(locale[_Constants.languageField],
-                  locale[_Constants.countryField]),
-              locale[_Constants.displayNameField]))
+              Locale(locale[_Constants.languageField] as String? ?? '',
+                  locale[_Constants.countryField] as String?),
+              locale[_Constants.displayNameField] as String? ?? ''))
           .toList();
     });
   }

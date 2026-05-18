@@ -8,7 +8,6 @@ import 'package:farmsmart_flutter/ui/common/ActionSheetListItem.dart';
 import 'package:farmsmart_flutter/ui/common/modal_navigator.dart';
 import 'package:farmsmart_flutter/ui/profile/FarmDetails.dart';
 import 'package:farmsmart_flutter/ui/profile/FarmDetailsListItem.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -17,7 +16,6 @@ class _Constants {
   static final double appBarElevation = 0;
   static final EdgeInsets appBarEdgePadding = EdgeInsets.only(left: 25);
   static final double appBarIconSize = 16;
-  
 }
 
 class _AnalyticsNames {
@@ -53,10 +51,25 @@ class ChatPageViewModel {
   ChatPageViewModel(this.flowFilePath, this.onSuccess, this.onError);
 }
 
+/// Lightweight shim for the new `PopScope` API.
+/// Uses `WillPopScope` internally so code can opt-in to `PopScope` now.
+class PopScope extends StatelessWidget {
+  final Widget child;
+  final WillPopCallback? onWillPop;
+
+  const PopScope({Key? key, this.onWillPop, required this.child})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(onWillPop: onWillPop, child: child);
+  }
+}
+
 class ChatPage extends StatefulWidget {
   final ChatPageViewModel _viewModel;
-  const ChatPage({Key key, ChatPageViewModel viewModel})
-      : this._viewModel = viewModel,
+  const ChatPage({Key? key, required ChatPageViewModel viewModel})
+      : _viewModel = viewModel,
         super(key: key);
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -71,7 +84,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    return PopScope(
       onWillPop: () {
         _cancel(context);
         return Future.value(true);
@@ -101,9 +114,13 @@ class _ChatPageState extends State<ChatPage> {
         },
       );
 
-  _buildCloseButton(BuildContext context) => FlatButton(
+  _buildCloseButton(BuildContext context) => TextButton(
         onPressed: () => _cancel(context),
-        padding: _Constants.appBarEdgePadding,
+        style: TextButton.styleFrom(
+          padding: _Constants.appBarEdgePadding,
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
         child: Image.asset(
           _Assets.dismissModalIcon,
           height: _Constants.appBarIconSize,
@@ -112,10 +129,15 @@ class _ChatPageState extends State<ChatPage> {
       );
 
   _buildOptionsButton(BuildContext context) => Center(
-        child: FlatButton(
+        child: TextButton(
           onPressed: () => _optionsTapped(
             _optionsMenu(context),
             context,
+          ),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Image.asset(
             _Assets.optionButtonIcon,
@@ -131,7 +153,7 @@ class _ChatPageState extends State<ChatPage> {
 
   _doOnSuccess(BuildContext context, Map<String, ChatResponseViewModel> map) {
     print("On Success recevied: ${map.toString()}");
-     AnalyticsInterface.implementation().impression(_AnalyticsNames.summary);
+    AnalyticsInterface.implementation().impression(_AnalyticsNames.summary);
     NavigationScope.presentModal(
       context,
       FarmDetails(
@@ -139,7 +161,8 @@ class _ChatPageState extends State<ChatPage> {
           items: _getFarmDetailsListFromMap(map),
           buttonTitle: _LocalisedStrings.confirm(),
           confirm: () {
-             AnalyticsInterface.implementation().interaction(_AnalyticsNames.confirm);
+            AnalyticsInterface.implementation()
+                .interaction(_AnalyticsNames.confirm);
             _navigateBack(context);
             _navigateBack(context);
             widget._viewModel.onSuccess(map);
@@ -151,7 +174,7 @@ class _ChatPageState extends State<ChatPage> {
 
   List<FarmDetailsListItemViewModel> _getFarmDetailsListFromMap(
       Map<String, ChatResponseViewModel> map) {
-    List<FarmDetailsListItemViewModel> viewModels = List();
+    final viewModels = <FarmDetailsListItemViewModel>[];
     map.forEach((key, value) {
       viewModels.add(
         FarmDetailsListItemViewModel(
@@ -193,8 +216,9 @@ class _ChatPageState extends State<ChatPage> {
     ];
 
     final actionSheetViewModel = ActionSheetViewModel(
-      actions,
-      _LocalisedStrings.cancel(),
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancel(),
+      confirmButtonTitle: _LocalisedStrings.confirm(),
     );
     return ActionSheet(
       viewModel: actionSheetViewModel,
@@ -203,8 +227,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _cancel(BuildContext context) {
-    AnalyticsInterface.implementation().interaction(
-        _AnalyticsNames.close,
+    AnalyticsInterface.implementation().interaction(_AnalyticsNames.close,
         context: widget._viewModel.flowFilePath);
     _doOnError(context, _Errors.cancelled);
   }

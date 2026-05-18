@@ -12,7 +12,7 @@ class _Constants {
 class RatingEngineRepositoryFirestore
     implements RatingEngineRepositoryInterface {
   final FlameLink _flamelink;
-  CropRecommendationLookup _lookup;
+  late final CropRecommendationLookup _lookup;
   RatingEngineRepositoryFirestore(this._flamelink) {
     _lookup = CropRecommendationLookup(_flamelink);
   }
@@ -22,7 +22,7 @@ class RatingEngineRepositoryFirestore
     final transformer = FirebaseToRatingInfoTransformer();
     return _flamelink.store
         .collection(_Constants.cropScoreCollectionName)
-        .getDocuments()
+        .get()
         .then((snapshot) {
       return transformer.transform(from: snapshot);
     });
@@ -33,9 +33,8 @@ class RatingEngineRepositoryFirestore
     final transformer = FirebaseToRatingInfoTransformer();
     return _flamelink.store
         .collection(_Constants.cropScoreCollectionName)
-        .getDocuments()
-        .asStream()
-        .transform(transformer.streamTransformer());
+        .snapshots()
+        .map((snapshot) => transformer.transform(from: snapshot));
   }
 
   @override

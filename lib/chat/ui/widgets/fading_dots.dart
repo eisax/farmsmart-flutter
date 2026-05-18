@@ -27,17 +27,17 @@ class FadingDotsStyle {
   final Duration duration;
 
   const FadingDotsStyle({
-    this.spaceBetweenDots,
-    this.size,
-    this.color,
-    this.duration,
+    required this.spaceBetweenDots,
+    required this.size,
+    required this.color,
+    required this.duration,
   });
 
   FadingDotsStyle copyWith({
-    Color color,
-    double size,
-    double spaceBetweenDots,
-    Duration duration,
+    Color? color,
+    double? size,
+    double? spaceBetweenDots,
+    Duration? duration,
   }) {
     return FadingDotsStyle(
       color: color ?? this.color,
@@ -54,19 +54,20 @@ class _DefaultFadingDotsStyle extends FadingDotsStyle {
   final double spaceBetweenDots = _Constants._defaultSpaceBetweenDots;
   final Duration duration = _Constants._defaultDuration;
 
-  const _DefaultFadingDotsStyle({
-    Color color,
-    double size,
-    double spaceBetweenDots,
-    Duration duration,
-  });
+  const _DefaultFadingDotsStyle()
+      : super(
+          color: _Constants._defaultDotColor,
+          size: _Constants._defaultSize,
+          spaceBetweenDots: _Constants._defaultSpaceBetweenDots,
+          duration: _Constants._defaultDuration,
+        );
 }
 
-const FadingDotsStyle _defaultStyle = const _DefaultFadingDotsStyle();
+const FadingDotsStyle _defaultStyle = _DefaultFadingDotsStyle();
 
 class FadingDots extends StatefulWidget {
   FadingDots({
-    Key key,
+    Key? key,
     FadingDotsStyle style = _defaultStyle,
   })  : this._style = style,
         super(key: key);
@@ -79,7 +80,7 @@ class FadingDots extends StatefulWidget {
 
 class _FadingDotsState extends State<FadingDots>
     with SingleTickerProviderStateMixin {
-  AnimationController _fadeController;
+  late final AnimationController _fadeController;
 
   @override
   void initState() {

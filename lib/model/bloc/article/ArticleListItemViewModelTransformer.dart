@@ -21,11 +21,14 @@ class ArticleListItemViewModelTransformer
       _detailTransformer;
 
   ArticleListItemViewModelTransformer(
-      {ObjectTransformer<ArticleEntity, ArticleDetailViewModel>
+      {required ObjectTransformer<ArticleEntity, ArticleDetailViewModel>
           detailTransformer})
-      : this._detailTransformer = detailTransformer;
+      : _detailTransformer = detailTransformer;
   @override
-  ArticleListItemViewModel transform({ArticleEntity from}) {
+  ArticleListItemViewModel transform({ArticleEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
     ArticleDetailViewModel detailViewModel =
         _detailTransformer.transform(from: from);
     return ArticleListItemViewModel(

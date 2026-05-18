@@ -12,7 +12,7 @@ class RegExInputFormatter implements TextInputFormatter {
     } catch (e) {
       // Something not right with regex string.
       assert(false, e.toString());
-      return null;
+      return RegExInputFormatter._(RegExp('.*')); // Allow all input if regex is invalid.
     }
   }
 

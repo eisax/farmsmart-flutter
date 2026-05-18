@@ -76,7 +76,7 @@ class MockRecommendationCardViewModel {
       detailAction: () {},
       addActionText: 'Add to Plot',
       addAction: () {},
-      imageProvider:PathImageProvider('assets/raw/placeholder.webp'),
+      imageProvider: PathImageProvider('assets/raw/placeholder_color.png'),
     );
   }
 
@@ -92,7 +92,7 @@ class MockRecommendationCardViewModel {
       detailAction: () {},
       addActionText: 'Added To Plot',
       addAction: () {},
-      imageProvider:PathImageProvider('assets/raw/placeholder.webp'),
+      imageProvider: PathImageProvider('assets/raw/placeholder_color.png'),
       isAdded: true,
     );
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
 
 class PlaygroundWidget extends StatelessWidget {
-  PlaygroundWidget({Key key, this.title, this.child});
+  const PlaygroundWidget({Key? key, required this.title, required this.child})
+      : super(key: key);
 
   final String title;
   final Widget child;

@@ -8,7 +8,7 @@ part of 'form_item_entity.dart';
 
 FormItemEntity _$FormItemEntityFromJson(Map<String, dynamic> json) {
   return FormItemEntity(
-      json['text'] as String,
+      json['text'] as String? ?? '',
       json['media'] == null
           ? null
           : MediaItemEntity.fromJson(json['media'] as Map<String, dynamic>),
@@ -16,8 +16,8 @@ FormItemEntity _$FormItemEntityFromJson(Map<String, dynamic> json) {
           ? null
           : InputRequestEntity.fromJson(
               json['inputRequest'] as Map<String, dynamic>),
-      json['sender'] as String,
-      json['sentiment'] as String,
+      json['sender'] as String? ?? 'bot',
+      json['sentiment'] as String? ?? 'Neutral',
       json['senderMedia'] == null
           ? null
           : MediaItemEntity.fromJson(

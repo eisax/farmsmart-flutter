@@ -9,12 +9,15 @@ class FormItemEntity {
   FormItemEntity(this.text, this.media, this.inputRequest, this.sender,
       this.sentiment, this.senderMedia);
 
+  @JsonKey(defaultValue: '')
   String text;
-  MediaItemEntity media;
-  InputRequestEntity inputRequest;
+  MediaItemEntity? media;
+  InputRequestEntity? inputRequest;
+  @JsonKey(defaultValue: 'bot')
   String sender;
+  @JsonKey(defaultValue: 'Neutral')
   String sentiment;
-  MediaItemEntity senderMedia;
+  MediaItemEntity? senderMedia;
 
   factory FormItemEntity.fromJson(Map<String, dynamic> json) =>
       _$FormItemEntityFromJson(json);

@@ -13,8 +13,8 @@ class MockFormRepository implements ChatRepository {
   final Future<FormEntity> _formEntity;
 
   MockFormRepository({
-    BuildContext context,
-    File file,
+    required BuildContext context,
+    required File file,
   }) : this._formEntity =
             JSONDataSource(context: context, file: file).getDataFromJSON();
 
@@ -26,16 +26,18 @@ class MockFormRepository implements ChatRepository {
   @override
   Future<List<FormItemEntity>> getFormItems() {
     return _formEntity.then((formEntity) {
-      return formEntity.items;
+      return formEntity.items ?? <FormItemEntity>[];
     });
   }
 
   @override
   Future<FormItemEntity> getFormItem(int position) {
     return _formEntity.then((formEntity) {
-      return (formEntity.items.isNotEmpty && formEntity.items.length > position)
-          ? formEntity.items[position]
-          : null;
+      final items = formEntity.items ?? <FormItemEntity>[];
+      if (position < 0 || position >= items.length) {
+        return Future.error(StateError('Form item index out of range'));
+      }
+      return items[position];
     });
   }
 }

@@ -8,6 +8,7 @@ import 'package:farmsmart_flutter/chat/ui/widgets/fading_dots.dart';
 import 'package:farmsmart_flutter/chat/ui/widgets/header_message.dart';
 import 'package:farmsmart_flutter/chat/ui/widgets/styles/fading_dots_styles.dart';
 import 'package:farmsmart_flutter/chat/ui/widgets/styles/header_message_styles.dart';
+import 'package:flutter/material.dart';
 
 import '../ChatMessageViewModelHandler.dart';
 
@@ -44,6 +45,8 @@ class ChatMessageViewModelHandlerImpl
           style: HeaderMessageStyles.buildDefaultStyle(),
         ),
         messageType: MessageType.header,
+        message: '',
+        avatar: Container(),
       );
 
   MessageBubbleViewModel _getMessageAsBubble(
@@ -61,6 +64,8 @@ class ChatMessageViewModelHandlerImpl
       MessageBubbleViewModel(
         message: providedMessage,
         messageType: MessageType.sent,
+        messageChild: SizedBox(),
+        avatar: SizedBox(),
       );
 
   MessageBubbleViewModel _getMessageAsLoading() => MessageBubbleViewModel(
@@ -68,21 +73,25 @@ class ChatMessageViewModelHandlerImpl
           style: FadingDotsStyles.buildDefaultStyle(),
         ),
         messageType: MessageType.loading,
+        message: '',
+        avatar: SizedBox(),
       );
 
   MessageBubbleViewModel _getUpdateMessageByProvidedResponses({
-    MessageBubbleViewModel viewModel,
-    Map<String, ChatResponseViewModel> responses,
+    required MessageBubbleViewModel viewModel,
+    required Map<String, ChatResponseViewModel> responses,
   }) {
     if (viewModel.message.contains(_Constants.percentDelimiter)) {
+      var updatedMessage = viewModel.message;
       responses.forEach(
         (key, answer) {
-          viewModel.message = viewModel.message.replaceAll(
+          updatedMessage = updatedMessage.replaceAll(
             _Constants.percentDelimiter + key,
             answer.value,
           );
         },
       );
+      viewModel = viewModel.copyWith(message: updatedMessage);
     }
     return viewModel;
   }

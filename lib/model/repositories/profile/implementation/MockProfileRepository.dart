@@ -31,7 +31,10 @@ class MockProfileRepository extends MockListRepository<ProfileEntity>
       return profile.uri;
     };
     final profiles = MockProfile().list(count: _Constants.mockCount);
-    return MockProfileRepository._(identifyEntity, profiles, profiles.first);
+    final repository =
+        MockProfileRepository._(identifyEntity, profiles, profiles.first);
+    Future.microtask(repository._update);
+    return repository;
   }
 
   @override
@@ -54,8 +57,9 @@ class MockProfileRepository extends MockListRepository<ProfileEntity>
   }
 
   @override
-  Stream<ProfileEntity> observeCurrent() {
-    return _streamController.stream;
+  Stream<ProfileEntity> observeCurrent() async* {
+    yield _current;
+    yield* _streamController.stream;
   }
 
   @override

@@ -20,10 +20,12 @@ class MockCropRepository implements CropRepositoryInterface {
 
   @override
   Future<CropEntity> getSingle(String uri) {
-    final result =  _list.reduce((left, right) {
-        return (left.uri == uri) ? left : (right.uri == uri) ? right : null;
-    });
-    return Future.delayed(_delay, () => result);
+    for (final crop in _list) {
+      if (crop.uri == uri) {
+        return Future.delayed(_delay, () => crop);
+      }
+    }
+    return Future.delayed(_delay, () => throw StateError('Crop not found: $uri'));
   }
 
   @override

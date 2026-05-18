@@ -7,20 +7,28 @@ import 'package:intl/intl.dart';
 final testArticle = MockArticle().build();
 
 void main() {
-
   TestWidgetsFlutterBinding.ensureInitialized();
   test('Article detail viewmodel transfomed from article correctly', () {
-    final detailTransformer = ArticleDetailViewModelTransformer();
-    final listTransformer = ArticleListItemViewModelTransformer(detailTransformer: detailTransformer);
+    final detailTransformer = ArticleDetailViewModelTransformer(
+      relatedTitle: 'Related',
+      contentLinkTitle: 'View more',
+      contentLinkDescription: 'Description',
+      contentLinkIcon: '',
+    );
+    final listTransformer = ArticleListItemViewModelTransformer(
+        detailTransformer: detailTransformer);
     detailTransformer.setListItemTransformer(listTransformer);
-    
-    final articleDetailViewModel = detailTransformer.transform(from: testArticle);
-    final publishedDateString = DateFormat("d MMMM").format(testArticle.published);
+
+    final articleDetailViewModel =
+        detailTransformer.transform(from: testArticle);
+    final publishedDateString =
+        DateFormat("d MMMM").format(testArticle.published!);
 
     expect(articleDetailViewModel.title, testArticle.title);
     expect(articleDetailViewModel.body, testArticle.content);
 
-    final subtitleContainsPublishDate = articleDetailViewModel.subtitle.contains(publishedDateString);
+    final subtitleContainsPublishDate =
+        articleDetailViewModel.subtitle.contains(publishedDateString);
     expect(subtitleContainsPublishDate, true);
 
     //TODO: add more coverage, sharelink, releated

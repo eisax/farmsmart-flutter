@@ -44,7 +44,7 @@ class MockRecommendationDetailCardViewModel {
       addAction: () {},
       addActionText: 'Action Text',
       isAdded: true,
-      imageProvider: PathImageProvider('assets/raw/placeholder.webp'),
+      imageProvider: PathImageProvider('assets/raw/placeholder_color.png'),
     );
   }
 
@@ -55,7 +55,7 @@ class MockRecommendationDetailCardViewModel {
       addAction: () {},
       addActionText: 'Action Text',
       isAdded: false,
-      imageProvider: PathImageProvider('assets/raw/placeholder.webp'),
+      imageProvider: PathImageProvider('assets/raw/placeholder_color.png'),
     );
   }
 }

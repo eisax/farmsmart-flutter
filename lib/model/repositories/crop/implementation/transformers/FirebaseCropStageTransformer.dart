@@ -10,23 +10,28 @@ import 'package:farmsmart_flutter/model/repositories/image/implementation/ImageR
 import '../../../FlameLink.dart';
 import '../../../FlamelinkMeta.dart';
 
-ArticleEntity _transform(FlameLink cms, DocumentSnapshot snapshot) {
-  final transformer = FlamelinkCropArticleTransformer(cms: cms, metaTransformer: FlamelinkMetaTransformer());
+ArticleEntity _transform(
+    FlameLink cms, DocumentSnapshot<Map<String, dynamic>> snapshot) {
+  final transformer = FlamelinkCropArticleTransformer(
+      cms: cms, metaTransformer: FlamelinkMetaTransformer());
   return transformer.transform(from: snapshot);
 }
 
-class CropStageArticleEntityCollectionFlamelink implements EntityCollection<ArticleEntity> {
+class CropStageArticleEntityCollectionFlamelink
+    implements EntityCollection<ArticleEntity> {
   final FlamelinkDocumentCollection _collection;
 
-  CropStageArticleEntityCollectionFlamelink({FlamelinkDocumentCollection collection})
-      :_collection = collection;
+  CropStageArticleEntityCollectionFlamelink(
+      {FlamelinkDocumentCollection? collection})
+      : _collection = collection!;
 
   @override
   Future<List<ArticleEntity>> getEntities({int limit = 0}) {
-    final imageFutures = _collection.getDocuments().then((documents) { 
-      return documents.map((document) => _transform(_collection.cms, document)).toList(); 
-      });
-    return Future.value(imageFutures);
+    return _collection.getDocuments().then((documents) {
+      return documents
+          .map((document) => _transform(_collection.cms, document))
+          .toList();
+    });
   }
 }
 
@@ -42,28 +47,32 @@ class _Fields {
 }
 
 class FlamelinkCropArticleTransformer
-    extends ObjectTransformer<DocumentSnapshot, ArticleEntity> {
-  final ObjectTransformer<DocumentSnapshot, FlamelinkMeta> _metaTransformer;
+    extends ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, ArticleEntity> {
+  final ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, FlamelinkMeta> _metaTransformer;
   final FlameLink _cms;
 
   FlamelinkCropArticleTransformer(
-      {FlameLink cms,
-      ObjectTransformer<DocumentSnapshot, FlamelinkMeta> metaTransformer})
+      {required FlameLink cms,
+      required ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, FlamelinkMeta>
+          metaTransformer})
       : this._cms = cms,
         this._metaTransformer = metaTransformer;
 
   @override
-  ArticleEntity transform({DocumentSnapshot from}) {
+  ArticleEntity transform({DocumentSnapshot<Map<String, dynamic>>? from}) {
+    if (from == null) {
+      throw StateError('DocumentSnapshot is null');
+    }
     final meta = _metaTransformer.transform(from: from);
     final uri = from.reference.path;
-    final content = castOrNull<String>(from.data[_Fields.content]);
-    final status = castOrNull<String>(from.data[_Fields.status]);
-    final summary = castOrNull<String>(from.data[_Fields.summary]);
-    final name = castOrNull<String>(from.data[_Fields.name]) ??
-        castOrNull<String>(from.data[_Fields.name]);
-    final externalLink = castOrNull(from.data[_Fields.externalLink]);
-    final published =
-        (meta.createdDate != null) ? meta.createdDate.toDate() : null;
+    final data = from.data() as Map<String, dynamic>?;
+    final content = castOrNull<String>(data?[_Fields.content]);
+    final status = castOrNull<String>(data?[_Fields.status]);
+    final summary = castOrNull<String>(data?[_Fields.summary]);
+    final name = castOrNull<String>(data?[_Fields.name]) ??
+        castOrNull<String>(data?[_Fields.name]);
+    final externalLink = castOrNull(data?[_Fields.externalLink]);
+    final published = meta.createdDate?.toDate();
     final entity = ArticleEntity(
         uri: uri,
         content: content,
@@ -72,15 +81,18 @@ class FlamelinkCropArticleTransformer
         title: name,
         published: published,
         externalLink: externalLink);
-    var relatedRefs = _relatedRefs(from);
-    var imageRefs = [];
-    if (from.data[_Fields.image] != null) {
-      imageRefs =
-          List<String>.from(from.data[_Fields.image].map((image) => image.path))
-              .toList();
+    final relatedRefs = _relatedRefs(data);
+    final imageRefs = <String>[];
+    final imageField = castOrNull<List<dynamic>>(data?[_Fields.image]);
+    if (imageField != null) {
+      imageRefs.addAll(imageField.map((image) {
+        final ref = castOrNull<DocumentReference>(
+            castOrNull<Map<String, dynamic>>(image)?['path']);
+        return ref?.path;
+      }).whereType<String>());
     }
     final relatedPaths = List<String>.from(relatedRefs);
-    final imagePaths = imageRefs.isNotEmpty ? List<String>.from(imageRefs) : null;
+    final imagePaths = List<String>.from(imageRefs);
 
     final articleCollection =
         FlamelinkDocumentCollection.list(cms: _cms, paths: relatedPaths);
@@ -88,32 +100,33 @@ class FlamelinkCropArticleTransformer
         FlamelinkDocumentCollection.list(cms: _cms, paths: imagePaths);
     entity.related =
         ArticleEntityCollectionFlamelink(collection: articleCollection);
-    entity.images = imageRefs.isNotEmpty ? ImageEntityCollectionFlamelink(collection: imageCollection) : null;
+    entity.images = imageRefs.isNotEmpty
+        ? ImageEntityCollectionFlamelink(collection: imageCollection)
+        : null;
     return entity;
   }
 
-  List<String> _relatedRefs(DocumentSnapshot from) {
-    final related = _related(
-          from,
-          _Fields.relatedArticles,
-          _Fields.article,
-        );
-    return related ?? [];
+  List<String> _relatedRefs(Map<String, dynamic>? data) {
+    return _related(
+      data,
+      _Fields.relatedArticles,
+      _Fields.article,
+    );
   }
 
   List<String> _related(
-      DocumentSnapshot from, String collectionName, String itemName) {
-    if (from.data[collectionName] != null) {
-      return List<String>.from(from.data[collectionName].map((item) {
-        final documentRef = castOrNull<DocumentReference>(item[itemName]);
-        if (documentRef != null) {
-          return documentRef.path;
-        }
-        return null;
-      })).where((item) {
-        return (item != null);
-      }).toList();
+      Map<String, dynamic>? data, String collectionName, String itemName) {
+    final collection = castOrNull<List<dynamic>>(data?[collectionName]);
+    if (collection == null) {
+      return [];
     }
-    return null;
+    return collection
+        .map((item) {
+          final documentRef = castOrNull<DocumentReference>(
+              castOrNull<Map<String, dynamic>>(item)?[itemName]);
+          return documentRef?.path;
+        })
+        .whereType<String>()
+        .toList();
   }
 }

@@ -30,31 +30,30 @@ class RecommendationListProvider
   final PlotRepositoryInterface _plotRepo;
   final ProfileRepositoryInterface _profileRepo;
   final RatingEngineRepositoryInterface _ratingRepo;
-  Basket<CropEntity> _cropBasket;
-  List<CropEntity> _crops;
-  Map<String, String> _ratingLookup;
-  //final UserProfileRepositoryInterface _profileRepo; //we need the current input factors from this.
+  late Basket<CropEntity> _cropBasket;
+  late List<CropEntity> _crops;
+  late Map<String, String> _ratingLookup;
   final _controller =
       StreamController<RecommendationsListViewModel>.broadcast();
 
-  RecommendationEngine _recommendationBusinessLogic;
+  late RecommendationEngine _recommendationBusinessLogic;
 
-  RecommendationsListViewModel _snapshot;
-  ProfileEntity _currentProfile;
+  RecommendationsListViewModel? _snapshot;
+  late ProfileEntity _currentProfile;
 
   RecommendationListProvider({
-    String title,
-    CropRepositoryInterface cropRepo,
-    PlotRepositoryInterface plotRepo,
-    ProfileRepositoryInterface profileRepo,
-    RatingEngineRepositoryInterface ratingRepo,
+    required String title,
+    required CropRepositoryInterface cropRepo,
+    required PlotRepositoryInterface plotRepo,
+    required ProfileRepositoryInterface profileRepo,
+    required RatingEngineRepositoryInterface ratingRepo,
     double heroThreshold = 0.8,
-  })  : this._title = title,
-        this._cropRepo = cropRepo,
-        this._plotRepo = plotRepo,
-        this._profileRepo = profileRepo,
-        this._ratingRepo = ratingRepo,
-        this._heroThreshold = heroThreshold;
+  })  : _title = title,
+        _cropRepo = cropRepo,
+        _plotRepo = plotRepo,
+        _profileRepo = profileRepo,
+        _ratingRepo = ratingRepo,
+        _heroThreshold = heroThreshold;
 
   @override
   RecommendationsListViewModel initial() {
@@ -64,9 +63,9 @@ class RecommendationListProvider
         status: LoadingStatus.LOADING,
         items: [],
       );
-      _snapshot.refresh();
+      _snapshot!.refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
@@ -76,12 +75,12 @@ class RecommendationListProvider
 
   @override
   RecommendationsListViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   RecommendationsListViewModel _viewModel({
-    LoadingStatus status,
-    List<RecommendationCardViewModel> items,
+    required LoadingStatus status,
+    required List<RecommendationCardViewModel> items,
   }) {
     return RecommendationsListViewModel(
       title: _title,
@@ -110,7 +109,7 @@ class RecommendationListProvider
       return transformer.transform(from: crop);
     }).toList();
     items.sort((a, b) {
-      return b.score.compareTo(a.score);
+      return (b.score ?? 0).compareTo(a.score ?? 0);
     });
     return _viewModel(
       status: LoadingStatus.SUCCESS,
@@ -120,7 +119,7 @@ class RecommendationListProvider
 
   void _basketDidChange(List<CropEntity> old) {
     _snapshot = _modelFromCrops(_crops, _ratingLookup);
-    _controller.sink.add(_snapshot);
+    _controller.sink.add(_snapshot!);
   }
 
   void _update(StreamController<RecommendationsListViewModel> controller) {
@@ -138,7 +137,7 @@ class RecommendationListProvider
               weightMatrix: RatingInfo.extractWeights(ratingInfo),
             );
             _snapshot = _modelFromCrops(crops, _ratingLookup);
-            controller.sink.add(_snapshot);
+            controller.sink.add(_snapshot!);
           });
         });
       });

@@ -17,12 +17,12 @@ class ProfitLossHeaderStyle {
   final int maxLines;
 
   ProfitLossHeaderStyle(
-      {this.titleTextStyle,
-      this.detailTextStyle,
-      this.subtitleTextStyle,
-      this.titleEdgePadding,
-      this.detailTextSpacing,
-      this.maxLines});
+      {required this.titleTextStyle,
+      required this.detailTextStyle,
+      required this.subtitleTextStyle,
+      required this.titleEdgePadding,
+      required this.detailTextSpacing,
+      required this.maxLines});
 
   factory ProfitLossHeaderStyle.defaultStyle() {
     return ProfitLossHeaderStyle(
@@ -45,12 +45,12 @@ class ProfitLossHeaderStyle {
   }
 
   ProfitLossHeaderStyle copyWith(
-      {TextStyle titleTextStyle,
-      TextStyle detailTextStyle,
-      TextStyle subtitleTextStyle,
-      EdgeInsets titleEdgePadding,
-      double detailTextSpacing,
-      int maxLines}) {
+      {TextStyle? titleTextStyle,
+      TextStyle? detailTextStyle,
+      TextStyle? subtitleTextStyle,
+      EdgeInsets? titleEdgePadding,
+      double? detailTextSpacing,
+      int? maxLines}) {
     return ProfitLossHeaderStyle(
         titleTextStyle: titleTextStyle ?? this.titleTextStyle,
         detailTextStyle: detailTextStyle ?? this.detailTextStyle,
@@ -66,9 +66,9 @@ class ProfitLossHeader extends StatelessWidget {
   final ProfitLossHeaderStyle _style;
 
   const ProfitLossHeader(
-      {Key key,
-      ProfitLossHeaderViewModel viewModel,
-      ProfitLossHeaderStyle style})
+      {Key? key,
+      required ProfitLossHeaderViewModel viewModel,
+      required ProfitLossHeaderStyle style})
       : this._viewModel = viewModel,
         this._style = style,
         super(key: key);

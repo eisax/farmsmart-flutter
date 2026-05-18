@@ -29,39 +29,42 @@ class HomeViewModelProvider implements ViewModelProvider<HomeViewModel> {
   final AccountRepositoryInterface _accountRepository;
   final StreamController<HomeViewModel> _controller =
       StreamController<HomeViewModel>.broadcast();
-  HomeViewModel _snapshot;
-  ProfileEntity _lastProfile;
-  ProfileRepositoryInterface _profileRepository;
-  bool _debugMenuVisible;
+  HomeViewModel? _snapshot;
+  ProfileEntity? _lastProfile;
+  final ProfileRepositoryInterface _profileRepository;
+  final bool _debugMenuVisible;
 
   HomeViewModelProvider(
     this._accountRepository,
+    this._profileRepository,
     this._debugMenuVisible,
   );
 
   @override
   HomeViewModel initial() {
     if (_snapshot == null) {
-      _accountRepository.authorized().then((account) {
-        _profileRepository = account.profileRepository;
-        account.profileRepository.observeCurrent().listen((currentProfile) {
-          final currentProfileID = currentProfile?.uri;
-          _snapshot = _viewModel((currentProfileID != null) ? LoadingStatus.SUCCESS : LoadingStatus.LOADING);
-          if (_lastProfile?.uri != currentProfileID) {
-            _controller.sink.add(_snapshot);
-          }
-          _lastProfile = currentProfile;
-        });
+      _profileRepository.observeCurrent().listen((currentProfile) {
+        final currentProfileID = currentProfile.uri;
+        _snapshot = _viewModel(
+          currentProfileID.isNotEmpty
+              ? LoadingStatus.SUCCESS
+              : LoadingStatus.LOADING,
+        );
+        if (_lastProfile?.uri != currentProfileID) {
+          _controller.sink.add(_snapshot!);
+        }
+        _lastProfile = currentProfile;
       });
+      _profileRepository.getCurrent();
       _snapshot = _viewModel(LoadingStatus.LOADING);
-      _snapshot.refresh();
+      _snapshot!.refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
   HomeViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
@@ -81,9 +84,7 @@ class HomeViewModelProvider implements ViewModelProvider<HomeViewModel> {
 
   void _refresh() {
     _accountRepository.authorized().then((account) {
-      if (account != null) {
-        account.profileRepository.getCurrent();
-      }
+      account.profileRepository.getCurrent();
     });
   }
 

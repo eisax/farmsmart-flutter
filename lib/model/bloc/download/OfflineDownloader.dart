@@ -13,7 +13,7 @@ import 'ApplicationCache.dart';
 
 class DownloadProgress {
   final double progress;
-  final Error error;
+  final Object? error;
 
   DownloadProgress(this.progress, this.error);
 }
@@ -31,60 +31,53 @@ class OfflineDownloader {
 
   OfflineDownloader(this._articleRepo, this._cropRepo, this._ratingRepo);
 
-  Stream<DownloadProgress> dowloadImages(
-      {List<ImageURLProvider> imageURls, Function complete}) {
+  Stream<DownloadProgress> dowloadImages({
+    required List<ImageURLProvider> imageURls,
+    Function? complete,
+  }) {
     int taskCount = imageURls.length * imageSizes.length;
     int completeTasks = 0;
     List<Future> futures = [];
     for (var urlProvider in imageURls) {
-      if (urlProvider != null) {
-        for (var imageSize in imageSizes) {
-          futures.add(urlProvider
-              .urlToFit(width: imageSize.width, height: imageSize.height)
-              .then((url) {
-               if(url == null){ 
-                  completeTasks++;
-                  _controller
-                  .add(DownloadProgress(completeTasks / taskCount, null));
-                 return  Future.value();
-                }
-            return _cacheManager.getSingleFile(url).then((file) {
-              completeTasks++;
-             /* file?.length()?.then((bytes) { print("Bytes: " + (totalBytes+=bytes).toString());});
-              print("downloaded " +
-                  completeTasks.toString() +
-                  " of " +
-                  taskCount.toString());*/
-              _controller
-                  .add(DownloadProgress(completeTasks / taskCount, null));
-            }, onError: (error) {
-              completeTasks++;
-              _controller
-                  .add(DownloadProgress(completeTasks / taskCount, error));
-            });
-          }, onError: (error){ 
-             completeTasks++;
-              _controller
-                  .add(DownloadProgress(completeTasks / taskCount, error));
-          }));
-        }
+      for (var imageSize in imageSizes) {
+        futures.add(urlProvider
+            .urlToFit(width: imageSize.width, height: imageSize.height)
+            .then((url) {
+             if(url.isEmpty){ 
+                completeTasks++;
+                _controller
+                .add(DownloadProgress(completeTasks / taskCount, null));
+               return  Future.value();
+              }
+          return _cacheManager.getSingleFile(url).then((file) {
+            completeTasks++;
+            _controller
+                .add(DownloadProgress(completeTasks / taskCount, null));
+          }, onError: (error) {
+            completeTasks++;
+            _controller
+                .add(DownloadProgress(completeTasks / taskCount, error));
+          });
+        }, onError: (error){ 
+           completeTasks++;
+            _controller
+                .add(DownloadProgress(completeTasks / taskCount, error));
+        }));
       }
     }
     Future.wait(futures).then((_) {
-      if (complete != null) {
-        complete();
-      }
+      complete?.call();
     });
     return _controller.stream;
   }
 
-  Stream<DownloadProgress> downloadAll({Function complete}) {
+  Stream<DownloadProgress> downloadAll({Function? complete}) {
     _ratingRepo.getRatingInfo();
     _articleRepo.get().then((articles) {
       List<ImageURLProvider> articleImageProviders = [];
 
       final articleUrls = articles.map((article) {
-            final extractor = HTMLLinkExtractor(article.content);
+            final extractor = HTMLLinkExtractor(article.content ?? '');
                     extractor.imageProviders().forEach((provider) => articleImageProviders.add(provider));
             return ArticleImageProvider(article);
           } ).toList();
@@ -99,10 +92,10 @@ class OfflineDownloader {
           final List<ImageURLProvider> cropImageProviders = [];
               crops.forEach((crop) {
                 cropImageProviders.add(CropImageProvider(crop));
-                final stageArticles = crop.stageArticles?.getEntities()?.then((stages)
+                final stageArticles = crop.stageArticles?.getEntities().then((stageList)
                 {
-                  for (var stage in stages) {
-                    final extractor = HTMLLinkExtractor(stage.content);
+                  for (var stage in stageList) {
+                    final extractor = HTMLLinkExtractor(stage.content ?? '');
                     extractor.imageProviders().forEach((provider) => cropImageProviders.add(provider));
                     cropImageProviders.add(ArticleImageProvider(stage));
                   }

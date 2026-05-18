@@ -32,7 +32,7 @@ class RoundedButtonStyles {
         iconEdgePadding: 5,
         height: 56,
         width: double.infinity,
-        buttonIconSize: null,
+        buttonIconSize: 14.0,
       );
 
   static RoundedButtonStyle actionSheetLargeRoundedButton() =>
@@ -66,5 +66,6 @@ class RoundedButtonStyles {
     buttonIconSize: _Constants.defaultIconSize,
     borderRadius: _Constants.defaultBorderRadius,
     backgroundColor: _Constants.defaultBackgroundColor,
+    buttonTextStyle: const TextStyle(),
   );
 }

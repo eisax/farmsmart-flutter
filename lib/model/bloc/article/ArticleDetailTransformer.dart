@@ -2,11 +2,12 @@ import 'package:farmsmart_flutter/model/bloc/Transformer.dart';
 import 'package:farmsmart_flutter/model/bloc/article/ArticleListItemViewModelTransformer.dart';
 import 'package:farmsmart_flutter/model/firebase_const.dart';
 import 'package:farmsmart_flutter/model/entities/article_entity.dart';
+import 'package:farmsmart_flutter/model/entities/ImageURLProvider.dart';
 import 'package:farmsmart_flutter/model/entities/loading_status.dart';
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleDetailViewModel.dart';
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleListItemViewModel.dart';
 import 'package:intl/intl.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 /*
       Transform:
@@ -22,9 +23,25 @@ class _Strings {
   static const publishedDateFormat = "d MMMM";
 }
 
+class _EmptyImageProvider implements ImageURLProvider {
+  static const _placeholderAsset = 'assets/raw/placeholder_color.png';
+
+  @override
+  Future<String> urlToFit({double width = 0, double height = 0}) =>
+      Future.value(_placeholderAsset);
+
+  @override
+  String cachedUrlToFit({double width = 0, double height = 0}) =>
+      _placeholderAsset;
+
+  @override
+  String cacheIdentifier({double width = 0, double height = 0}) =>
+      ImageURLProvider.sizeIdentifier(width: width, height: height);
+}
+
 class ArticleDetailViewModelTransformer
     extends ObjectTransformer<ArticleEntity, ArticleDetailViewModel> {
-  ObjectTransformer<ArticleEntity, ArticleListItemViewModel>
+  late ObjectTransformer<ArticleEntity, ArticleListItemViewModel>
       _listItemTransformer;
   final String _contentLinkTitle;
   final String _relatedTitle;
@@ -32,58 +49,61 @@ class ArticleDetailViewModelTransformer
   final String _contentLinkIcon;
 
   ArticleDetailViewModelTransformer({
-    ObjectTransformer<ArticleEntity, ArticleListItemViewModel>
-        listItemTransformer,
-    String relatedTitle,
-    String contentLinkTitle,
-    String contentLinkDescription,
-    String contentLinkIcon,
-  })  : this._listItemTransformer = listItemTransformer,
-        this._relatedTitle = relatedTitle,
-        this._contentLinkTitle = contentLinkTitle,
-        this._contentLinkDescription = contentLinkDescription,
-        this._contentLinkIcon = contentLinkIcon;
+    required String relatedTitle,
+    required String contentLinkTitle,
+    required String contentLinkDescription,
+    required String contentLinkIcon,
+  })  : _relatedTitle = relatedTitle,
+        _contentLinkTitle = contentLinkTitle,
+        _contentLinkDescription = contentLinkDescription,
+        _contentLinkIcon = contentLinkIcon;
   final _dateFormatter = DateFormat(_Strings.publishedDateFormat);
 
   @override
-  ArticleDetailViewModel transform({ArticleEntity from}) {
-    ArticleImageProvider imageProvider =
-        (from.images != null) ? ArticleImageProvider(from) : null;
+  ArticleDetailViewModel transform({ArticleEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
+    final imageProvider = (from.images != null)
+        ? ArticleImageProvider(from)
+        : _EmptyImageProvider();
     final externalLink =
-        from.externalLink != null ? from.externalLink.trim() : null;
-    ArticleDetailViewModel viewModel = ArticleDetailViewModel(
+        from.externalLink?.trim().isNotEmpty == true
+            ? from.externalLink!.trim()
+            : '';
+    return ArticleDetailViewModel(
       LoadingStatus.SUCCESS,
-      from.title,
+      from.title ?? '',
       _subtitle(article: from),
       _relatedTitle,
       _contentLinkTitle,
       imageProvider,
-      from.content,
-      buildArticleDeeplink(from.uri),
+      from.content ?? '',
+      buildArticleDeeplink(from.uri ?? ''),
       externalLink,
       _contentLinkDescription,
       _contentLinkIcon,
+      () {
+        if (from.related == null) {
+          return Future.value(<ArticleListItemViewModel>[]);
+        }
+        return from.related!.getEntities().then((articles) {
+          return articles.map((article) {
+            return _listItemTransformer.transform(from: article);
+          }).toList();
+        });
+      },
     );
-    viewModel.getRelated = () {
-      if (from.related == null) {
-        return Future.value([]);
-      }
-      return from.related.getEntities().then((articles) {
-        return articles.map((article) {
-          return _listItemTransformer.transform(from: article);
-        }).toList();
-      });
-    };
-    return viewModel;
   }
 
-  String _subtitle({ArticleEntity article}) {
-    int readMins = _minuteCount(article.content);
+  String _subtitle({required ArticleEntity article}) {
+    final content = article.content ?? '';
+    int readMins = _minuteCount(content);
     final minString =
         (readMins == 0) ? _Strings.lessThanMin : readMins.toString();
     final dateString = (article.published == null)
         ? ""
-        : _dateFormatter.format(article.published);
+        : _dateFormatter.format(article.published!);
     return dateString +
         _Strings.divider +
         minString +

@@ -35,7 +35,7 @@
         "type": "text",
         "placeholders": {}
     },
-    "A network and knowledge source for farmers in Kenya": "A network and knowledge source for farmers",
+    "A network and knowledge source for farmers in Kenya": "A network and knowledge source for farmers in Zimbabwe",
     "@A network and knowledge source for farmers in Kenya": {
         "type": "text",
         "placeholders": {}
@@ -630,7 +630,7 @@
         "type": "text",
         "placeholders": {}
     },
-    "Currency": "ksh",
+    "Currency": "\$",
     "@Currency": {
         "type": "text",
         "placeholders": {}

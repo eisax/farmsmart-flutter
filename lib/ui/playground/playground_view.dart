@@ -17,10 +17,11 @@ class PlaygroundView extends StatefulWidget {
   final Widget appBarTitle;
 
   PlaygroundView(
-      {Key key,
-      @required this.widgetList,
+      {Key? key,
+      required this.widgetList,
       this.appBarColor = const Color(0xFF9CBD3A),
-      this.appBarTitle = _defaultAppBarTitle});
+      this.appBarTitle = _defaultAppBarTitle})
+      : super(key: key);
 
   @override
   _PlaygroundViewState createState() => _PlaygroundViewState();
@@ -42,7 +43,7 @@ class _PlaygroundViewState extends State<PlaygroundView> {
 
   @override
   void dispose() {
-    items = null;
+    items.clear();
     super.dispose();
   }
 
@@ -100,7 +101,7 @@ class _PlaygroundViewState extends State<PlaygroundView> {
         shrinkWrap: true,
         itemCount: items.length,
         itemBuilder: (BuildContext context, int index) {
-            return _playgroundListItem(index, context);
+          return _playgroundListItem(index, context);
         });
   }
 
@@ -146,14 +147,14 @@ class _PlaygroundViewState extends State<PlaygroundView> {
   }
 
   void _navigateToWidgetDetail(BuildContext context, Widget childWidget,
-      {String customTitle}) {
+      {String? customTitle}) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => _PlaygroundDetail(
-              child: childWidget,
-              appBarColor: widget.appBarColor,
-              customTitle: customTitle,
-            ),
+          child: childWidget,
+          appBarColor: widget.appBarColor,
+          customTitle: customTitle,
+        ),
       ),
     );
   }
@@ -168,11 +169,11 @@ class _PlaygroundDetail extends StatelessWidget {
 
   final Widget child;
   final Color appBarColor;
-  final String customTitle;
+  final String? customTitle;
 
-  _PlaygroundDetail(
-      {Key key,
-      @required this.child,
+  const _PlaygroundDetail(
+      {Key? key,
+      required this.child,
       this.appBarColor = _defaultAppBarColor,
       this.customTitle})
       : super(key: key);

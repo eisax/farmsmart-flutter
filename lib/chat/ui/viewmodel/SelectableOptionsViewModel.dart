@@ -5,7 +5,7 @@ class SelectableOptionsViewModel {
   final List<SelectableOptionViewModel> options;
 
   SelectableOptionsViewModel({
-    this.options,
-    this.maxSelection,
+    required this.options,
+    required this.maxSelection,
   });
 }

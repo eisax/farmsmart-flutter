@@ -19,7 +19,7 @@ class LocalProfileImageProvider implements ImageURLProvider {
   LocalProfileImageProvider(this.id);
 
   @override
-  Future<String> urlToFit({double width, double height}) {
+  Future<String> urlToFit({double width = 0, double height = 0}) {
     return localAvatarPath(id);
   }
 
@@ -30,29 +30,33 @@ class LocalProfileImageProvider implements ImageURLProvider {
   }
 
   @override
-  String cacheIdentifier({double width, double height}) {
-    return null;
+  String cacheIdentifier({double width = 0, double height = 0}) {
+    return id +
+        ImageURLProvider.sizeIdentifier(width: width, height: height);
   }
 
   @override
-  String cachedUrlToFit({double width, double height}) {
-    return null;
+  String cachedUrlToFit({double width = 0, double height = 0}) {
+    return '';
   }
 }
 
 class DocumentToProfileEntityTransformer
-    extends ObjectTransformer<DocumentSnapshot, ProfileEntity> {
+    extends ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, ProfileEntity> {
   @override
-  ProfileEntity transform({DocumentSnapshot from}) {
-    final data = from.data;
-    final name = castOrNull<String>(data[_Fields.name]);
-    final plotInfo = _getPlotInfoData(data[_Fields.plotInfo]);
-    final uri = castOrNull<String>(from.reference.path);
-    final id = from.documentID;
+  ProfileEntity transform({DocumentSnapshot<Map<String, dynamic>>? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
+    final data = from.data();
+    final name = castOrNull<String>(data?[_Fields.name]);
+    final plotInfo = _getPlotInfoData(data?[_Fields.plotInfo]);
+    final uri = castOrNull<String>(from.reference.path) ?? '';
+    final id = from.id;
     return ProfileEntity(
       id,
       uri,
-      name,
+      name ?? '',
       LocalProfileImageProvider(id),
       plotInfo,
     );
@@ -60,8 +64,15 @@ class DocumentToProfileEntityTransformer
 
   Map<String, Map<String, String>> _getPlotInfoData(dynamic data) {
     Map<String, Map<String, String>> responseMap = {};
-    data.forEach((key, value) => responseMap[castOrNull<String>(key)] =
-        castMapOrNull<String, String>(value));
+    if (data == null) {
+      return responseMap;
+    }
+    (data as Map).forEach((key, value) {
+      final castKey = castOrNull<String>(key);
+      if (castKey != null) {
+        responseMap[castKey] = castMapOrNull<String, String>(value);
+      }
+    });
     return responseMap;
   }
 }
@@ -69,7 +80,10 @@ class DocumentToProfileEntityTransformer
 class ProfileEntityToDocumentTransformer
     extends ObjectTransformer<ProfileEntity, Map<String, dynamic>> {
   @override
-  Map<String, dynamic> transform({ProfileEntity from}) {
+  Map<String, dynamic> transform({ProfileEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
     return {
       _Fields.name: from.name,
       _Fields.plotInfo: from.lastPlotInfo,

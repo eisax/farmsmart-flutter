@@ -28,23 +28,26 @@ class _DefaultStyle implements ContextualAppBarStyle {
 
 const ContextualAppBarStyle _defaultStyle = const _DefaultStyle();
 
-class ContextualAppBar extends StatelessWidget {
+class ContextualAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ContextualAppBarStyle _style;
-  final _shareAction;
-  final _moreAction;
+  final VoidCallback? _shareAction;
+  final VoidCallback? _moreAction;
   final bool _isModal;
 
   const ContextualAppBar({
-    Key key,
-    Function shareAction,
+    Key? key,
+    VoidCallback? shareAction,
     ContextualAppBarStyle style = _defaultStyle,
-    Function moreAction,
+    VoidCallback? moreAction,
     bool isModal = false,
   })  : this._style = style,
         this._shareAction = shareAction,
         this._moreAction = moreAction,
         this._isModal = isModal,
         super(key: key);
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +57,7 @@ class ContextualAppBar extends StatelessWidget {
         margin: EdgeInsets.only(right: _style.insets.right),
         child: IconButton(
           icon: Icon(Icons.share, color: _style.iconColor),
-          onPressed: _shareAction,
+          onPressed:  _shareAction,
         ));
     final more = Container(
         margin: EdgeInsets.only(right: _style.insets.right),
@@ -81,7 +84,6 @@ class ContextualAppBar extends StatelessWidget {
           isRoot ? _buildDismissIcon(context) : _buildBackIcon(context),
         ],
       ),
-
     );
   }
 

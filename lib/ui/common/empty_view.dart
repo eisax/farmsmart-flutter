@@ -20,13 +20,13 @@ class EmptyViewViewModel {
   final String imagePath;
   final String description;
   final String actionText;
-  final Function action;
+  final VoidCallback action;
 
   const EmptyViewViewModel({
-    this.imagePath,
-    this.description,
-    this.actionText,
-    this.action,
+    required this.imagePath,
+    required this.description,
+    required this.actionText,
+    required this.action,
   });
 }
 
@@ -34,8 +34,8 @@ class EmptyView extends StatelessWidget {
   final EmptyViewViewModel viewModel;
 
   const EmptyView({
-    Key key,
-    @required this.viewModel,
+    Key? key,
+    required this.viewModel,
   }) : super(key: key);
 
   @override
@@ -52,24 +52,21 @@ class EmptyView extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    return viewModel.imagePath != null
-        ? Padding(
-            padding: _Constants.imagePadding,
-            child: Image.asset(viewModel.imagePath),
-          )
-        : SizedBox.shrink();
+    return Padding(
+      padding: _Constants.imagePadding,
+      child: Image.asset(viewModel.imagePath),
+    );
   }
 
   Widget _buildActionButton() {
     return Padding(
       padding: _Constants.buttonPadding,
       child: RoundedButton(
-        viewModel: RoundedButtonViewModel(
-          title: viewModel.actionText,
-          onTap: () => viewModel.action(),
-        ),
-        style: RoundedButtonStyle.largeRoundedButtonStyle()
-      ),
+          viewModel: RoundedButtonViewModel(
+            title: viewModel.actionText,
+            onTap: () => viewModel.action(),
+          ),
+          style: RoundedButtonStyle.largeRoundedButtonStyle()),
     );
   }
 

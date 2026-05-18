@@ -3,22 +3,23 @@ import 'package:flutter/material.dart';
 enum ActionType { simple, withIcon, selectable }
 
 class ActionSheetListItemViewModel {
-  String title;
-  String icon;
-  ActionType type;
-  String checkBoxIcon;
+  final String title;
+  final String icon;
+  final ActionType type;
+  final String checkBoxIcon;
   bool isSelected;
-  bool isDestructive;
-  Function onTap;
+  final bool isDestructive;
+  final VoidCallback onTap;
 
-  ActionSheetListItemViewModel(
-      {this.title,
-      this.icon,
-      this.type,
-      this.checkBoxIcon,
-      this.isSelected: false,
-      this.isDestructive : false,
-      this.onTap});
+  ActionSheetListItemViewModel({
+    required this.title,
+    this.icon = '',
+    required this.type,
+    this.checkBoxIcon = '',
+    this.isSelected = false,
+    this.isDestructive = false,
+    required this.onTap,
+  });
 }
 
 class ActionSheetListItemStyle {
@@ -38,18 +39,19 @@ class ActionSheetListItemStyle {
 
   final int maxLines;
 
-  ActionSheetListItemStyle(
-      {this.defaultCheckBox,
-      this.activeCheckBox,
-      this.actionItemBackgroundColor,
-      this.actionTextStyle,
-      this.destructiveTextStyle,
-      this.actionItemEdgePadding,
-      this.actionItemHeight,
-      this.iconLineSpace,
-      this.actionItemElevation,
-      this.iconHeight,
-      this.maxLines});
+  ActionSheetListItemStyle({
+    required this.defaultCheckBox,
+    required this.activeCheckBox,
+    required this.actionItemBackgroundColor,
+    required this.actionTextStyle,
+    required this.destructiveTextStyle,
+    required this.actionItemEdgePadding,
+    required this.actionItemHeight,
+    required this.iconLineSpace,
+    required this.actionItemElevation,
+    required this.iconHeight,
+    required this.maxLines,
+  });
 
   factory ActionSheetListItemStyle.defaultStyle() {
     return ActionSheetListItemStyle(
@@ -79,17 +81,17 @@ class ActionSheetListItemStyle {
   }
 
   ActionSheetListItemStyle copyWith(
-      {String defaultCheckBox,
-      String activeCheckbox,
-      Color actionItemBackgroundColor,
-      TextStyle actionTextStyle,
-      TextStyle destructiveTextStyle,
-      EdgeInsets actionItemEdgePadding,
-      double actionItemHeight,
-      double iconLineSpace,
-      double actionItemElevation,
-      double iconHeight,
-      int maxLines}) {
+      {String? defaultCheckBox,
+      String? activeCheckbox,
+      Color? actionItemBackgroundColor,
+      TextStyle? actionTextStyle,
+      TextStyle? destructiveTextStyle,
+      EdgeInsets? actionItemEdgePadding,
+      double? actionItemHeight,
+      double? iconLineSpace,
+      double? actionItemElevation,
+      double? iconHeight,
+      int? maxLines}) {
     return ActionSheetListItemStyle(
         defaultCheckBox: defaultCheckBox ?? this.defaultCheckBox,
         activeCheckBox: activeCheckbox ?? this.activeCheckBox,
@@ -109,38 +111,39 @@ class ActionSheetListItemStyle {
 
 class ActionSheetListItem extends StatelessWidget {
   final ActionSheetListItemViewModel _viewModel;
-  static ActionSheetListItemStyle _style;
 
-  const ActionSheetListItem({Key key, ActionSheetListItemViewModel viewModel})
+  const ActionSheetListItem(
+      {Key? key, required ActionSheetListItemViewModel viewModel})
       : this._viewModel = viewModel,
         super(key: key);
 
   Widget build(BuildContext context) {
+    final ActionSheetListItemStyle style;
     switch (_viewModel.type) {
       case ActionType.withIcon:
-        _style = ActionSheetListItemStyle.defaultStyle();
+        style = ActionSheetListItemStyle.defaultStyle();
         break;
       case ActionType.selectable:
-        _style = ActionSheetListItemStyle.selectableStyle();
+        style = ActionSheetListItemStyle.selectableStyle();
         break;
       default:
-        _style = ActionSheetListItemStyle.defaultStyle();
+        style = ActionSheetListItemStyle.defaultStyle();
     }
 
     return Card(
-      elevation: _style.actionItemElevation,
-      color: _style.actionItemBackgroundColor,
+      elevation: style.actionItemElevation,
+      color: style.actionItemBackgroundColor,
       child: Container(
-        padding: _style.actionItemEdgePadding,
+        padding: style.actionItemEdgePadding,
         alignment: Alignment.center,
-        height: _style.actionItemHeight,
+        height: style.actionItemHeight,
         child: Wrap(
             direction: Axis.horizontal,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: <Widget>[
               Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: _buildActionContent(_style, _viewModel)),
+                  children: _buildActionContent(style, _viewModel)),
             ]),
       ),
     );
@@ -150,40 +153,34 @@ class ActionSheetListItem extends StatelessWidget {
       ActionSheetListItemStyle style, ActionSheetListItemViewModel viewModel) {
     List<Widget> listBuilder = [];
 
-    if (viewModel.icon != null) {
-      listBuilder.add(Image.asset(viewModel.icon, height: style.iconHeight));
-      listBuilder.add(SizedBox(width: style.iconLineSpace));
-    }
+    listBuilder.add(Image.asset(viewModel.icon, height: style.iconHeight));
+    listBuilder.add(SizedBox(width: style.iconLineSpace));
 
-    if (viewModel.title != null) {
-      listBuilder.add(Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(viewModel.title,
-                style: viewModel.isDestructive
-                    ? style.destructiveTextStyle
-                    : style.actionTextStyle,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1),
-          ],
-        ),
-      ));
-    }
+    listBuilder.add(Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(viewModel.title,
+              style: viewModel.isDestructive
+                  ? style.destructiveTextStyle
+                  : style.actionTextStyle,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1),
+        ],
+      ),
+    ));
 
     // TODO: add icons inside the style
-    if (viewModel.checkBoxIcon != null) {
-      var checkBoxIcon;
-      viewModel.isSelected
-          ? checkBoxIcon = style.activeCheckBox
-          : checkBoxIcon = style.defaultCheckBox;
+    var checkBoxIcon;
+    viewModel.isSelected
+        ? checkBoxIcon = style.activeCheckBox
+        : checkBoxIcon = style.defaultCheckBox;
 
-      listBuilder.add(SizedBox(width: style.iconLineSpace));
-      listBuilder.add(Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[Image.asset(checkBoxIcon, height: style.iconHeight)],
-      ));
-    }
+    listBuilder.add(SizedBox(width: style.iconLineSpace));
+    listBuilder.add(Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[Image.asset(checkBoxIcon, height: style.iconHeight)],
+    ));
     return listBuilder;
   }
 }

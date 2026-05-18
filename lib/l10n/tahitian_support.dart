@@ -5,6 +5,11 @@ import 'package:intl/date_symbol_data_local.dart' as intl;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+// Import the generated concrete MaterialLocalizations implementations so we
+// can subclass an existing language implementation and only override what we
+// need for Tahitian.
+// ignore: implementation_imports
+import 'package:flutter_localizations/src/l10n/generated_material_localizations.dart';
 
 import 'package:intl/date_symbol_data_local.dart' as hack;
 import 'package:intl/date_time_patterns.dart' as hack;
@@ -63,18 +68,18 @@ class _TyMaterialLocalizationsDelegate
   bool shouldReload(_TyMaterialLocalizationsDelegate old) => false;
 }
 
-class TyMaterialLocalizations extends GlobalMaterialLocalizations {
+class TyMaterialLocalizations extends MaterialLocalizationEn {
   const TyMaterialLocalizations({
     String localeName = 'ty',
-    @required intl.DateFormat fullYearFormat,
-    @required intl.DateFormat compactDateFormat,
-    @required intl.DateFormat shortDateFormat,
-    @required intl.DateFormat mediumDateFormat,
-    @required intl.DateFormat longDateFormat,
-    @required intl.DateFormat yearMonthFormat,
-    @required intl.DateFormat shortMonthDayFormat,
-    @required intl.NumberFormat decimalFormat,
-    @required intl.NumberFormat twoDigitZeroPaddedFormat,
+    required intl.DateFormat fullYearFormat,
+    required intl.DateFormat compactDateFormat,
+    required intl.DateFormat shortDateFormat,
+    required intl.DateFormat mediumDateFormat,
+    required intl.DateFormat longDateFormat,
+    required intl.DateFormat yearMonthFormat,
+    required intl.DateFormat shortMonthDayFormat,
+    required intl.NumberFormat decimalFormat,
+    required intl.NumberFormat twoDigitZeroPaddedFormat,
   }) : super(
           localeName: localeName,
           fullYearFormat: fullYearFormat,
@@ -183,10 +188,10 @@ class TyMaterialLocalizations extends GlobalMaterialLocalizations {
   String get refreshIndicatorSemanticLabel => r'Refresh';
 
   @override
-  String get remainingTextFieldCharacterCountFew => null;
+  String get remainingTextFieldCharacterCountFew => "";
 
   @override
-  String get remainingTextFieldCharacterCountMany => null;
+  String get remainingTextFieldCharacterCountMany => "";
 
   @override
   String get remainingTextFieldCharacterCountOne => r'1 character remaining';
@@ -196,7 +201,7 @@ class TyMaterialLocalizations extends GlobalMaterialLocalizations {
       r'$remainingCount characters remaining';
 
   @override
-  String get remainingTextFieldCharacterCountTwo => null;
+  String get remainingTextFieldCharacterCountTwo => "";
 
   @override
   String get remainingTextFieldCharacterCountZero => r'No characters remaining';
@@ -232,10 +237,10 @@ class TyMaterialLocalizations extends GlobalMaterialLocalizations {
   String get selectAllButtonLabel => r'SELECT ALL';
 
   @override
-  String get selectedRowCountTitleFew => null;
+  String get selectedRowCountTitleFew => "";
 
   @override
-  String get selectedRowCountTitleMany => null;
+  String get selectedRowCountTitleMany => "";
 
   @override
   String get selectedRowCountTitleOne => r'1 item selected';
@@ -244,7 +249,7 @@ class TyMaterialLocalizations extends GlobalMaterialLocalizations {
   String get selectedRowCountTitleOther => r'$selectedRowCount items selected';
 
   @override
-  String get selectedRowCountTitleTwo => null;
+  String get selectedRowCountTitleTwo => "";
 
   @override
   String get selectedRowCountTitleZero => r'No items selected';

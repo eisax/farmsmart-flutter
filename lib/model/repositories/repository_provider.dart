@@ -16,6 +16,8 @@ abstract class RepositoryProvider {
 
   AccountRepositoryInterface getAccountRepository();
 
+  ProfileRepositoryInterface getProfileRepository();
+
   ArticleRepositoryInterface getArticleRepository();
 
   PlotRepositoryInterface getMyPlotRepository(ProfileRepositoryInterface profileRepository);

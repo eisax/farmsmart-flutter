@@ -4,8 +4,8 @@ class ChatResponseViewModel {
   final dynamic value;
 
   ChatResponseViewModel({
-    this.id,
-    this.title,
-    this.value,
+  required this.id,
+  required this.title,
+  required this.value,
   });
 }

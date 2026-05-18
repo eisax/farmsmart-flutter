@@ -18,21 +18,21 @@ class _Constants {
 }
 
 class RecommendationCompactCardStyle {
-  final TextStyle titleTextStyle;
-  final TextStyle subtitleTextStyle;
-  final TextStyle descriptionTextStyle;
-  final RoundedButtonStatefulStyle leftActionButtonStyle;
-  final RoundedButtonStatefulStyle rightActionButtonStyle;
-  final double imageHeight;
-  final BorderRadiusGeometry imageBorderRadius;
-  final int descriptionMaxLines;
-  final EdgeInsets contentPadding;
-  final BoxDecoration rightActionBoxDecoration;
-  final Color overlayColor;
-  final double overlayIconHeight;
-  final double overlayIconWidth;
-  final String overlayIcon;
-  final Color addedOverlayColor;
+  final TextStyle? titleTextStyle;
+  final TextStyle? subtitleTextStyle;
+  final TextStyle? descriptionTextStyle;
+  final RoundedButtonStatefulStyle? leftActionButtonStyle;
+  final RoundedButtonStatefulStyle? rightActionButtonStyle;
+  final double? imageHeight;
+  final BorderRadiusGeometry? imageBorderRadius;
+  final int? descriptionMaxLines;
+  final EdgeInsets? contentPadding;
+  final BoxDecoration? rightActionBoxDecoration;
+  final Color? overlayColor;
+  final double? overlayIconHeight;
+  final double? overlayIconWidth;
+  final String? overlayIcon;
+  final Color? addedOverlayColor;
 
   const RecommendationCompactCardStyle({
     this.titleTextStyle,
@@ -53,21 +53,21 @@ class RecommendationCompactCardStyle {
   });
 
   RecommendationCompactCardStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    TextStyle descriptionTextStyle,
-    RoundedButtonStatefulStyle leftActionButtonStyle,
-    RoundedButtonStatefulStyle rightActionButtonStyle,
-    double imageHeight,
-    BorderRadiusGeometry imageBorderRadius,
-    int descriptionMaxLines,
-    EdgeInsets contentPadding,
-    BoxDecoration rightBoxDecoration,
-    Color overlayColor,
-    double overlayIconHeight,
-    double overlayIconWidth,
-    String overlayIcon,
-    Color addedOverlayColor,
+    TextStyle? titleTextStyle,
+    TextStyle? subtitleTextStyle,
+    TextStyle? descriptionTextStyle,
+    RoundedButtonStatefulStyle? leftActionButtonStyle,
+    RoundedButtonStatefulStyle? rightActionButtonStyle,
+    double? imageHeight,
+    BorderRadiusGeometry? imageBorderRadius,
+    int? descriptionMaxLines,
+    EdgeInsets? contentPadding,
+    BoxDecoration? rightBoxDecoration,
+    Color? overlayColor,
+    double? overlayIconHeight,
+    double? overlayIconWidth,
+    String? overlayIcon,
+    Color? addedOverlayColor,
   }) {
     return RecommendationCompactCardStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -154,20 +154,7 @@ class _DefaultStyle extends RecommendationCompactCardStyle {
     ),
   );
 
-  const _DefaultStyle(
-      {TextStyle titleTextStyle,
-      TextStyle subtitleTextStyle,
-      TextStyle descriptionTextStyle,
-      RoundedButtonStyle leftActionButtonStyle,
-      RoundedButtonStyle rightActionButtonStyle,
-      double imageHeight,
-      BorderRadiusGeometry imageBorderRadius,
-      int descriptionMaxLines,
-      EdgeInsets contentPadding,
-      Color overlayColor,
-      double overlayIconHeight,
-      double overlayIconWidth,
-      String overlayIcon});
+  const _DefaultStyle();
 }
 
 const RecommendationCompactCardStyle _defaultStyle = const _DefaultStyle();
@@ -175,12 +162,12 @@ const RecommendationCompactCardStyle _defaultStyle = const _DefaultStyle();
 class RecommendationCompactCard extends StatelessWidget {
   final RecommendationCompactCardStyle _style;
   final RecommendationCardViewModel _viewModel;
-  final Function _detailAction;
+  final VoidCallback? _detailAction;
 
   RecommendationCompactCard({
-    Key key,
-    @required RecommendationCardViewModel viewModel,
-    Function detailAction,
+    Key? key,
+    required RecommendationCardViewModel viewModel,
+    VoidCallback? detailAction,
     RecommendationCompactCardStyle style = _defaultStyle,
   })  : this._style = style,
         this._viewModel = viewModel,
@@ -192,7 +179,7 @@ class RecommendationCompactCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       child: Padding(
-        padding: _style.contentPadding,
+        padding: _style.contentPadding ?? EdgeInsets.zero,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,8 +203,8 @@ class RecommendationCompactCard extends StatelessWidget {
 
   Widget _buildTopRoundedImage() {
     return Container(
-      width: _style.imageHeight,
-      height: _style.imageHeight,
+      width: _style.imageHeight ?? 0,
+      height: _style.imageHeight ?? 0,
       child: RoundedImageOverlay(
         image: _viewModel.imageProvider,
         imageHeight: _style.imageHeight,
@@ -234,29 +221,31 @@ class RecommendationCompactCard extends StatelessWidget {
   }
 
   _buildTexts() {
-    List<Widget> titles = [Text(
-              _viewModel.title,
-              style: _style.titleTextStyle,
-              maxLines: _Constants.titleMaxLines,
-              overflow: TextOverflow.ellipsis,
-            )]; 
+    List<Widget> titles = [
+      Text(
+        _viewModel.title ?? '',
+        maxLines: _Constants.titleMaxLines,
+        overflow: TextOverflow.ellipsis,
+      )
+    ];
 
-    if (_viewModel.score >= _Constants.scoreLowerLimit )
-    {
-      titles = titles +[ Text(
-              _viewModel.subtitle,
+    if ((_viewModel.score ?? 0.0) >= _Constants.scoreLowerLimit) {
+      titles = titles +
+          [
+            Text(
+              _viewModel.subtitle ?? '',
               style: _style.subtitleTextStyle,
               maxLines: _Constants.subtitleMaxLines,
               overflow: TextOverflow.ellipsis,
-            )];
+            )
+          ];
     }
     return Expanded(
       child: Padding(
         padding: _Constants.titlesPadding,
         child: Column(
-          crossAxisAlignment:CrossAxisAlignment.start,
-          children: titles + [ _buildDescription()] 
-        ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: titles + [_buildDescription()]),
       ),
     );
   }
@@ -265,7 +254,7 @@ class RecommendationCompactCard extends StatelessWidget {
     return Padding(
       padding: _Constants.descriptionPadding,
       child: Text(
-        _viewModel.description,
+        _viewModel.description ?? '',
         style: _style.descriptionTextStyle,
         maxLines: _style.descriptionMaxLines,
         overflow: TextOverflow.ellipsis,
@@ -283,7 +272,7 @@ class RecommendationCompactCard extends StatelessWidget {
               style: _style.leftActionButtonStyle,
               viewModel: RoundedButtonStatefulViewModel(
                 roundedButtonViewModel: RoundedButtonViewModel(
-                  title: _viewModel.detailActionText,
+                  title: _viewModel.detailActionText ?? '',
                   onTap: _detailAction,
                 ),
               ),
@@ -301,7 +290,7 @@ class RecommendationCompactCard extends StatelessWidget {
                 viewModel: RoundedButtonStatefulViewModel(
                   isActive: !_viewModel.isAdded,
                   roundedButtonViewModel: RoundedButtonViewModel(
-                    title: _viewModel.addActionText,
+                    title: _viewModel.addActionText ?? '',
                     onTap: _viewModel.addAction,
                   ),
                 ),

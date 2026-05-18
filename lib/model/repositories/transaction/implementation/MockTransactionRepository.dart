@@ -18,7 +18,6 @@ class MockTransactionRepository extends MockListRepository<TransactionEntity>
   ) : super(
           identifyEntity: identifyEntity,
           startingData: startData,
-          
         );
 
   factory MockTransactionRepository(
@@ -53,13 +52,11 @@ class MockTransactionRepository extends MockListRepository<TransactionEntity>
 
   @override
   Future<TransactionAmount> thisWeekCosts() {
-    // TODO: implement thisWeekCosts
-    return null;
+    return Future.value(TransactionAmount('0', false));
   }
 
   @override
   Future<TransactionAmount> thisWeekSales() {
-    // TODO: implement thisWeekSales
-    return null;
+    return Future.value(TransactionAmount('0', false));
   }
 }

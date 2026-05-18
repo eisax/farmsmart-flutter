@@ -5,9 +5,9 @@ class SelectableOptionViewModel {
   final String responseText;
 
   SelectableOptionViewModel({
-    this.id,
-    this.title,
-    this.description,
-    this.responseText,
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.responseText,
   });
 }

@@ -38,7 +38,7 @@ class EditProfileFlowCoordinator implements FlowCoordinator {
   EditProfileFlowCoordinator(this._accountRepository, Function onStatusChanged)
       : this._onStatusChanged = onStatusChanged;
 
-  void run(BuildContext context, {Function onSuccess, Function onFail}) {
+  void run(BuildContext context, {Function? onSuccess, Function? onFail}) {
     if (_status != FlowCoordinatorStatus.InProgress) {
       _setStatus(FlowCoordinatorStatus.InProgress);
       NavigationScope.presentModal(
@@ -62,9 +62,9 @@ class EditProfileFlowCoordinator implements FlowCoordinator {
     }
   }
 
-  ChatPageViewModel _chatPageViewModel({Function onSuccess, Function onFail}) {
+  ChatPageViewModel _chatPageViewModel({Function? onSuccess, Function? onFail}) {
     return ChatPageViewModel(_LocalisedAssets.onboardingFlow(), (data) {
-      final Map<String, ChatResponseViewModel> chatInput =
+      final Map<String, ChatResponseViewModel>? chatInput =
           castOrNull<Map<String, ChatResponseViewModel>>(data);
       if (chatInput != null) {
         _updateAccount(
@@ -74,19 +74,19 @@ class EditProfileFlowCoordinator implements FlowCoordinator {
                 (key, value) => MapEntry(key, value.value.toString()));
             AnalyticsInterface.implementation()
                 .effect(_AnalyticsNames.updateProfile, parameters: valueMap);
-            onSuccess();
+            onSuccess?.call();
           },
           () {
             AnalyticsInterface.implementation()
                 .effect(_AnalyticsNames.updateProfileFailed);
 
-            onFail();
+            onFail.call();
           },
         );
       } else {
-        onFail();
+        onFail.call();
       }
-    }, onFail);
+    }, onFail!);
   }
 
   void _setStatus(FlowCoordinatorStatus newStatus) {

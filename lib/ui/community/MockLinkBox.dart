@@ -12,6 +12,7 @@ class MockLinkBoxViewModel {
       detailText: "Join the WhatsApp group and discuss with fellow farmers",
       image: _Images.whatsAppImage,
       onTap: () => _mockAction(),
+      icon: Icons.open_in_browser,
     );
   }
 
@@ -21,6 +22,7 @@ class MockLinkBoxViewModel {
       detailText: "Join the WhatsApp group and discuss with fellow farmers",
       icon: Icons.open_in_browser,
       onTap: () => _mockAction(),
+      image: '',
     );
   }
 

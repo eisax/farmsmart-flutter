@@ -1,6 +1,5 @@
 import 'package:farmsmart_flutter/model/analytics_interface.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/widgets.dart';
 
 class AnalyticsFirebaseImp extends AnalyticsInterface {
@@ -8,10 +7,7 @@ class AnalyticsFirebaseImp extends AnalyticsInterface {
   final FirebaseAnalytics analytics;
 
   static String acceptableString(String string) {
-    if(string!= null){
-       return string.replaceAll(RegExp(r"\s+\b|\b\s|\s|\b"), "");
-    }
-   return null;
+    return string.replaceAll(RegExp(r"\s+\b|\b\s|\s|\b"), "");
   }
 
   AnalyticsFirebaseImp(this.analytics);

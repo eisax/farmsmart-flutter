@@ -10,7 +10,12 @@ final testArticle = MockArticle().build();
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test('Article list item viewmodel transfomed from article correctly', () {
-    final detailTransformer = ArticleDetailViewModelTransformer();
+    final detailTransformer = ArticleDetailViewModelTransformer(
+      relatedTitle: 'Related',
+      contentLinkTitle: 'View more',
+      contentLinkDescription: 'Description',
+      contentLinkIcon: '',
+    );
     final listTransformer = ArticleListItemViewModelTransformer(detailTransformer: detailTransformer);
     detailTransformer.setListItemTransformer(listTransformer);
     final articleListItemViewModel = listTransformer.transform(from: testArticle);

@@ -13,32 +13,37 @@ class HTMLLinkExtractor {
 
   HTMLLinkExtractor(this.content);
 
-  List<ImageURLProvider> imageProviders(){
+  List<ImageURLProvider> imageProviders() {
     dom.Document document = parser.parse(content);
-    dom.Node body = document.body;
+    dom.Element? body = document.body;
+    if (body == null) {
+      return [];
+    }
     return _findImageLinks(body).map((link) => PathImageProvider(link)).toList();
   }
 
-  List<String> imagePaths(){
+  List<String> imagePaths() {
     dom.Document document = parser.parse(content);
-    dom.Node body = document.body;
+    dom.Element? body = document.body;
+    if (body == null) {
+      return [];
+    }
     return _findImageLinks(body).toList();
   }
 
-
-
-  List<String> _findImageLinks(dom.Node node){
-    String nodeImage;
-      if (node is dom.Element) {
-                if (node.localName == _Fields.imageTag) {
-                nodeImage = node.attributes[_Fields.sourceTag];
-                }
+  List<String> _findImageLinks(dom.Node node) {
+    final List<String> links = [];
+    if (node is dom.Element) {
+      if (node.localName == _Fields.imageTag) {
+        final src = node.attributes[_Fields.sourceTag];
+        if (src != null && src.isNotEmpty) {
+          links.add(src);
+        }
       }
-    List<String> links = (nodeImage!=null) ? [nodeImage] : [];
-    for (var child in node.children) {
-        _findImageLinks(child).forEach((image) => links.add(image));
+    }
+    for (var child in node.nodes) {
+      _findImageLinks(child).forEach((image) => links.add(image));
     }
     return links;
   }
-  
 }

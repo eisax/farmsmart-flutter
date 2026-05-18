@@ -35,64 +35,65 @@ class FlameLink {
   static const _fileCollectionName = 'fl_files';
   static const _storageBasePath = "/flamelink";
   static const _imageBasePath = "media";
-  final Firestore store;
+  final FirebaseFirestore store;
   final String _environment;
   final Locale _locale;
 
   FlameLink({
-    Firestore store,
-    String environment,
-    Locale locale,
-  })  : this.store = store,
-        this._environment = environment,
-        this._locale = locale;
+    required FirebaseFirestore store,
+    required String environment,
+    required Locale locale,
+  })  : store = store,
+        _environment = environment,
+        _locale = locale;
 
-  CollectionReference content() {
+  CollectionReference<Map<String, dynamic>> content() {
     return store.collection(_contentCollectionName);
   }
 
-  CollectionReference files() {
+  CollectionReference<Map<String, dynamic>> files() {
     return store.collection(_fileCollectionName);
   }
 
-  StorageReference storage({String path}) {
+  Reference storage({required String path}) {
     final flamelinkPath = _storageBasePath + '/' + path;
-    final storageReference =
-        FirebaseStorage.instance.ref().child(flamelinkPath);
-    return storageReference;
+    return FirebaseStorage.instance.ref().child(flamelinkPath);
   }
 
-  StorageReference images({String path}) {
+  Reference images({required String path}) {
     return storage(path: _imageBasePath + '/' + path);
   }
 
-  Future<DocumentSnapshot> getSingle({String schema}) {
-    return documentQuery(schema: schema).getDocuments().then((snapshot) {
-      if(snapshot.documents.isEmpty) {
+  Future<DocumentSnapshot<Map<String, dynamic>>> getSingle(
+      {required String schema}) {
+    return documentQuery(schema: schema).get().then((snapshot) {
+      if (snapshot.docs.isEmpty) {
         return Future.error("Empty");
       }
-      return snapshot.documents.singleWhere((_) => true, orElse: null);
+      return snapshot.docs.first;
     });
   }
 
-  Future<List<DocumentSnapshot>> get(List<String> paths) {
-    final fetchRequests = paths.map((path) => store.document(path).get());
+  Future<List<DocumentSnapshot<Map<String, dynamic>>>> get(
+      List<String> paths) {
+    final fetchRequests = paths.map((path) => store.doc(path).get());
     return Future.wait(fetchRequests);
   }
 
-  Query fileQuery({String type = ""}) {
-    Query query = files().where(FlameLinkFileFields.type, isEqualTo: type);
+  Query<Map<String, dynamic>> fileQuery({String type = ""}) {
+    Query<Map<String, dynamic>> query =
+        files().where(FlameLinkFileFields.type, isEqualTo: type);
     return query;
   }
 
-  Query documentQuery({String schema = ""}) {
-    Query query = documentsQuery(schema: schema, limit: 1).where(
-        FlameLinkDocumentFields.type,
-        isEqualTo: FlameLinkSchemaType.single);
+  Query<Map<String, dynamic>> documentQuery({String schema = ""}) {
+    Query<Map<String, dynamic>> query = documentsQuery(schema: schema, limit: 1)
+        .where(FlameLinkDocumentFields.type,
+            isEqualTo: FlameLinkSchemaType.single);
     return query;
   }
 
-  Query documentsQuery({String schema = "", int limit = 0}) {
+  Query<Map<String, dynamic>> documentsQuery({String schema = "", int limit = 0}) {
     final locale = _serverFormatLocale();
     var query = content()
         .where(FlameLinkDocumentFields.locale, isEqualTo: locale)
@@ -105,49 +106,42 @@ class FlameLink {
   }
 
   String _serverFormatLocale() {
-    // the CMS uses <languagecode>-<countrycode> , flutter has a _ divider
-    if(_locale == null )
-    {
-      final serverFormat = Intl.getCurrentLocale().replaceAll(
-      _Strings.flutterLocaleDivider,
-      _Strings.flamelinkDivider,
-      );
-      return serverFormat.toLowerCase();
-    }
-    final serverFormat = _locale.languageCode + _Strings.flamelinkDivider + _locale.countryCode;
+    final serverFormat = _locale.languageCode +
+        _Strings.flamelinkDivider +
+        (_locale.countryCode ?? '');
     return serverFormat.toLowerCase();
   }
 }
 
 class FlamelinkDocumentCollection {
   final FlameLink _cms;
-  final Query _query;
+  final Query<Map<String, dynamic>>? _query;
   final List<String> _paths;
 
-  FlamelinkDocumentCollection({FlameLink cms, Query query})
+  FlamelinkDocumentCollection({required FlameLink cms, required Query<Map<String, dynamic>> query})
       : _cms = cms,
         _query = query,
         _paths = [];
 
-  FlamelinkDocumentCollection.list({FlameLink cms, List<String> paths})
+  FlamelinkDocumentCollection.list(
+      {required FlameLink cms, required List<String> paths})
       : _cms = cms,
         _paths = paths,
         _query = null;
 
-  factory FlamelinkDocumentCollection.fromDocumentReferences(
-      {FlameLink cms, List<dynamic> paths}) {
-    if (paths == null) {
-      return null;
-    }
-    final refs = List<String>.from(paths.map((doc) => doc.path)).toList();
+  factory FlamelinkDocumentCollection.fromDocumentReferences({
+    required FlameLink cms,
+    required List<dynamic> paths,
+  }) {
+    final refs = List<String>.from(paths.map((doc) => doc.path as String)).toList();
     return FlamelinkDocumentCollection.list(cms: cms, paths: refs);
   }
 
-  factory FlamelinkDocumentCollection.fromObjectReferences(
-      {FlameLink cms, List<dynamic> objectReferences, String linkField}) {
-    if (objectReferences == null) {
-      return null;
-    }
+  factory FlamelinkDocumentCollection.fromObjectReferences({
+    required FlameLink cms,
+    required List<dynamic> objectReferences,
+    required String linkField,
+  }) {
     final paths = List<dynamic>.from(objectReferences.map((refObject) {
       return refObject[linkField];
     })).toList();
@@ -155,14 +149,15 @@ class FlamelinkDocumentCollection {
         cms: cms, paths: paths);
   }
 
-  Future<List<DocumentSnapshot>> getDocuments({int limit = 0}) {
+  Future<List<DocumentSnapshot<Map<String, dynamic>>>> getDocuments(
+      {int limit = 0}) {
     if (_paths.isNotEmpty) {
       return _cms.get(_paths).then((snapshots) {
         return snapshots.toList();
       });
     } else if (_query != null) {
-      return _query.getDocuments().then((snapshot) {
-        return snapshot.documents.toList();
+      return _query!.get().then((snapshot) {
+        return snapshot.docs.toList();
       });
     }
     return Future.value([]);

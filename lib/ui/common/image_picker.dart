@@ -23,50 +23,57 @@ class _LocalisedStrings {
 
 class ImagePicker {
   static Future<bool> pickImage({
-    @required Function(File) onSuccess,
-    @required Function(String) onCancel,
-    @required ImagePickerLib.ImageSource imageSource,
-    @required int imageMaxHeight,
-    @required int imageMaxWidth,
+    required ValueChanged<File> onSuccess,
+    required ValueChanged<String> onCancel,
+    required ImagePickerLib.ImageSource imageSource,
+    required int imageMaxHeight,
+    required int imageMaxWidth,
     bool circleShapeOnCrop = true,
     double imageRatioX = _Constants.defaultImageRatioX,
     double imageRatioY = _Constants.defaultImageRatioY,
   }) async {
-    final file =
-        await ImagePickerLib.ImagePicker.pickImage(source: imageSource);
+    final _picker = ImagePickerLib.ImagePicker();
+    final file = await _picker.pickImage(
+      source: imageSource,
+      maxHeight: imageMaxHeight.toDouble(),
+      maxWidth: imageMaxWidth.toDouble(),
+    );
 
     if (file == null) {
       onCancel(_LocalisedStrings.noImagePickedError());
       return false;
     }
 
-    AndroidUiSettings androidSettings = AndroidUiSettings(
+    final cropStyle =
+        circleShapeOnCrop ? CropStyle.circle : CropStyle.rectangle;
+    final androidSettings = AndroidUiSettings(
       toolbarTitle: _LocalisedStrings.editPhoto(),
       toolbarColor: _Constants.cropToolbarBarColor,
       toolbarWidgetColor: Colors.black,
       statusBarColor: _Constants.cropStatusBarColor,
+      cropStyle: cropStyle,
     );
-    IOSUiSettings iosSettings =
-        IOSUiSettings(title: _LocalisedStrings.editPhoto());
+    final iosSettings = IOSUiSettings(
+      title: _LocalisedStrings.editPhoto(),
+      cropStyle: cropStyle,
+    );
 
-    File croppedFile = await ImageCropper.cropImage(
+    final croppedFile = await ImageCropper().cropImage(
       sourcePath: file.path,
       aspectRatio: CropAspectRatio(ratioX: imageRatioX, ratioY: imageRatioY),
       maxWidth: imageMaxWidth,
       maxHeight: imageMaxHeight,
-      cropStyle: CropStyle.circle,
-      androidUiSettings: androidSettings,
-      iosUiSettings: iosSettings,
+      uiSettings: [androidSettings, iosSettings],
     );
 
-    file.delete();
+    await File(file.path).delete();
 
     if (croppedFile == null) {
       onCancel(_LocalisedStrings.noCroppedImageError());
       return false;
     }
 
-    onSuccess(croppedFile);
+    onSuccess(File(croppedFile.path));
     return true;
   }
 }

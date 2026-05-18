@@ -39,11 +39,11 @@ class _LocalisedStrings {
 }
 
 class RecordTransactionData {
-  String uri;
-  String amount;
-  DateTime date;
-  String crop;
-  String description;
+  String? uri;
+  String? amount;
+  DateTime? date;
+  String? crop;
+  String? description;
 
   RecordTransactionData({
     this.uri,
@@ -60,25 +60,25 @@ enum TransactionType {
 }
 
 class RecordTransactionViewModel {
-  String uri;
-  List<RecordTransactionListItemViewModel> actions;
-  TransactionType type;
-  String amount;
-  String description;
+  String? uri;
+  List<RecordTransactionListItemViewModel>? actions;
+  TransactionType? type;
+  String? amount;
+  String? description;
   bool isFilled;
   bool isEditable;
-  String buttonTitle;
-  final Function(RecordTransactionData) recordTransaction;
-  final Function(RecordTransactionData, RecordTransactionData) editTransaction;
-  final Function(RecordTransactionData) removeTransaction;
+  String? buttonTitle;
+  final Function(RecordTransactionData)? recordTransaction;
+  final Function(RecordTransactionData, RecordTransactionData)? editTransaction;
+  final Function(RecordTransactionData)? removeTransaction;
 
   RecordTransactionViewModel({
     this.actions,
     this.amount,
     this.buttonTitle,
-    this.isFilled: false,
+    this.isFilled = false,
     this.type,
-    this.isEditable: true,
+    this.isEditable = true,
     this.recordTransaction,
     this.editTransaction,
     this.removeTransaction,
@@ -87,15 +87,15 @@ class RecordTransactionViewModel {
 }
 
 class RecordTransactionStyle {
-  final EdgeInsets buttonEdgePadding;
+  final EdgeInsets? buttonEdgePadding;
 
-  final EdgeInsets appBarLeftMargin;
-  final EdgeInsets appBarRightMargin;
+  final EdgeInsets? appBarLeftMargin;
+  final EdgeInsets? appBarRightMargin;
 
-  final double headerLineSpace;
-  final double appBarElevation;
-  final double appBarIconHeight;
-  final double appBarIconWidth;
+  final double? headerLineSpace;
+  final double? appBarElevation;
+  final double? appBarIconHeight;
+  final double? appBarIconWidth;
 
   const RecordTransactionStyle({
     this.buttonEdgePadding,
@@ -108,13 +108,13 @@ class RecordTransactionStyle {
   });
 
   RecordTransactionStyle copyWith({
-    EdgeInsets buttonEdgePadding,
-    EdgeInsets appBarLeftMargin,
-    EdgeInsets appBarRightMargin,
-    double headerLineSpace,
-    double appBarElevation,
-    double appBarIconHeight,
-    double appBarIconWidth,
+    EdgeInsets? buttonEdgePadding,
+    EdgeInsets? appBarLeftMargin,
+    EdgeInsets? appBarRightMargin,
+    double? headerLineSpace,
+    double? appBarElevation,
+    double? appBarIconHeight,
+    double? appBarIconWidth,
   }) {
     return RecordTransactionStyle(
       buttonEdgePadding: buttonEdgePadding ?? this.buttonEdgePadding,
@@ -139,15 +139,7 @@ class _DefaultStyle extends RecordTransactionStyle {
   final double appBarIconHeight = 20;
   final double appBarIconWidth = 20.5;
 
-  const _DefaultStyle({
-    EdgeInsets buttonEdgePadding,
-    EdgeInsets appBarLeftMargin,
-    EdgeInsets appBarRightMargin,
-    double headerLineSpace,
-    double appBarElevation,
-    double appBarIconHeight,
-    double appBarIconWidth,
-  });
+  const _DefaultStyle();
 }
 
 const RecordTransactionStyle _defaultStyle = const _DefaultStyle();
@@ -159,8 +151,8 @@ class RecordTransaction extends StatefulWidget {
   final RecordTransactionStyle _style;
 
   RecordTransaction({
-    Key key,
-    RecordTransactionViewModel viewModel,
+    Key? key,
+    required RecordTransactionViewModel viewModel,
     RecordTransactionStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -176,7 +168,7 @@ class RecordTransactionState extends State<RecordTransaction> {
   bool isCropFilled = false;
   bool isEditing = false;
   bool isNewRecord = false;
-  RecordTransactionData initialData;
+  late RecordTransactionData initialData;
 
   @override
   void initState() {
@@ -184,16 +176,17 @@ class RecordTransactionState extends State<RecordTransaction> {
     RecordTransactionViewModel viewModel = widget._viewModel;
     isNewRecord = widget._viewModel.isEditable;
 
-    if (viewModel.actions.length <= _Constants.thirdListItem) {
+    if (viewModel.actions == null ||
+        viewModel.actions!.length <= _Constants.thirdListItem) {
       throw ('The actions inside viewModel are not correct');
     }
 
     initialData = RecordTransactionData(
       uri: viewModel.uri,
       amount: viewModel.amount,
-      description: viewModel.actions[_Constants.thirdListItem].description,
-      crop: viewModel.actions[_Constants.secondListItem].selectedItem,
-      date: viewModel.actions[_Constants.firstListItem].selectedDate,
+      description: viewModel.actions![_Constants.thirdListItem].description,
+      crop: viewModel.actions![_Constants.secondListItem].selectedItem,
+      date: viewModel.actions![_Constants.firstListItem].selectedDate,
     );
 
     if (isNewRecord) {
@@ -245,9 +238,9 @@ class RecordTransactionState extends State<RecordTransaction> {
       RecordTransactionStyle style, BuildContext context) {
     return AppBar(
       elevation: style.appBarElevation,
-      leading: FlatButton(
+      leading: TextButton(
         onPressed: () => Navigator.pop(context, false),
-        padding: style.appBarLeftMargin,
+        style: TextButton.styleFrom(padding: style.appBarLeftMargin),
         child: Image.asset(
           _Constants.navCancelIcon,
           height: style.appBarIconHeight,
@@ -260,9 +253,9 @@ class RecordTransactionState extends State<RecordTransaction> {
   AppBar _buildEditAppBar(RecordTransactionStyle style, BuildContext context) {
     return AppBar(
       elevation: style.appBarElevation,
-      leading: FlatButton(
+      leading: TextButton(
         onPressed: () => _dismiss(context),
-        padding: style.appBarLeftMargin,
+        style: TextButton.styleFrom(padding: style.appBarLeftMargin),
         child: Image.asset(
           _Constants.navBackIcon,
           height: style.appBarIconHeight,
@@ -270,9 +263,9 @@ class RecordTransactionState extends State<RecordTransaction> {
         ),
       ),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
           onPressed: () => _displayOptionsMenu(context, userData),
-          padding: style.appBarRightMargin,
+          style: TextButton.styleFrom(padding: style.appBarRightMargin),
           child: Image.asset(
             _Constants.navOptionsIcon,
             height: style.appBarIconHeight,
@@ -290,9 +283,9 @@ class RecordTransactionState extends State<RecordTransaction> {
   void _apply(BuildContext context, RecordTransactionData data) {
     final viewModel = widget._viewModel;
     if (isEditing && !isNewRecord) {
-      viewModel.editTransaction(initialData, data);
+      viewModel.editTransaction?.call(initialData, data);
     } else {
-      viewModel.recordTransaction(data);
+      viewModel.recordTransaction?.call(data);
     }
 
     _dismiss(context);
@@ -323,7 +316,7 @@ class RecordTransactionState extends State<RecordTransaction> {
           isEditable: isEditing || isNewRecord,
           selectedDate: isEditing
               ? userData.date
-              : viewModel.actions[_Constants.firstListItem].selectedDate,
+              : viewModel.actions?[_Constants.firstListItem].selectedDate,
         ),
         parent: this,
       ),
@@ -338,8 +331,9 @@ class RecordTransactionState extends State<RecordTransaction> {
           isEditable: isEditing || isNewRecord,
           selectedItem: isEditing
               ? userData.crop
-              : viewModel.actions[_Constants.secondListItem].selectedItem,
-          listOfCrops: viewModel.actions[_Constants.secondListItem].listOfCrops,
+              : viewModel.actions?[_Constants.secondListItem].selectedItem,
+          listOfCrops:
+              viewModel.actions?[_Constants.secondListItem].listOfCrops,
         ),
         parent: this,
       ),
@@ -356,7 +350,7 @@ class RecordTransactionState extends State<RecordTransaction> {
             isEditable: isEditing || isNewRecord,
             description: isEditing
                 ? userData.description
-                : viewModel.actions[_Constants.thirdListItem].description,
+                : viewModel.actions![_Constants.thirdListItem].description,
           ),
           style: RecordTransactionListItemStyles.biggerStyle,
           parent: this,
@@ -375,7 +369,7 @@ class RecordTransactionState extends State<RecordTransaction> {
         height: double.infinity,
         alignment: Alignment.bottomCenter,
         child: Padding(
-          padding: style.buttonEdgePadding,
+          padding: style.buttonEdgePadding ?? EdgeInsets.zero,
           child: Row(
             children: <Widget>[
               Expanded(
@@ -435,6 +429,8 @@ class RecordTransactionState extends State<RecordTransaction> {
     final actions = [
       ActionSheetListItemViewModel(
         title: _LocalisedStrings.editRecord(),
+        icon: '',
+        checkBoxIcon: '',
         type: ActionType.simple,
         onTap: () {
           setState(() {
@@ -444,6 +440,8 @@ class RecordTransactionState extends State<RecordTransaction> {
       ),
       ActionSheetListItemViewModel(
         title: _LocalisedStrings.removeRecord(),
+        icon: '',
+        checkBoxIcon: '',
         type: ActionType.simple,
         onTap: () {
           Alert.present(
@@ -456,8 +454,9 @@ class RecordTransactionState extends State<RecordTransaction> {
     ];
 
     final actionSheetViewModel = ActionSheetViewModel(
-      actions,
-      _LocalisedStrings.cancel(),
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancel(),
+      confirmButtonTitle: _LocalisedStrings.cancel(),
     );
 
     return ActionSheet(
@@ -475,7 +474,7 @@ class RecordTransactionState extends State<RecordTransaction> {
           detailText: _LocalisedStrings.removeTransactionDescription(),
           isDestructive: true,
           confirmAction: () {
-            widget._viewModel.removeTransaction(initialData);
+            widget._viewModel.removeTransaction?.call(initialData);
             Navigator.of(context).pop();
           }),
     );

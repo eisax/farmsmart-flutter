@@ -1,16 +1,19 @@
 import 'package:farmsmart_flutter/model/analytics_interface.dart';
 import 'package:farmsmart_flutter/ui/bottombar/tab_navigator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class PersistentBottomNavigationBar extends StatefulWidget {
   final Color backgroundColor;
+  final Color? selectedItemColor;
+  final Color? unselectedItemColor;
   final List<TabNavigator> tabs;
 
   const PersistentBottomNavigationBar({
-    Key key,
+    Key? key,
     this.backgroundColor = Colors.white,
-    this.tabs,
+    this.selectedItemColor,
+    this.unselectedItemColor,
+    required this.tabs,
   }) : super(key: key);
 
   @override
@@ -24,11 +27,17 @@ class _PersistentBottomNavigationBarState
 
   @override
   Widget build(BuildContext context) {
-    AnalyticsInterface.implementation().impression( widget.tabs[_selectedIndex].analyticsName);
+    AnalyticsInterface.implementation()
+        .impression(widget.tabs[_selectedIndex].analyticsName);
     return WillPopScope(
-      onWillPop: () async => !await widget
-          .tabs[_selectedIndex].navigatorKey.currentState
-          .maybePop(),
+      onWillPop: () async {
+        final navigatorState =
+            widget.tabs[_selectedIndex].navigatorKey.currentState;
+        if (navigatorState == null) {
+          return true;
+        }
+        return !await navigatorState.maybePop();
+      },
       child: Scaffold(
         bottomNavigationBar: _bottomNavigationBar(_selectedIndex, context),
         body: Stack(
@@ -40,13 +49,25 @@ class _PersistentBottomNavigationBarState
 
   Widget _bottomNavigationBar(int selectedIndex, BuildContext context) {
     return BottomNavigationBar(
-      elevation: 0,
+      elevation: 8,
+      selectedItemColor: widget.selectedItemColor,
+      unselectedItemColor: widget.unselectedItemColor,
+      selectedLabelStyle: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+      ),
       backgroundColor: widget.backgroundColor,
       type: BottomNavigationBarType.fixed,
       onTap: (int index) {
-        AnalyticsInterface.implementation().interaction( widget.tabs[index].analyticsName);
-        if(_selectedIndex == index){
-          widget.tabs[_selectedIndex].navigatorKey.currentState.popUntil((route) => route.isFirst);
+        AnalyticsInterface.implementation()
+            .interaction(widget.tabs[index].analyticsName);
+        if (_selectedIndex == index) {
+          widget.tabs[_selectedIndex].navigatorKey.currentState
+              ?.popUntil((route) => route.isFirst);
         }
         setState(() => _selectedIndex = index);
       },
@@ -60,7 +81,7 @@ class _PersistentBottomNavigationBarState
   }
 
   List<Widget> _buildChildren(List<TabNavigator> tabs) {
-    List<Widget> children = List();
+    final List<Widget> children = [];
     tabs.asMap().forEach((index, tabNavigator) =>
         children.add(_buildVisibilityNavigators(index, tabNavigator)));
     return children;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class NavigationScope {
   NavigationScope({
-    @required this.child,
+    required this.child,
   });
 
   final Widget child;

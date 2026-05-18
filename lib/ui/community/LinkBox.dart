@@ -31,15 +31,15 @@ class LinkBoxViewModel {
   final String titleText;
   final String detailText;
   final IconData icon;
-  final Function onTap;
+  final VoidCallback onTap;
   final String image;
 
   LinkBoxViewModel({
-    @required this.titleText,
-    @required this.detailText,
-    @required this.onTap,
-    this.icon,
-    this.image,
+    required this.titleText,
+    required this.detailText,
+    required this.icon,
+    required this.onTap,
+    required this.image,
   });
 }
 
@@ -49,15 +49,15 @@ class LinkBoxStyle {
   final Color imageContainerColor;
 
   const LinkBoxStyle({
-    this.iconColor,
-    this.cardBackgroundColor,
-    this.imageContainerColor,
+    required this.iconColor,
+    required this.cardBackgroundColor,
+    required this.imageContainerColor,
   });
 
   LinkBoxStyle copyWith({
-    Color iconColor,
-    Color cardBackgroundColor,
-    Color imageContainerColor,
+    Color? iconColor,
+    Color? cardBackgroundColor,
+    Color? imageContainerColor,
   }) {
     return LinkBoxStyle(
       iconColor: iconColor ?? this.iconColor,
@@ -68,26 +68,23 @@ class LinkBoxStyle {
 }
 
 class _DefaultStyle extends LinkBoxStyle {
-  final Color iconColor = Colors.white;
-  final Color cardBackgroundColor = _Constants.defaultCardBackgroundColor;
-  final Color imageContainerColor = _Constants.imageContainerColor;
-
-  const _DefaultStyle({
-    Color iconColor,
-    Color cardBackgroundColor,
-    Color imageContainerColor,
-  });
+  const _DefaultStyle()
+      : super(
+          iconColor: Colors.white,
+          cardBackgroundColor: _Constants.defaultCardBackgroundColor,
+          imageContainerColor: _Constants.imageContainerColor,
+        );
 }
 
-const LinkBoxStyle _defaultStyle = const _DefaultStyle();
+const LinkBoxStyle _defaultStyle = _DefaultStyle();
 
 class LinkBox extends StatelessWidget {
   final LinkBoxViewModel _viewModel;
   final LinkBoxStyle _style;
 
   const LinkBox({
-    Key key,
-    LinkBoxViewModel viewModel,
+    Key? key,
+    required LinkBoxViewModel viewModel,
     LinkBoxStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -144,18 +141,11 @@ class LinkBox extends StatelessWidget {
   }
 
   _buildImage() {
-    if (_viewModel.image != null) {
-      return Image.asset(
-        _viewModel.image,
-        height: _Constants.imageSize,
-        width: _Constants.imageSize,
-      );
-    } else if (_viewModel.icon != null) {
-      return Icon(
-        _viewModel.icon,
-        color: _style.iconColor,
-      );
-    }
+    return Image.asset(
+      _viewModel.image,
+      height: _Constants.imageSize,
+      width: _Constants.imageSize,
+    );
   }
 
   Text _buildTitleText() {

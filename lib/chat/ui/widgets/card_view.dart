@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class CardViewStyle {
   final EdgeInsetsGeometry mainContainerMargin;
@@ -9,19 +8,19 @@ class CardViewStyle {
   final double cardElevation;
 
   const CardViewStyle({
-    this.borderRadius,
-    this.shadowColor,
-    this.shadowRadius,
-    this.cardElevation,
-    this.mainContainerMargin,
+    required this.borderRadius,
+    required this.shadowColor,
+    required this.shadowRadius,
+    required this.cardElevation,
+    required this.mainContainerMargin,
   });
 
   CardViewStyle copyWith({
-    double borderRadius,
-    Color shadowColor,
-    double shadowRadius,
-    double cardElevation,
-    EdgeInsetsGeometry mainContainerMargin,
+    double? borderRadius,
+    Color? shadowColor,
+    double? shadowRadius,
+    double? cardElevation,
+    EdgeInsetsGeometry? mainContainerMargin,
   }) {
     return CardViewStyle(
       mainContainerMargin: mainContainerMargin ?? this.mainContainerMargin,
@@ -34,32 +33,29 @@ class CardViewStyle {
 }
 
 class _DefaultStyle extends CardViewStyle {
-  final double borderRadius = 10.0;
-  final Color shadowColor = const Color(0xFFBDBDBD);
-  final double shadowRadius = 40.0;
-  final double cardElevation = 0.0;
-  final EdgeInsetsGeometry mainContainerMargin = const EdgeInsets.all(20.0);
-
-  const _DefaultStyle({
-    double borderRadius,
-    Color shadowColor,
-    double shadowRadius,
-    double cardElevation,
-    EdgeInsetsGeometry mainContainerMargin,
-  });
+  const _DefaultStyle()
+      : super(
+          borderRadius: 10.0,
+          shadowColor: const Color(0xFFBDBDBD),
+          shadowRadius: 40.0,
+          cardElevation: 0.0,
+          mainContainerMargin: const EdgeInsets.all(20.0),
+        );
 }
 
-const CardViewStyle _defaultStyle = const _DefaultStyle();
+const CardViewStyle _defaultStyle = _DefaultStyle();
 
 class CardView extends StatelessWidget {
   final CardViewStyle _style;
   final Widget _child;
 
-  CardView({
+  const CardView({
+    Key? key,
     CardViewStyle style = _defaultStyle,
-    Widget child,
-  })  : this._child = child,
-        this._style = style;
+    required Widget child,
+  })  : _style = style,
+        _child = child,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +68,8 @@ class CardView extends StatelessWidget {
             child: Card(
               elevation: _style.cardElevation,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(_style.borderRadius)),
+                borderRadius: BorderRadius.circular(_style.borderRadius),
+              ),
               child: Center(
                 child: _child,
               ),

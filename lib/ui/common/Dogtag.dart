@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 
 class DogTagViewModel {
-  String title;
-  String number;
-  IconData icon;
+  final String? title;
+  final String? number;
+  final IconData? icon;
 
   DogTagViewModel({this.title, this.icon, this.number});
 }
 
 DogTagViewModel buildDogTagViewModel(
-    {String title, IconData icon, String number}) {
+    {String? title, IconData? icon, String? number}) {
   return DogTagViewModel(title: title, icon: icon, number: number);
 }
 
 class DogTagStyle {
-  final Color backgroundColor;
-  final BorderRadius borderRadius;
-  final EdgeInsets edgePadding;
-  final TextStyle titleTextStyle;
-  final int maxLines;
-  final double iconSize;
-  final double spacing;
-  final Color iconColor;
+  final Color? backgroundColor;
+  final BorderRadius? borderRadius;
+  final EdgeInsets? edgePadding;
+  final TextStyle? titleTextStyle;
+  final int? maxLines;
+  final double? iconSize;
+  final double? spacing;
+  final Color? iconColor;
 
   const DogTagStyle(
       {this.backgroundColor,
@@ -34,14 +34,14 @@ class DogTagStyle {
       this.spacing});
 
   DogTagStyle copyWith(
-      {Color backgroundColor,
-      BorderRadius borderRadius,
-      EdgeInsets edgePadding,
-      TextStyle titleTextStyle,
-      int maxLines,
-      double iconSize,
-      Color iconColor,
-      double spacing}) {
+      {Color? backgroundColor,
+      BorderRadius? borderRadius,
+      EdgeInsets? edgePadding,
+      TextStyle? titleTextStyle,
+      int? maxLines,
+      double? iconSize,
+      Color? iconColor,
+      double? spacing}) {
     return DogTagStyle(
         backgroundColor: backgroundColor ?? this.backgroundColor,
         borderRadius: borderRadius ?? this.borderRadius,
@@ -67,16 +67,7 @@ class _DefaultStyle extends DogTagStyle {
   final Color iconColor = Colors.black;
   final double spacing = 5;
 
-  const _DefaultStyle({
-    Color backgroundColor,
-    BorderRadius borderRadius,
-    EdgeInsets edgePadding,
-    TextStyle titleTextStyle,
-    int maxLines,
-    double iconSize,
-    Color iconColor,
-    double spacing,
-  });
+  const _DefaultStyle();
 }
 
 const DogTagStyle _defaultStyle = const _DefaultStyle();
@@ -86,9 +77,9 @@ class DogTag extends StatelessWidget {
   final DogTagStyle _style;
 
   const DogTag(
-      {Key key, DogTagViewModel viewModel, DogTagStyle style = _defaultStyle})
+      {Key? key, required DogTagViewModel viewModel, DogTagStyle? style})
       : this._viewModel = viewModel,
-        this._style = style,
+        this._style = style ?? _defaultStyle,
         super(key: key);
 
   @override
@@ -112,7 +103,7 @@ class DogTag extends StatelessWidget {
                   _viewModel,
                   _style,
                 ),
-                spacing: _style.spacing,
+                spacing: _style.spacing ?? 0,
               ),
             )
           ],
@@ -137,7 +128,7 @@ class DogTag extends StatelessWidget {
     if (viewModel.number != null) {
       listBuilder.add(
         Text(
-          viewModel.number,
+          viewModel.number ?? '',
           style: style.titleTextStyle,
           overflow: TextOverflow.ellipsis,
           maxLines: style.maxLines,
@@ -147,7 +138,7 @@ class DogTag extends StatelessWidget {
     if (viewModel.title != null) {
       listBuilder.add(
         Text(
-          viewModel.title,
+          viewModel.title ?? '',
           style: style.titleTextStyle,
           overflow: TextOverflow.ellipsis,
           maxLines: style.maxLines,

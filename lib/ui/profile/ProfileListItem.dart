@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class _LocalisedStrings {
-
   static cancelAction() => Intl.message('Cancel');
   static confirmAction() => Intl.message('Confirm');
 
-  static dialogDescription() => Intl.message('Are you sure you would like to complete this action?');
+  static dialogDescription() =>
+      Intl.message('Are you sure you would like to complete this action?');
 }
 
 class _Constants {
@@ -34,16 +34,16 @@ class _Constants {
 }
 
 class ProfileListItemViewModel {
-  String icon;
-  String title;
-  Function onTap;
-  bool isDestructive;
+  final String? icon;
+  final String title;
+  final Function onTap;
+  final bool isDestructive;
 
   ProfileListItemViewModel({
-    this.icon,
-    this.title,
-    this.onTap,
-    this.isDestructive,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    required this.isDestructive,
   });
 }
 
@@ -54,15 +54,15 @@ class ProfileListItemStyle {
   final int maxLines;
 
   const ProfileListItemStyle({
-    this.titleTextStyle,
-    this.destructiveTextStyle,
-    this.maxLines,
+    required this.titleTextStyle,
+    required this.destructiveTextStyle,
+    required this.maxLines,
   });
 
   ProfileListItemStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle destructiveTextStyle,
-    int maxLines,
+    TextStyle? titleTextStyle,
+    TextStyle? destructiveTextStyle,
+    int? maxLines,
   }) {
     return ProfileListItemStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -73,35 +73,30 @@ class ProfileListItemStyle {
 }
 
 class _DefaultStyle extends ProfileListItemStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 17,
-  );
-
-  final TextStyle destructiveTextStyle = const TextStyle(
-    fontWeight: FontWeight.normal,
-    color: Color(0xffff6060),
-    fontSize: 17,
-  );
-
-  final int maxLines = 1;
-
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-    TextStyle destructiveTextStyle,
-    int maxLines,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            fontWeight: FontWeight.normal,
+            fontSize: 17,
+          ),
+          destructiveTextStyle: const TextStyle(
+            fontWeight: FontWeight.normal,
+            color: Color(0xffff6060),
+            fontSize: 17,
+          ),
+          maxLines: 1,
+        );
 }
 
-const ProfileListItemStyle _defaultStyle = const _DefaultStyle();
+const ProfileListItemStyle _defaultStyle = _DefaultStyle();
 
 class ProfileListItem extends StatelessWidget {
   final ProfileListItemViewModel _viewModel;
   final ProfileListItemStyle _style;
 
   const ProfileListItem({
-    Key key,
-    ProfileListItemViewModel viewModel,
+    Key? key,
+    required ProfileListItemViewModel viewModel,
     ProfileListItemStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -109,11 +104,11 @@ class ProfileListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasIcon = _viewModel.icon != null && _viewModel.icon!.isNotEmpty;
     return ListTile(
       onTap: () => _actionTapped(context),
-      contentPadding: _viewModel.icon != null
-          ? _Constants.edgePadding
-          : _Constants.simpleEdgePadding,
+      contentPadding:
+          hasIcon ? _Constants.edgePadding : _Constants.simpleEdgePadding,
       dense: true,
       leading: _buildLeading(),
       trailing: _buildTrailing(),
@@ -121,17 +116,18 @@ class ProfileListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildLeading() {
-    return _viewModel.icon != null
-        ? Container(
-            alignment: Alignment.centerRight,
-            width: _Constants.leadingWidth,
-            child: Image.asset(
-              _viewModel.icon,
-              height: _Constants.leadingIconHeight,
-            ),
-          )
-        : null;
+  Widget? _buildLeading() {
+    if (_viewModel.icon == null || _viewModel.icon!.isEmpty) {
+      return null;
+    }
+    return Container(
+      alignment: Alignment.centerRight,
+      width: _Constants.leadingWidth,
+      child: Image.asset(
+        _viewModel.icon!,
+        height: _Constants.leadingIconHeight,
+      ),
+    );
   }
 
   Widget _buildTrailing() {

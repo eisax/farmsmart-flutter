@@ -3,9 +3,9 @@
 import 'package:farmsmart_flutter/model/entities/mock/MockString.dart';
 
 MockString mockExternalLinks = MockString(library: [
-  "https://chat.whatsapp.com/BwzNV2WEFAqLDdvTFUljte",
-  "https://www.tripadvisor.com/Attractions-g294206-Activities-c47-t122-Kenya.html",
-  "https://en.wikipedia.org/wiki/Agriculture_in_Kenya",
+  "https://chat.whatsapp.com/example-zw-smallholders",
+  "https://en.wikipedia.org/wiki/Agriculture_in_Zimbabwe",
+  "https://en.wikipedia.org/wiki/Harare",
 ]);
 
 MockString mockTitleText = MockString(library: [
@@ -122,15 +122,21 @@ MockString mockRichText = MockString(library: [
 </ol>"""
 ]);
 
-MockString plants = MockString(library: [
-  "Beetroot",
-  "Chillies",
-  "Cowpeas",
-  "Cucumber",
-  "Small Urban Rotation (50m2)",
-  "Sorghum",
-  "Tomatoes"
-]);
+MockString plants = MockString(
+  library: [
+    "Tomatoes",
+    "Maize",
+    "Kale (Sukuma Wiki)",
+    "Cowpeas",
+    "Chillies",
+    "Beetroot",
+    "Sorghum",
+    "Cucumber",
+    "Onions",
+    "Beans",
+    "Sweet Potato",
+  ],
+);
 
 MockString factors = MockString(library: [
   "Skill level",

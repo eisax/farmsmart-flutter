@@ -18,7 +18,7 @@ class _Fields {
 
 CropEntity _transform(
   FlameLink cms,
-  DocumentSnapshot snapshot,
+  DocumentSnapshot<Map<String, dynamic>> snapshot,
 ) {
   final transformer = FlamelinkCropTransformer(
     cms: cms,
@@ -32,7 +32,7 @@ class CropEntityCollectionFlamelink implements EntityCollection<CropEntity> {
   final bool _onlyPublished;
 
   CropEntityCollectionFlamelink({
-    FlamelinkDocumentCollection collection,
+    required FlamelinkDocumentCollection collection,
     bool onlyPublished = true,
   })  : _collection = collection,
         _onlyPublished = onlyPublished;
@@ -40,18 +40,18 @@ class CropEntityCollectionFlamelink implements EntityCollection<CropEntity> {
   @override
   Future<List<CropEntity>> getEntities({int limit = 0}) {
     return _collection.getDocuments().then((documents) {
-      var articles = documents
+      var crops = documents
           .map((document) => _transform(
                 _collection.cms,
                 document,
               ))
           .toList();
       if (_onlyPublished) {
-        articles.removeWhere((article) {
-          return article.status != Status.PUBLISHED;
+        crops.removeWhere((crop) {
+          return crop.status != Status.PUBLISHED;
         });
       }
-      return articles;
+      return crops;
     });
   }
 }
@@ -95,10 +95,11 @@ class CropRepositoryFlamelink implements CropRepositoryInterface {
   @override
   Future<CropEntity> getSingle(String uri) {
     if (uri.isEmpty) {
-      return null;
+      return Future.error(
+          ArgumentError.value(uri, 'uri', 'URI cannot be empty'));
     }
     final baseCollection = _cms.content();
-    return baseCollection.document(uri).get().then((snapshot) => _transform(
+    return baseCollection.doc(uri).get().then((snapshot) => _transform(
           _cms,
           snapshot,
         ));
@@ -107,17 +108,19 @@ class CropRepositoryFlamelink implements CropRepositoryInterface {
   @override
   Stream<CropEntity> observeSingle(String uri) {
     if (uri.isEmpty) {
-      return null;
+      return Stream.error(
+          ArgumentError.value(uri, 'uri', 'URI cannot be empty'));
     }
     final baseCollection = _cms.content();
     final _typeTransform =
-        StreamTransformer<DocumentSnapshot, CropEntity>.fromHandlers(
+        StreamTransformer<DocumentSnapshot<Map<String, dynamic>>, CropEntity>
+            .fromHandlers(
             handleData: (snapshot, sink) {
       sink.add(_transform(
         _cms,
         snapshot,
       ));
     });
-    return baseCollection.document(uri).snapshots().transform(_typeTransform);
+    return baseCollection.doc(uri).snapshots().transform(_typeTransform);
   }
 }

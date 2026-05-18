@@ -5,7 +5,7 @@ import 'package:farmsmart_flutter/model/bloc/ViewModelProvider.dart';
 class StaticViewModelProvider<T> implements ViewModelProvider<T> {
 
   final T _viewModel;
-  final StreamController _controller = StreamController<T>.broadcast();
+  final StreamController<T> _controller = StreamController<T>.broadcast();
 
   StaticViewModelProvider(T viewModel) : _viewModel = viewModel;
 

@@ -17,37 +17,37 @@ class SummaryStyle {
   final int defaultMaxLines;
 
   const SummaryStyle({
-    this.mainContainerMargin,
-    this.titleLabelMargin,
-    this.titleLabelStyle,
-    this.titleLabelAlignment,
-    this.subtitleMargin,
-    this.subtitleStyle,
-    this.subtitleAlignment,
-    this.bodyMargin,
-    this.bodyStyle,
-    this.bodyAlignment,
-    this.actionButtonDecoration,
-    this.actionButtonHeight,
-    this.actionButtonTextStyle,
-    this.defaultMaxLines,
+    required this.mainContainerMargin,
+    required this.titleLabelMargin,
+    required this.titleLabelStyle,
+    required this.titleLabelAlignment,
+    required this.subtitleMargin,
+    required this.subtitleStyle,
+    required this.subtitleAlignment,
+    required this.bodyMargin,
+    required this.bodyStyle,
+    required this.bodyAlignment,
+    required this.actionButtonDecoration,
+    required this.actionButtonHeight,
+    required this.actionButtonTextStyle,
+    required this.defaultMaxLines,
   });
 
   SummaryStyle copyWith({
-    EdgeInsetsGeometry mainContainerMargin,
-    EdgeInsetsGeometry titleLabelMargin,
-    TextStyle titleLabelStyle,
-    TextAlign titleLabelAlignment,
-    EdgeInsetsGeometry subtitleMargin,
-    TextStyle subtitleStyle,
-    TextAlign subtitleAlignment,
-    EdgeInsetsGeometry bodyMargin,
-    TextStyle bodyStyle,
-    TextAlign bodyAlignment,
-    Decoration actionButtonDecoration,
-    double actionButtonHeight,
-    TextStyle actionButtonTextStyle,
-    int defaultMaxLines,
+    EdgeInsetsGeometry? mainContainerMargin,
+    EdgeInsetsGeometry? titleLabelMargin,
+    TextStyle? titleLabelStyle,
+    TextAlign? titleLabelAlignment,
+    EdgeInsetsGeometry? subtitleMargin,
+    TextStyle? subtitleStyle,
+    TextAlign? subtitleAlignment,
+    EdgeInsetsGeometry? bodyMargin,
+    TextStyle? bodyStyle,
+    TextAlign? bodyAlignment,
+    Decoration? actionButtonDecoration,
+    double? actionButtonHeight,
+    TextStyle? actionButtonTextStyle,
+    int? defaultMaxLines,
   }) {
     return SummaryStyle(
       mainContainerMargin: mainContainerMargin ?? this.mainContainerMargin,
@@ -105,35 +105,55 @@ class _DefaultStyle extends SummaryStyle {
   );
   final int defaultMaxLines = 1;
 
-  const _DefaultStyle({
-    EdgeInsetsGeometry mainContainerMargin,
-    EdgeInsetsGeometry titleLabelMargin,
-    TextStyle titleLabelStyle,
-    TextAlign titleLabelAlignment,
-    EdgeInsetsGeometry subtitleMargin,
-    TextStyle subtitleStyle,
-    TextAlign subtitleAlignment,
-    EdgeInsetsGeometry bodyMargin,
-    TextStyle bodyStyle,
-    TextAlign bodyAlignment,
-    Decoration actionButtonDecoration,
-    double actionButtonHeight,
-    TextStyle actionButtonTextStyle,
-    int defaultMaxLines,
-  });
+  const _DefaultStyle()
+      : super(
+          mainContainerMargin: const EdgeInsets.all(20.0),
+          titleLabelMargin: const EdgeInsets.only(top: 10),
+          titleLabelStyle: const TextStyle(
+            color: Color(0xFF9B9BAD),
+            fontSize: 12.0,
+          ),
+          titleLabelAlignment: TextAlign.center,
+          subtitleMargin: const EdgeInsets.only(top: 13),
+          subtitleStyle: const TextStyle(
+            color: Color(0xFF00CD9F),
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+          ),
+          subtitleAlignment: TextAlign.center,
+          bodyMargin: const EdgeInsets.only(
+            top: 27,
+            bottom: 30,
+          ),
+          bodyStyle: const TextStyle(
+            fontSize: 15,
+            color: Color(0xFF4C4C6D),
+          ),
+          bodyAlignment: TextAlign.center,
+          actionButtonDecoration: const BoxDecoration(
+            color: Color(0xFF00CD9F),
+            borderRadius: BorderRadius.all(Radius.circular(9)),
+          ),
+          actionButtonHeight: 50.0,
+          actionButtonTextStyle: const TextStyle(
+            color: Color(0xFFFFFFFF),
+            fontSize: 15,
+          ),
+          defaultMaxLines: 1,
+        );
 }
 
-const SummaryStyle _defaultStyle = const _DefaultStyle();
+const SummaryStyle _defaultStyle = _DefaultStyle();
 
 class Summary extends StatelessWidget {
   final SummaryStyle _style;
   final SummaryViewModel _viewModel;
-  final Function _onTap;
+  final VoidCallback _onTap;
 
   Summary({
-    @required SummaryViewModel viewModel,
+    required SummaryViewModel viewModel,
     SummaryStyle style = _defaultStyle,
-    Function onTap,
+    VoidCallback? onTap,
   })  : this._viewModel = viewModel,
         this._style = style,
         this._onTap = onTap ?? (() => {});
@@ -213,9 +233,9 @@ class SummaryViewModel {
   final String actionText;
 
   SummaryViewModel({
-    this.titleText,
-    this.titleValue,
-    this.bodyText,
-    this.actionText,
+    this.titleText = '',
+    this.titleValue = '',
+    this.bodyText = '',
+    this.actionText = '',
   });
 }

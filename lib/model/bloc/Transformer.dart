@@ -3,9 +3,9 @@
 import 'dart:async';
 
 abstract class ObjectTransformer<A, B> {
-  B transform({A from});
+  B transform({A? from});
 
-  StreamTransformer<A, B> streamTransformer({Function(B) didTransform}) {
+  StreamTransformer<A, B> streamTransformer({Function(B)? didTransform}) {
     return StreamTransformer<A, B>.fromHandlers(handleData: (input, sink) {
       final transformedObject = transform(from: input);
       if (didTransform != null) {
@@ -17,27 +17,27 @@ abstract class ObjectTransformer<A, B> {
 }
 
 //Helper functions for safe casting when transforming
-T castOrPlaceholder<T>(dynamic from, T placeholder) {
+T? castOrPlaceholder<T>(dynamic from, T? placeholder) {
   return (from is T) ? from : placeholder;
 }
 
-T castOrNull<T>(dynamic from) {
-  return castOrPlaceholder(from, null);
+T? castOrNull<T>(dynamic from) {
+  return castOrPlaceholder<T>(from, null);
 }
 
 List<T> castListOrNull<T>(dynamic from) {
   return castListOrPlaceholder(from, null);
 }
 
-List<T> castListOrPlaceholder<T>(dynamic from, T placeholder) {
+List<T> castListOrPlaceholder<T>(dynamic from, T? placeholder) {
   final list = castOrNull<List<dynamic>>(from);
   if (list == null) {
     return [];
   }
   List<T> cast = [];
-  list.forEach((item){
+  list.forEach((item) {
     final value = castOrPlaceholder<T>(item, placeholder);
-    if(value != null){
+    if (value != null) {
       cast.add(value);
     }
   });
@@ -45,7 +45,7 @@ List<T> castListOrPlaceholder<T>(dynamic from, T placeholder) {
 }
 
 Map<Key, Value> castMapOrPlaceholder<Key, Value>(
-    dynamic from, Value placeholder) {
+    dynamic from, Value? placeholder) {
   final inputMap = castOrNull<Map<dynamic, dynamic>>(from);
   if (inputMap == null) {
     return {};

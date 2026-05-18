@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 
 class DelayTween extends Tween<double> {
   DelayTween({
-    double begin,
-    double end,
-    this.delay,
+    required double begin,
+    required double end,
+    required this.delay,
   }) : super(begin: begin, end: end);
 
   final double delay;

@@ -7,25 +7,27 @@ import 'package:farmsmart_flutter/model/repositories/image/ImageRepositoryInterf
 import 'enums.dart';
 
 class CropEntity {
-  String uri;
+  String? uri;
   List<String> companionPlants;
-  CropComplexity complexity;
+  CropComplexity? complexity;
   List<String> cropsInRotation;
-  CropType cropType;
-  String name;
+  CropType? cropType;
+  String? name;
   List<String> nonCompanionPlants;
-  LoHi profitability;
-  LoHi setupCost;
+  LoHi? profitability;
+  LoHi? setupCost;
   List<String> soilType;
-  Status status;
-  LoHi waterRequirement;
-  ArticleEntity article;
-  EntityCollection<ArticleEntity> stageArticles;
-  EntityCollection<ImageEntity> images;
+  Status? status;
+  LoHi? waterRequirement;
+  ArticleEntity? article;
+  EntityCollection<ArticleEntity>? stageArticles;
+  EntityCollection<ImageEntity>? images;
 
   CropEntity({
     this.uri,
     this.article,
+    this.stageArticles,
+    this.images,
     this.companionPlants = const [],
     this.complexity,
     this.cropsInRotation = const [],
@@ -43,33 +45,47 @@ class CropEntity {
 // LH this is to make getting the main crop image easier
 class CropImageProvider implements ImageURLProvider {
   final CropEntity _crop;
+
   CropImageProvider(CropEntity crop) : _crop = crop;
+
   @override
-  Future<String> urlToFit({double width, double height}) {
+  Future<String> urlToFit({double width = 0, double height = 0}) {
     if (_crop.images == null) {
-      return Future.value(null);
+      return Future.value('');
     }
-    return _crop.images.getEntities(limit: 1).then((imageEntities) {
+
+    return _crop.images!.getEntities(limit: 1).then((imageEntities) {
+      if (imageEntities.isEmpty) {
+        return '';
+      }
       // NB: we assume the first image is the hero
       return imageEntities.first.urlProvider
-          .urlToFit(width: width, height: height).then((url){
-            cacheURL(url, cacheIdentifier(height: height, width: width));
-            return url;
-          });
+          .urlToFit(width: width, height: height)
+          .then((url) {
+        if (url.isNotEmpty) {
+          cacheURL(
+            url,
+            cacheIdentifier(height: height, width: width),
+          );
+        }
+        return url;
+      });
     });
   }
 
   @override
-  String cacheIdentifier({double width, double height}) {
-    return _crop.uri +
+  String cacheIdentifier({double width = 0, double height = 0}) {
+    return (_crop.uri ?? '') +
         ImageURLProvider.sizeIdentifier(
           width: width,
           height: height,
         );
   }
-  
+
   @override
-  String cachedUrlToFit({double width, double height}) {
-    return cachedURL(cacheIdentifier(width: width, height: height));
+  String cachedUrlToFit({double width = 0, double height = 0}) {
+    return cachedURL(
+      cacheIdentifier(width: width, height: height),
+    );
   }
 }

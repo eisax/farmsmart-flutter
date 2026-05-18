@@ -1,16 +1,11 @@
-import 'package:flutter/material.dart';
-
+import 'app_bootstrap.dart';
 import 'model/repositories/mock_repository_provider.dart';
-import 'flavors/app_config.dart';
-import 'main.dart';
 
 void main() {
-  var configuredApp = AppConfig(
+  runFarmSmartApp(
     environment: 'development',
     buildFlavor: 'Development',
-    child: FarmSmartApp(),
     repositoryProvider: MockRepositoryProvider(),
+    useFirebase: false,
   );
-
-  return runApp(configuredApp);
 }

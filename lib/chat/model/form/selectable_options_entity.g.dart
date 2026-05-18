@@ -9,12 +9,11 @@ part of 'selectable_options_entity.dart';
 SelectableOptionsEntity _$SelectableOptionsEntityFromJson(
     Map<String, dynamic> json) {
   return SelectableOptionsEntity(
-      json['maxSelection'] as int,
-      (json['options'] as List)
-          ?.map((e) => e == null
-              ? null
-              : SelectableOptionEntity.fromJson(e as Map<String, dynamic>))
-          ?.toList());
+    json['maxSelection'] as int,
+    (json['options'] as List<dynamic>?)
+        ?.map((e) => SelectableOptionEntity.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }
 
 Map<String, dynamic> _$SelectableOptionsEntityToJson(

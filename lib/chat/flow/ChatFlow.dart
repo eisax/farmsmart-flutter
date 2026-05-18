@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 abstract class ChatFlow {
   Widget start({
-    @required File file,
-    @required Function(Map<String, ChatResponseViewModel>) onSuccess,
-    @required Function(String) onError,
+    required File file,
+    required Function(Map<String, ChatResponseViewModel>) onSuccess,
+    required Function(String) onError,
   });
 }

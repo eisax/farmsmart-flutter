@@ -22,11 +22,11 @@ class _Constants {
 class FarmDetailsListItemViewModel {
   final String title;
   final String detail;
-  final Color color;
+  final Color? color;
 
   FarmDetailsListItemViewModel({
-    this.title,
-    this.detail,
+    required this.title,
+    required this.detail,
     this.color,
   });
 }
@@ -37,15 +37,15 @@ class FarmDetailsListItemStyle {
   final int maxLines;
 
   const FarmDetailsListItemStyle({
-    this.titleTextStyle,
-    this.detailTextStyle,
-    this.maxLines,
+    required this.titleTextStyle,
+    required this.detailTextStyle,
+    required this.maxLines,
   });
 
   FarmDetailsListItemStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle detailTextStyle,
-    int maxLines,
+    TextStyle? titleTextStyle,
+    TextStyle? detailTextStyle,
+    int? maxLines,
   }) {
     return FarmDetailsListItemStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -56,33 +56,31 @@ class FarmDetailsListItemStyle {
 }
 
 class _DefaultStyle extends FarmDetailsListItemStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 17,
-    fontWeight: FontWeight.w400,
-  );
-
-  final TextStyle detailTextStyle = const TextStyle(
-    color: Color(0xff767690),
-    fontSize: 15,
-    fontWeight: FontWeight.w400,
-  );
-
-  final int maxLines = 1;
-
-  const _DefaultStyle(
-      {TextStyle titleTextStyle, TextStyle detailTextStyle, int maxLines});
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 17,
+            fontWeight: FontWeight.w400,
+          ),
+          detailTextStyle: const TextStyle(
+            color: Color(0xff767690),
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+          ),
+          maxLines: 1,
+        );
 }
 
-const FarmDetailsListItemStyle _defaultStyle = const _DefaultStyle();
+const FarmDetailsListItemStyle _defaultStyle = _DefaultStyle();
 
 class FarmDetailsListItem extends StatelessWidget {
   final FarmDetailsListItemViewModel _viewModel;
   final FarmDetailsListItemStyle _style;
 
   const FarmDetailsListItem({
-    Key key,
-    FarmDetailsListItemViewModel viewModel,
+    Key? key,
+    required FarmDetailsListItemViewModel viewModel,
     FarmDetailsListItemStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -135,7 +133,7 @@ class FarmDetailsListItem extends StatelessWidget {
         spacing: _Constants.wrapSpacing,
         runSpacing: _Constants.wrapRunSpacing,
         children: <Widget>[
-          _buildCircle(_viewModel.color),
+          _buildCircle(_viewModel.color!),
         ],
       ),
     );

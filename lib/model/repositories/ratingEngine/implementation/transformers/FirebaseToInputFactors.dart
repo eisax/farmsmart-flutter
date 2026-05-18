@@ -13,37 +13,52 @@ class _Fields {
   static const name = "name";
 }
 
-class FirebaseToRatingInfoTransformer
-    extends ObjectTransformer<QuerySnapshot, Map<String, RatingInfo>> {
+class FirebaseToRatingInfoTransformer extends ObjectTransformer<
+    QuerySnapshot<Map<String, dynamic>>, Map<String, RatingInfo>> {
   @override
-  Map<String, RatingInfo> transform({QuerySnapshot from}) {
+  Map<String, RatingInfo> transform(
+      {QuerySnapshot<Map<String, dynamic>>? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
     Map<String, RatingInfo> ratingData = {};
-    final documents = from.documents;
-    documents.forEach((ratingEntry) {
-      final subject = (ratingEntry.data[_Fields.subject] != null)
-          ? ratingEntry.data[_Fields.subject][_Fields.name]
+    final documents = from.docs;
+    for (final ratingEntry in documents) {
+      final entryData = ratingEntry.data();
+      final subjectData = entryData[_Fields.subject];
+      final subject = (subjectData is Map)
+          ? castOrNull<String>(subjectData[_Fields.name])
           : null;
       if (subject != null) {
-        final scores = castListOrNull<Map>(ratingEntry.data[_Fields.scores]);
+        final scores = castListOrNull<Map<dynamic, dynamic>>(
+            entryData[_Fields.scores]);
         Map<String, double> outputWeights = {};
         Map<String, Map<String, double>> outputFactors = {};
-        scores.forEach((score) {
-          final factorName = score[_Fields.factor];
+        for (final score in scores) {
+          final factorName = castOrNull<String>(score[_Fields.factor]);
           final weight = score[_Fields.weight];
-          final factorValues = castListOrNull<Map>(score[_Fields.values]);
-          factorValues.forEach((factor) {
-            final factorKey = factor[_Fields.factorKey];
+          final factorValues =
+              castListOrNull<Map<dynamic, dynamic>>(score[_Fields.values]);
+          if (factorName == null) {
+            continue;
+          }
+          for (final factor in factorValues) {
+            final factorKey = castOrNull<String>(factor[_Fields.factorKey]);
             final factorValue = factor[_Fields.factorValue];
-            if (outputFactors[factorName] == null) {
-              outputFactors[factorName] = {};
+            if (factorKey == null) {
+              continue;
             }
-            outputFactors[factorName][factorKey] = factorValue.toDouble();
-          });
-          outputWeights[factorName] = weight;
-        });
+            outputFactors.putIfAbsent(factorName, () => {});
+            outputFactors[factorName]![factorKey] =
+                (factorValue as num).toDouble();
+          }
+          if (weight is num) {
+            outputWeights[factorName] = weight.toDouble();
+          }
+        }
         ratingData[subject] = RatingInfo(outputWeights, outputFactors);
       }
-    });
+    }
     return ratingData;
   }
 }

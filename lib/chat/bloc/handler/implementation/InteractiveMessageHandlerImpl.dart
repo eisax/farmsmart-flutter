@@ -39,12 +39,12 @@ class _LocalisedStrings {
 class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
   @override
   Widget buildInputTextWidget({
-    InputRequestEntity inputRequestEntity,
-    TextEditingController textEditingController,
-    Function onSendPressed,
-    Function(String) onValidationPassed,
-    InteractiveMessageType type,
-    bool isFocusedOnBuild,
+    InputRequestEntity? inputRequestEntity,
+    TextEditingController? textEditingController,
+    Function? onSendPressed,
+    Function(String)? onValidationPassed,
+    InteractiveMessageType? type,
+    bool isFocusedOnBuild = false,
   }) =>
       _buildTextInputWidget(
         onSendPressed: onSendPressed,
@@ -57,8 +57,8 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
 
   @override
   Widget buildSelectableOptionsWidget({
-    InputRequestEntity inputRequestEntity,
-    Function(SelectableOptionViewModel) onTap,
+    InputRequestEntity? inputRequestEntity,
+    Function(SelectableOptionViewModel)? onTap,
   }) =>
       _buildSelectableOptionsWidget(
         onTap: onTap,
@@ -67,7 +67,7 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
 
   @override
   Widget buildDatePickerWidget({
-    Function(DateTime) onSendPressed,
+    Function(DateTime)? onSendPressed,
   }) =>
       _buildDatePicker(
         onSendPressed: onSendPressed,
@@ -75,8 +75,8 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
 
   @override
   Widget buildDropDownPickerWidget({
-    InputRequestEntity inputRequestEntity,
-    Function(SelectableOptionViewModel) onSendPressed,
+    InputRequestEntity? inputRequestEntity,
+    Function(SelectableOptionViewModel)? onSendPressed,
   }) =>
       _buildDropDownPicker(
         onSendPressed: onSendPressed,
@@ -84,12 +84,12 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
       );
 
   Widget _buildTextInputWidget({
-    InputRequestEntity inputRequestEntity,
-    TextEditingController textEditingController,
-    Function onSendPressed,
-    Function(String) onValidationPassed,
-    InteractiveMessageType type,
-    bool isFocusedOnBuild,
+    InputRequestEntity? inputRequestEntity,
+    TextEditingController? textEditingController,
+    Function? onSendPressed,
+    Function(String)? onValidationPassed,
+    InteractiveMessageType? type,
+    bool isFocusedOnBuild = false,
   }) {
     TextInput textInput = _buildTextInput(
       isFocusedOnBuild: isFocusedOnBuild,
@@ -106,8 +106,8 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
           viewModel: RoundedButtonViewModel(
               title: _LocalisedStrings.sendText(),
               onTap: () {
-                formKey.currentState.validate();
-                onSendPressed();
+                formKey.currentState?.validate();
+                onSendPressed?.call();
               }),
           style: RoundedButtonStyles.chatButtonStyle(),
         ),
@@ -117,16 +117,16 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
     );
   }
 
-  Widget _buildTextInput({
-    InputRequestEntity inputRequestEntity,
-    TextEditingController textEditingController,
-    Function(String) onValidationPassed,
-    InteractiveMessageType type,
-    bool isFocusedOnBuild,
+  TextInput _buildTextInput({
+    InputRequestEntity? inputRequestEntity,
+    TextEditingController? textEditingController,
+    Function(String)? onValidationPassed,
+    InteractiveMessageType? type,
+    bool isFocusedOnBuild = false,
   }) =>
       TextInput(
         formFieldValidatorFunction: _getValidationFunction(
-          regex: inputRequestEntity.validationRegex,
+          regex: inputRequestEntity?.validationRegex,
           type: type,
           onValidationPassed: onValidationPassed,
         ),
@@ -137,8 +137,8 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
       );
 
   Widget _buildSelectableOptionsWidget({
-    InputRequestEntity inputRequestEntity,
-    Function(SelectableOptionViewModel) onTap,
+    InputRequestEntity? inputRequestEntity,
+    Function(SelectableOptionViewModel)? onTap,
   }) =>
       SeparatorWrapper(
         wrappedChild: SelectableOptions(
@@ -152,9 +152,9 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
       );
 
   Widget _buildDatePicker({
-    Function(DateTime) onSendPressed,
+    Function(DateTime)? onSendPressed,
   }) {
-    DateTime selectedDate;
+    DateTime? selectedDate;
     return SeparatorWrapper(
       wrappedChild: PairContainerWrapper(
         leftChild: DatePicker(
@@ -165,7 +165,12 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
         ),
         rightChild: RoundedButton(
           viewModel: RoundedButtonViewModel(
-            onTap: () => onSendPressed(selectedDate),
+            onTap: () {
+              final date = selectedDate;
+              if (date != null) {
+                onSendPressed?.call(date);
+              }
+            },
             title: _LocalisedStrings.sendText(),
           ),
           style: RoundedButtonStyles.chatButtonStyle(),
@@ -177,10 +182,10 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
   }
 
   Widget _buildDropDownPicker({
-    Function(SelectableOptionViewModel) onSendPressed,
-    InputRequestEntity inputRequestEntity,
+    Function(SelectableOptionViewModel)? onSendPressed,
+    InputRequestEntity? inputRequestEntity,
   }) {
-    SelectableOptionViewModel selectedOption;
+    SelectableOptionViewModel? selectedOption;
     return SeparatorWrapper(
       wrappedChild: PairContainerWrapper(
         leftChild: DropDownPicker(
@@ -194,7 +199,12 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
         ),
         rightChild: RoundedButton(
           viewModel: RoundedButtonViewModel(
-            onTap: () => onSendPressed(selectedOption),
+            onTap: () {
+              final option = selectedOption;
+              if (option != null) {
+                onSendPressed?.call(option);
+              }
+            },
             title: _LocalisedStrings.sendText(),
           ),
           style: RoundedButtonStyles.chatButtonStyle(),
@@ -206,15 +216,20 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
   }
 
   SelectableOptionsViewModel _getSelectableOptionsViewModel({
-    InputRequestEntity inputRequestEntity,
-  }) =>
-      SelectableOptionsViewModelTransformer()
-          .transform(from: inputRequestEntity);
+    InputRequestEntity? inputRequestEntity,
+  }) {
+    if (inputRequestEntity == null) {
+      return SelectableOptionsViewModel(maxSelection: 0, options: []);
+    }
+    return SelectableOptionsViewModelTransformer().transform(
+      from: inputRequestEntity,
+    );
+  }
 
-  String Function(String) _getValidationFunction({
-    String regex,
-    InteractiveMessageType type,
-    Function(String) onValidationPassed,
+  String? Function(String?) _getValidationFunction({
+    String? regex,
+    InteractiveMessageType? type,
+    Function(String)? onValidationPassed,
   }) =>
       (value) {
         return _getFormFieldValidatorValue(
@@ -230,23 +245,23 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
         hintText: _LocalisedStrings.inputHint(),
       );
 
-  String _getFormFieldValidatorValue({
-    String value,
-    String regex,
-    InteractiveMessageType type,
-    Function(String) onValidationPassed,
+  String? _getFormFieldValidatorValue({
+    String? value,
+    String? regex,
+    InteractiveMessageType? type,
+    Function(String)? onValidationPassed,
   }) {
-    if (value.isEmpty) {
+    if (value?.isEmpty ?? true) {
       return _LocalisedStrings.messageNotEmpty();
     } else if (_isRegexProvided(regex: regex) &&
-        !_isRegexValidationPassed(value: value, regex: regex)) {
+        !_isRegexValidationPassed(value: value!, regex: regex!)) {
       return _getErrorMessageByType(type: type);
     }
-    onValidationPassed(value);
+    onValidationPassed?.call(value!);
     return null;
   }
 
-  String _getErrorMessageByType({InteractiveMessageType type}) {
+  String? _getErrorMessageByType({InteractiveMessageType? type}) {
     switch (type) {
       case InteractiveMessageType.inputString:
         return _LocalisedStrings.notValidString();
@@ -264,8 +279,8 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
   }
 
   bool _isRegexValidationPassed({
-    String value,
-    String regex,
+    required String value,
+    required String regex,
   }) =>
       RegExp(
         regex,
@@ -274,7 +289,7 @@ class InteractiveMessageHandlerImpl implements InteractiveMessageHandler {
       ).hasMatch(value);
 
   bool _isRegexProvided({
-    String regex,
+    String? regex,
   }) =>
       regex != null && regex.isNotEmpty;
 }

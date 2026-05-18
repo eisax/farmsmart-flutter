@@ -8,37 +8,45 @@ class MockStageCardViewModel {
       title: _mockTitle.random(),
       action: () {},
       actionText: 'Begin Stage',
-      statusTitle: 'Upcoming'
+      statusTitle: 'Upcoming',
+      dialogTitle: 'Confirm Stage',
+      dialogDescription: 'Do you want to begin this stage?',
     );
   }
 
   static StageCardViewModel buildInProgressState() {
     return StageCardViewModel(
-        subtitle: _mockStage.random(),
-        title: _mockTitle.random(),
-        action: () {},
-        actionText: 'Mark as Complete',
-        statusTitle: 'In Progress'
+      subtitle: _mockStage.random(),
+      title: _mockTitle.random(),
+      action: () {},
+      actionText: 'Mark as Complete',
+      statusTitle: 'In Progress',
+      dialogTitle: 'Confirm Completion',
+      dialogDescription: 'Do you want to mark this stage as complete?',
     );
   }
 
   static StageCardViewModel buildCompleteState() {
     return StageCardViewModel(
-        subtitle: _mockStage.random(),
-        title: _mockTitle.random(),
-        action: () {},
-        actionText: 'Revert to In Progress',
-        statusTitle: 'Complete'
+      subtitle: _mockStage.random(),
+      title: _mockTitle.random(),
+      action: () {},
+      actionText: 'Revert to In Progress',
+      statusTitle: 'Complete',
+      dialogTitle: 'Confirm Revert',
+      dialogDescription: 'Do you want to revert this stage to in progress?',
     );
   }
 
   static StageCardViewModel buildRandom() {
     return StageCardViewModel(
-        subtitle: _mockLargeStrings.random(),
-        title: _mockLargeStrings.random(),
-        action: () {},
-        actionText: _mockActionButtonText.random(),
-        statusTitle: _mockStageStatus.random()
+      subtitle: _mockLargeStrings.random(),
+      title: _mockLargeStrings.random(),
+      action: () {},
+      actionText: _mockActionButtonText.random(),
+      statusTitle: _mockStageStatus.random(),
+      dialogTitle: 'Confirm Action',
+      dialogDescription: 'Do you want to continue with this action?',
     );
   }
 }
@@ -74,4 +82,3 @@ MockString _mockActionButtonText = MockString(library: [
   "Begin Stage",
   "Revert to In Progress",
 ]);
-

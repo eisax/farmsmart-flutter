@@ -1,6 +1,5 @@
 import 'package:farmsmart_flutter/ui/common/roundedButton.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 class _Constants {
   static final EdgeInsets alertEdgePadding =
@@ -19,20 +18,20 @@ class _Constants {
 }
 
 class AlertViewModel {
-  String cancelActionText;
-  String confirmActionText;
-  String titleText;
-  String detailText;
-  Function confirmAction;
-  bool isDestructive;
+  final String cancelActionText;
+  final String confirmActionText;
+  final String titleText;
+  final String? detailText;
+  final VoidCallback confirmAction;
+  final bool isDestructive;
 
   AlertViewModel({
-    @required this.cancelActionText,
-    @required this.confirmActionText,
-    @required this.titleText,
+    required this.cancelActionText,
+    required this.confirmActionText,
+    required this.titleText,
     this.detailText,
-    this.confirmAction,
-    this.isDestructive,
+    required this.confirmAction,
+    this.isDestructive = false,
   });
 }
 
@@ -45,21 +44,21 @@ class AlertStyle {
   final TextStyle actionTextStyle;
 
   const AlertStyle({
-    this.backgroundColor,
-    this.titleTextStyle,
-    this.detailTextStyle,
-    this.actionBackgroundColor,
-    this.destructiveActionBackgroundColor,
-    this.actionTextStyle,
+    required this.backgroundColor,
+    required this.titleTextStyle,
+    required this.detailTextStyle,
+    required this.actionBackgroundColor,
+    required this.destructiveActionBackgroundColor,
+    required this.actionTextStyle,
   });
 
   AlertStyle copyWith({
-    Color backgroundColor,
-    TextStyle titleTextStyle,
-    TextStyle detailTextStyle,
-    Color actionBackgroundColor,
-    Color destructiveActionBackgroundColor,
-    TextStyle actionTextStyle,
+    Color? backgroundColor,
+    TextStyle? titleTextStyle,
+    TextStyle? detailTextStyle,
+    Color? actionBackgroundColor,
+    Color? destructiveActionBackgroundColor,
+    TextStyle? actionTextStyle,
   }) {
     return AlertStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -75,36 +74,30 @@ class AlertStyle {
 }
 
 class _DefaultStyle extends AlertStyle {
-  final backgroundColor = const Color(0xffffffff);
-  final titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 27,
-    fontWeight: FontWeight.bold,
-  );
-  final detailTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 17,
-    height: 1.1,
-    fontWeight: FontWeight.normal,
-  );
-  final actionBackgroundColor = const Color(0xff24d900);
-  final destructiveActionBackgroundColor = const Color(0xffff6060);
-  final actionTextStyle = const TextStyle(
-    color: Color(0xffffffff),
-    fontSize: 15,
-  );
-
-  const _DefaultStyle({
-    Color backgroundColor,
-    TextStyle titleTextStyle,
-    TextStyle detailTextStyle,
-    Color actionBackgroundColor,
-    Color destructiveActionBackgroundColor,
-    TextStyle actionTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          backgroundColor: const Color(0xffffffff),
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+          ),
+          detailTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 17,
+            height: 1.1,
+            fontWeight: FontWeight.normal,
+          ),
+          actionBackgroundColor: const Color(0xff24d900),
+          destructiveActionBackgroundColor: const Color(0xffff6060),
+          actionTextStyle: const TextStyle(
+            color: Color(0xffffffff),
+            fontSize: 15,
+          ),
+        );
 }
 
-const AlertStyle _defaultStyle = const _DefaultStyle();
+const AlertStyle _defaultStyle = _DefaultStyle();
 
 class Alert extends StatelessWidget {
   final AlertViewModel _viewModel;
@@ -119,8 +112,8 @@ class Alert extends StatelessWidget {
   }
 
   const Alert({
-    Key key,
-    AlertViewModel viewModel,
+    Key? key,
+    required AlertViewModel viewModel,
     AlertStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -153,13 +146,15 @@ class Alert extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Text(
-                      _viewModel.detailText,
-                      style: _style.detailTextStyle,
-                    ),
-                    SizedBox(
-                      height: _Constants.detailLineSpace,
-                    ),
+                    if (_viewModel.detailText != null) ...[
+                      Text(
+                        _viewModel.detailText!,
+                        style: _style.detailTextStyle,
+                      ),
+                      SizedBox(
+                        height: _Constants.detailLineSpace,
+                      ),
+                    ],
                     Row(
                       children: _buildAction(context),
                     ),

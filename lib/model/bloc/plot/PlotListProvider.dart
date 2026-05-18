@@ -25,15 +25,15 @@ class PlotListProvider implements ViewModelProvider<PlotListViewModel> {
   final PlotRepositoryInterface _plotRepo;
   final RecommendationListProvider _recommendationsProvider;
   final String _title;
-  PlotListViewModel _snapshot;
+  PlotListViewModel? _snapshot;
 
   PlotListProvider({
-    String title,
-    PlotRepositoryInterface plotRepository,
-    RecommendationListProvider  recommendationsProvider,
-  })  : this._title = title,
-        this._plotRepo = plotRepository,
-        this._recommendationsProvider = recommendationsProvider;
+    required String title,
+    required PlotRepositoryInterface plotRepository,
+    required RecommendationListProvider recommendationsProvider,
+  })  : _title = title,
+        _plotRepo = plotRepository,
+        _recommendationsProvider = recommendationsProvider;
 
   final StreamController<PlotListViewModel> _controller =
       StreamController<PlotListViewModel>.broadcast();
@@ -45,7 +45,7 @@ class PlotListProvider implements ViewModelProvider<PlotListViewModel> {
 
   @override
   PlotListViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 
   void dispose() {
@@ -58,21 +58,25 @@ class PlotListProvider implements ViewModelProvider<PlotListViewModel> {
     if (_snapshot == null) {
       _plotRepo.observeFarm().listen((articles) {
         _snapshot = _modelFromPlots(_controller, articles);
-        _controller.sink.add(_snapshot);
+        _controller.sink.add(_snapshot!);
       });
       _snapshot = _viewModel(status: LoadingStatus.LOADING);
-      _snapshot.refresh();
+      _snapshot!.refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   PlotListViewModel _modelFromPlots(
       StreamController controller, List<PlotEntity> plots) {
-    final items = plots.map((plot) {
+    final items = <PlotListItemViewModel>[];
+    for (final plot in plots) {
+      if (plot.stages.isEmpty) {
+        continue;
+      }
       final transformer =
           PlotToPlotListItemViewModel(PlotDetailProvider(plot, _plotRepo));
-      return transformer.transform(from: plot);
-    }).where((element) => element!=null).toList();
+      items.add(transformer.transform(from: plot));
+    }
     return _viewModel(
       status: LoadingStatus.SUCCESS,
       items: items,
@@ -89,7 +93,7 @@ class PlotListProvider implements ViewModelProvider<PlotListViewModel> {
   }
 
   PlotListViewModel _viewModel(
-      {LoadingStatus status, List<PlotListItemViewModel> items = const []}) {
+      {required LoadingStatus status, List<PlotListItemViewModel> items = const []}) {
     return PlotListViewModel(
       title: _title,
       buttonTitle: _LocalisedStrings.addCrop(),

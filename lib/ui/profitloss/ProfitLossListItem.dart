@@ -4,25 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:farmsmart_flutter/ui/common/Dogtag.dart';
 
 class ProfitLossListItemViewModel {
-  final String title;
-  final String subtitle;
-  final String detail;
+  final String? title;
+  final String? subtitle;
+  final String? detail;
 
-  final RecordTransactionViewModel detailViewModel;
-  final DogTagStyle style;
+  final RecordTransactionViewModel? detailViewModel;
+  final DogTagStyle? style;
 
   ProfitLossListItemViewModel(
-      {this.title, this.subtitle, this.detail, this.style, this.detailViewModel});
+      {this.title,
+      this.subtitle,
+      this.detail,
+      this.style,
+      this.detailViewModel});
 }
 
 class ProfitLossItemStyle {
-  final TextStyle titleStyle;
-  final TextStyle subtitleStyle;
-  final EdgeInsets edgePadding;
-  final double elevation;
-  final double detailLineSpace;
-  final double titleLineSpace;
-  final int maxLines;
+  final TextStyle? titleStyle;
+  final TextStyle? subtitleStyle;
+  final EdgeInsets? edgePadding;
+  final double? elevation;
+  final double? detailLineSpace;
+  final double? titleLineSpace;
+  final int? maxLines;
 
   ProfitLossItemStyle(
       {this.titleStyle,
@@ -52,13 +56,13 @@ class ProfitLossItemStyle {
   }
 
   ProfitLossItemStyle copyWith(
-      {TextStyle titleStyle,
-      TextStyle subtitleStyle,
-      EdgeInsets edgePadding,
-      double elevation,
-      double detailLineSpace,
-      double titleLineSpace,
-      int maxLines}) {
+      {TextStyle? titleStyle,
+      TextStyle? subtitleStyle,
+      EdgeInsets? edgePadding,
+      double? elevation,
+      double? detailLineSpace,
+      double? titleLineSpace,
+      int? maxLines}) {
     return ProfitLossItemStyle(
         titleStyle: titleStyle ?? this.titleStyle,
         subtitleStyle: subtitleStyle ?? this.subtitleStyle,
@@ -74,31 +78,32 @@ class ProfitLossListItem extends StatelessWidget {
   final ProfitLossListItemViewModel _viewModel;
   final ProfitLossItemStyle _style;
 
-  const ProfitLossListItem(
-      {Key key,
-      ProfitLossListItemViewModel viewModel,
-      ProfitLossItemStyle style})
-      : this._viewModel = viewModel,
+  const ProfitLossListItem({
+    Key? key,
+    required ProfitLossListItemViewModel viewModel,
+    required ProfitLossItemStyle style,
+  })  : this._viewModel = viewModel,
         this._style = style,
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: ()=> _navigateToDetail(context,_viewModel.detailViewModel),
+        onTap: () => _navigateToDetail(context, _viewModel.detailViewModel),
         child: Card(
-          margin: EdgeInsets.all(0),
-            elevation: _style.elevation,
+            margin: EdgeInsets.all(0),
+            elevation: _style.elevation ?? 0,
             child: Column(children: <Widget>[
               Container(
-                  padding: _style.edgePadding,
+                  padding: _style.edgePadding ?? EdgeInsets.zero,
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         _buildMainTextView(_viewModel, _style),
-                        SizedBox(width: _style.detailLineSpace),
+                        SizedBox(width: _style.detailLineSpace ?? 0),
                         DogTag(
-                          viewModel: DogTagViewModel(number: _viewModel.detail),
+                          viewModel:
+                              DogTagViewModel(number: _viewModel.detail ?? ''),
                           style: _viewModel.style,
                         )
                       ])),
@@ -106,13 +111,17 @@ class ProfitLossListItem extends StatelessWidget {
             ])));
   }
 }
-_navigateToDetail(BuildContext context, RecordTransactionViewModel viewModel) {
+
+void _navigateToDetail(
+    BuildContext context, RecordTransactionViewModel? viewModel) {
+  if (viewModel != null) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RecordTransaction(viewModel: viewModel),
-         settings: RouteSettings(name:RecordTransaction.analyticsName),
+        builder: (context) => RecordTransaction(viewModel: viewModel, key: UniqueKey()),
+        settings: RouteSettings(name: RecordTransaction.analyticsName),
       ),
     );
+  }
 }
 
 _buildMainTextView(
@@ -121,12 +130,12 @@ _buildMainTextView(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(viewModel.title,
+        Text(viewModel.title ?? '',
             style: style.titleStyle,
             maxLines: style.maxLines,
             overflow: TextOverflow.ellipsis),
-        SizedBox(height: style.titleLineSpace),
-        Text(viewModel.subtitle,
+        SizedBox(height: style.titleLineSpace ?? 0),
+        Text(viewModel.subtitle ?? '',
             style: style.subtitleStyle,
             maxLines: style.maxLines,
             overflow: TextOverflow.ellipsis)

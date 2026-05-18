@@ -1,129 +1,95 @@
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
-}
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
-apply plugin: 'com.android.application'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
+def keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
-
-// Project won't compile for android if you don't have google-services.json and key.properties.
-// key.properties should be inside android/ folder
-// google-services.json should be inside android/app folder
-
 android {
-    compileSdkVersion 28
+    namespace "co.farmsmart.app"
+    compileSdk flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
-    lintOptions {
-        disable 'InvalidPackage'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    lint {
+        disable "InvalidPackage"
         checkReleaseBuilds false
     }
 
     defaultConfig {
         applicationId "co.farmsmart.app"
-        minSdkVersion 21
-        targetSdkVersion 28
+        minSdk flutter.minSdkVersion
+        targetSdk flutter.targetSdkVersion
         multiDexEnabled true
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-
+        versionCode flutter.versionCode
+        versionName flutter.versionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+    if (keystorePropertiesFile.exists()) {
+        signingConfigs {
+            release {
+                keyAlias keystoreProperties["keyAlias"]
+                keyPassword keystoreProperties["keyPassword"]
+                storeFile file(keystoreProperties["storeFile"])
+                storePassword keystoreProperties["storePassword"]
+            }
         }
     }
 
     buildTypes {
         debug {
-            // default
             signingConfig signingConfigs.debug
         }
 
         release {
-            // add --release to run command
-            signingConfig signingConfigs.release
-
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled true
-            useProguard true
-
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 
     flavorDimensions "flavors"
 
     productFlavors {
-
         development {
-            // To run  flutter run --flavor development -v lib/main.dart
-            // This apk can be installed alongside actual app
             dimension "flavors"
             applicationId "co.farmsmart.app.dev"
             versionNameSuffix "-development"
         }
-        // Add particular setup into different app flavors.
-        // Also, you can create a different main to define global variables.
-        // Recommended read https://medium.com/flutter-community/flutter-ready-to-go-e59873f9d7de
         qa {
-            // To generate apk for uploading to google play store for internal app sharing
-            // flutter build apk --release --flavor qa -t lib/main.dart
             dimension "flavors"
         }
-
         production {
-            // To generate apk for uploding to google play store as a release
-            // flutter build apk --release --flavor production -t lib/main_production.dart
             dimension "flavors"
             applicationId "co.farmsmart.app"
         }
-
     }
-
 }
 
 flutter {
-    source '../..'
+    source "../.."
 }
 
 dependencies {
-    implementation 'androidx.multidex:multidex:2.0.0'
-
-    testImplementation 'junit:junit:4.12'
-
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    implementation "androidx.multidex:multidex:2.0.1"
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test:runner:1.5.2"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 }
-
-apply plugin: 'com.google.gms.google-services'

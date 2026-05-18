@@ -53,31 +53,31 @@ class DropDownPickerStyle {
   final double trailingImageHeight;
 
   const DropDownPickerStyle({
-    this.listTileOffset,
-    this.listTileContentPadding,
-    this.isListTileDense,
-    this.rowMainAxisAlignment,
-    this.leftIconHeight,
-    this.sizedBoxSeparationWidth,
-    this.rightChildMainAxisAlignment,
-    this.optionDescriptionStyle,
-    this.basePickedOptionValueStyle,
-    this.pickedOptionValueStyle,
-    this.trailingImageHeight,
+    required this.listTileOffset,
+    required this.listTileContentPadding,
+    required this.isListTileDense,
+    required this.rowMainAxisAlignment,
+    required this.leftIconHeight,
+    required this.sizedBoxSeparationWidth,
+    required this.rightChildMainAxisAlignment,
+    required this.optionDescriptionStyle,
+    required this.basePickedOptionValueStyle,
+    required this.pickedOptionValueStyle,
+    required this.trailingImageHeight,
   });
 
   DropDownPickerStyle copyWith({
-    Offset listTileOffset,
-    EdgeInsetsGeometry listTileContentPadding,
-    bool isListTileDense,
-    MainAxisAlignment rowMainAxisAlignment,
-    double leftIconHeight,
-    double sizedBoxSeparationWidth,
-    MainAxisAlignment rightChildMainAxisAlignment,
-    TextStyle optionDescriptionStyle,
-    TextStyle basePickedOptionValueStyle,
-    TextStyle pickedOptionValueStyle,
-    double trailingImageHeight,
+    Offset? listTileOffset,
+    EdgeInsetsGeometry? listTileContentPadding,
+    bool? isListTileDense,
+    MainAxisAlignment? rowMainAxisAlignment,
+    double? leftIconHeight,
+    double? sizedBoxSeparationWidth,
+    MainAxisAlignment? rightChildMainAxisAlignment,
+    TextStyle? optionDescriptionStyle,
+    TextStyle? basePickedOptionValueStyle,
+    TextStyle? pickedOptionValueStyle,
+    double? trailingImageHeight,
   }) {
     return DropDownPickerStyle(
       listTileOffset: listTileOffset ?? this.listTileOffset,
@@ -121,22 +121,25 @@ class _DefaultStyle extends DropDownPickerStyle {
       _Constants.defaultPickedOptionValueStyle;
   final double trailingImageHeight = _Constants.defaultTrailingImageHeight;
 
-  const _DefaultStyle({
-    Offset listTileOffset,
-    EdgeInsetsGeometry listTileContentPadding,
-    bool isListTileDense,
-    MainAxisAlignment rowMainAxisAlignment,
-    double leftIconHeight,
-    double sizedBoxSeparationWidth,
-    MainAxisAlignment rightChildMainAxisAlignment,
-    TextStyle optionDescriptionStyle,
-    TextStyle basePickedOptionValueStyle,
-    TextStyle pickedOptionValueStyle,
-    double trailingImageHeight,
-  });
+  const _DefaultStyle()
+      : super(
+          listTileOffset: _Constants.defaultListTileOffset,
+          listTileContentPadding: _Constants.defaultListTileContentPadding,
+          isListTileDense: _Constants.defaultIsListTileDense,
+          rowMainAxisAlignment: _Constants.defaultRowMainAxisAlignment,
+          leftIconHeight: _Constants.defaultLeftIconHeight,
+          sizedBoxSeparationWidth: _Constants.defaultSizedBoxSeparationWidth,
+          rightChildMainAxisAlignment:
+              _Constants.defaultRightChildMainAxisAlignment,
+          optionDescriptionStyle: _Constants.defaultOptionDescriptionStyle,
+          basePickedOptionValueStyle:
+              _Constants.defaultBasePickedOptionValueStyle,
+          pickedOptionValueStyle: _Constants.defaultPickedOptionValueStyle,
+          trailingImageHeight: _Constants.defaultTrailingImageHeight,
+        );
 }
 
-const DropDownPickerStyle _defaultStyle = const _DefaultStyle();
+const DropDownPickerStyle _defaultStyle = _DefaultStyle();
 
 class DropDownPicker extends StatefulWidget {
   final Function(SelectableOptionViewModel) _onOptionSelected;
@@ -144,8 +147,8 @@ class DropDownPicker extends StatefulWidget {
   final DropDownPickerStyle _style;
 
   DropDownPicker({
-    SelectableOptionsViewModel viewModel,
-    Function(SelectableOptionViewModel) onOptionSelected,
+    required SelectableOptionsViewModel viewModel,
+    required Function(SelectableOptionViewModel) onOptionSelected,
     DropDownPickerStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._onOptionSelected = onOptionSelected,
@@ -156,7 +159,7 @@ class DropDownPicker extends StatefulWidget {
 }
 
 class _DropDownPickerState extends State<DropDownPicker> {
-  SelectableOptionViewModel _selectedOptionViewModel;
+  SelectableOptionViewModel? _selectedOptionViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +168,7 @@ class _DropDownPickerState extends State<DropDownPicker> {
 
   Widget _buildDatePicker(BuildContext context) {
     return ListTile(
-      title: PopupMenuButton(
+      title: PopupMenuButton<SelectableOptionViewModel>(
         offset: widget._style.listTileOffset,
         onSelected: (selectedOption) =>
             _setSelectedDropDownItem(selectedOption),
@@ -217,7 +220,7 @@ class _DropDownPickerState extends State<DropDownPicker> {
           style: widget._style.basePickedOptionValueStyle,
         )
       : Text(
-          _selectedOptionViewModel.title,
+          _selectedOptionViewModel?.title ?? "",
           textAlign: TextAlign.end,
           style: widget._style.pickedOptionValueStyle,
         );
@@ -227,10 +230,10 @@ class _DropDownPickerState extends State<DropDownPicker> {
         height: widget._style.trailingImageHeight,
       );
 
-  List<PopupMenuItem> _getDropDownMenuItems() {
+  List<PopupMenuEntry<SelectableOptionViewModel>> _getDropDownMenuItems() {
     return widget._viewModel.options
-        .map(
-            (option) => PopupMenuItem(value: option, child: Text(option.title)))
+        .map((option) => PopupMenuItem<SelectableOptionViewModel>(
+            value: option, child: Text(option.title)))
         .toList();
   }
 

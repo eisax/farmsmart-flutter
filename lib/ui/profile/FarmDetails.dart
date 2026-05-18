@@ -41,13 +41,13 @@ class FarmDetailsViewModel {
   final List<FarmDetailsListItemViewModel> items;
   final String buttonTitle;
   final Function confirm;
-  final Function editProfile;
-  final Function removeProfile;
+  final Function? editProfile;
+  final Function? removeProfile;
 
   FarmDetailsViewModel({
-    this.items,
-    this.buttonTitle,
-    this.confirm,
+    required this.items,
+    required this.buttonTitle,
+    required this.confirm,
     this.removeProfile,
     this.editProfile,
   });
@@ -58,13 +58,13 @@ class FarmDetailsStyle {
   final TextStyle buttonTextStyle;
 
   const FarmDetailsStyle({
-    this.titleTextStyle,
-    this.buttonTextStyle,
+    required this.titleTextStyle,
+    required this.buttonTextStyle,
   });
 
   FarmDetailsStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle buttonTextStyle,
+    TextStyle? titleTextStyle,
+    TextStyle? buttonTextStyle,
   }) {
     return FarmDetailsStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -74,32 +74,30 @@ class FarmDetailsStyle {
 }
 
 class _DefaultStyle extends FarmDetailsStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 27,
-    fontWeight: FontWeight.w700,
-  );
-
-  final TextStyle buttonTextStyle = const TextStyle(
-    color: Color(0xffffffff),
-    fontSize: 15,
-    fontWeight: FontWeight.w500,
-  );
-
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 27,
+            fontWeight: FontWeight.w700,
+          ),
+          buttonTextStyle: const TextStyle(
+            color: Color(0xffffffff),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        );
 }
 
-const FarmDetailsStyle _defaultStyle = const _DefaultStyle();
+const FarmDetailsStyle _defaultStyle = _DefaultStyle();
 
 class FarmDetails extends StatelessWidget {
   final FarmDetailsViewModel _viewModel;
   final FarmDetailsStyle _style;
 
   const FarmDetails({
-    Key key,
-    FarmDetailsViewModel viewModel,
+    Key? key,
+    required FarmDetailsViewModel viewModel,
     FarmDetailsStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -174,13 +172,14 @@ class FarmDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, FarmDetailsViewModel viewModel) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, FarmDetailsViewModel viewModel) {
     return ContextualAppBar(
       moreAction: _buildMoreAction(viewModel, context),
-    ).build(context);
+    );
   }
 
-  Function _buildMoreAction(
+  VoidCallback? _buildMoreAction(
       FarmDetailsViewModel viewModel, BuildContext context) {
     return viewModel.removeProfile != null || viewModel.editProfile != null
         ? () => _moreTapped(
@@ -204,7 +203,7 @@ class FarmDetails extends StatelessWidget {
           detailText: _LocalisedStrings.deleteProfileDescription(),
           isDestructive: true,
           confirmAction: () {
-            viewModel.removeProfile();
+            viewModel.removeProfile?.call();
             Navigator.of(context).pop();
           },
         ),
@@ -214,7 +213,7 @@ class FarmDetails extends StatelessWidget {
   }
 
   void _editAction(FarmDetailsViewModel viewModel, BuildContext context) {
-    viewModel.editProfile();
+    viewModel.editProfile?.call();
     Navigator.of(context).pop();
   }
 
@@ -225,7 +224,9 @@ class FarmDetails extends StatelessWidget {
       actions.add(
         ActionSheetListItemViewModel(
           title: _LocalisedStrings.editProfile(),
+          icon: '',
           type: ActionType.simple,
+          checkBoxIcon: '',
           onTap: () => _editAction(viewModel, context),
         ),
       );
@@ -235,7 +236,9 @@ class FarmDetails extends StatelessWidget {
       actions.add(
         ActionSheetListItemViewModel(
           title: _LocalisedStrings.deleteProfile(),
+          icon: '',
           type: ActionType.simple,
+          checkBoxIcon: '',
           isDestructive: true,
           onTap: () => _removeAction(viewModel, context),
         ),
@@ -243,8 +246,9 @@ class FarmDetails extends StatelessWidget {
     }
 
     final actionSheetViewModel = ActionSheetViewModel(
-      actions,
-      _LocalisedStrings.cancel(),
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancel(),
+      confirmButtonTitle: _LocalisedStrings.cancel(),
     );
     return ActionSheet(
       viewModel: actionSheetViewModel,

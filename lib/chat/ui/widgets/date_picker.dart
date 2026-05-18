@@ -48,27 +48,27 @@ class DatePickerStyle {
   final TextStyle pickerValueStyle;
 
   const DatePickerStyle({
-    this.rowMainAxisAlignment,
-    this.isDenseList,
-    this.listTilePadding,
-    this.leftIconHeight,
-    this.sizedBoxSeparatorWidth,
-    this.pickerRowMainAxisAlignment,
-    this.trailingImageHeight,
-    this.pickerDescriptionStyle,
-    this.pickerValueStyle,
+    required this.rowMainAxisAlignment,
+    required this.isDenseList,
+    required this.listTilePadding,
+    required this.leftIconHeight,
+    required this.sizedBoxSeparatorWidth,
+    required this.pickerRowMainAxisAlignment,
+    required this.trailingImageHeight,
+    required this.pickerDescriptionStyle,
+    required this.pickerValueStyle,
   });
 
   DatePickerStyle copyWith({
-    MainAxisAlignment rowMainAxisAlignment,
-    bool isDenseList,
-    EdgeInsetsGeometry listTilePadding,
-    double leftIconHeight,
-    double sizedBoxSeparatorWidth,
-    MainAxisAlignment pickerRowMainAxisAlignment,
-    double trailingImageHeight,
-    TextStyle pickerDescriptionStyle,
-    TextStyle pickerValueStyle,
+    MainAxisAlignment? rowMainAxisAlignment,
+    bool? isDenseList,
+    EdgeInsetsGeometry? listTilePadding,
+    double? leftIconHeight,
+    double? sizedBoxSeparatorWidth,
+    MainAxisAlignment? pickerRowMainAxisAlignment,
+    double? trailingImageHeight,
+    TextStyle? pickerDescriptionStyle,
+    TextStyle? pickerValueStyle,
   }) {
     return DatePickerStyle(
       rowMainAxisAlignment: rowMainAxisAlignment ?? this.rowMainAxisAlignment,
@@ -102,27 +102,29 @@ class _DefaultStyle extends DatePickerStyle {
       _Constants.defaultPickerDescriptionStyle;
   final TextStyle pickerValueStyle = _Constants.defaultPickerValueStyle;
 
-  const _DefaultStyle({
-    MainAxisAlignment rowMainAxisAlignment,
-    bool isDenseList,
-    EdgeInsetsGeometry listTilePadding,
-    double leftIconHeight,
-    double sizedBoxSeparatorWidth,
-    MainAxisAlignment pickerRowMainAxisAlignment,
-    double trailingImageHeight,
-    TextStyle pickerDescriptionStyle,
-    TextStyle pickerValueStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          rowMainAxisAlignment: _Constants.defaultMainAxisAlignment,
+          isDenseList: _Constants.defaultIsDenseList,
+          listTilePadding: _Constants.defaultListTilePadding,
+          leftIconHeight: _Constants.defaultLeftIconHeight,
+          sizedBoxSeparatorWidth: _Constants.defaultSizedBoxSeparatorWidth,
+          pickerRowMainAxisAlignment:
+              _Constants.defaultPickerRowMainAxisAlignment,
+          trailingImageHeight: _Constants.defaultTrailingImageHeight,
+          pickerDescriptionStyle: _Constants.defaultPickerDescriptionStyle,
+          pickerValueStyle: _Constants.defaultPickerValueStyle,
+        );
 }
 
-const DatePickerStyle _defaultStyle = const _DefaultStyle();
+const DatePickerStyle _defaultStyle = _DefaultStyle();
 
 class DatePicker extends StatefulWidget {
   final Function(DateTime) _onDateSelected;
   final DatePickerStyle _style;
 
   DatePicker({
-    Function(DateTime) onDateSelected,
+    required Function(DateTime) onDateSelected,
     DatePickerStyle style = _defaultStyle,
   })  : this._onDateSelected = onDateSelected,
         this._style = style;
@@ -204,13 +206,16 @@ class _DatePickerState extends State<DatePicker> {
         style: widget._style.pickerValueStyle,
       );
 
-  String _getDisplayDate()  => viewModel.selectedDate.difference(_Constants.currentDate).inDays ==
-      _Constants.noDifferenceBetweenDates ? _LocalisedStrings.today() : _formatDate(viewModel.selectedDate);
+  String _getDisplayDate() =>
+      viewModel.selectedDate.difference(_Constants.currentDate).inDays ==
+              _Constants.noDifferenceBetweenDates
+          ? _LocalisedStrings.today()
+          : _formatDate(viewModel.selectedDate);
 
   String _formatDate(DateTime date) => _Constants.dateFormatter.format(date);
 
   void _setSelectedDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: viewModel.selectedDate,
       firstDate: _Constants.minDateLimit,
@@ -235,7 +240,7 @@ class DatePickerViewModel {
   DateTime selectedDate;
 
   DatePickerViewModel({
-    this.isEditable,
-    this.selectedDate,
+    required this.isEditable,
+    required this.selectedDate,
   });
 }

@@ -1,5 +1,4 @@
 
-
 import 'dart:async';
 
 import 'package:farmsmart_flutter/model/bloc/ViewModelProvider.dart';
@@ -8,17 +7,15 @@ class SequencedViewModelProvider<T> implements ViewModelProvider<T> {
 
   final Duration _tempo;
   final List<T> _sequence;
-  final StreamController _controller = StreamController<T>.broadcast();
+  final StreamController<T> _controller = StreamController<T>.broadcast();
   int _index = 1;
-  Timer _timer;
+  Timer? _timer;
 
   SequencedViewModelProvider(List<T> sequence,{ Duration tempo = const Duration(seconds: 1)}) : _sequence = sequence, _tempo = tempo;
 
   @override
   T initial() {
-    if(_timer != null) {
-      _timer.cancel();
-    }
+    _timer?.cancel();
     _timer = Timer.periodic(_tempo, (timer) {
        _updateToNextViewModel();
     });
@@ -36,7 +33,7 @@ class SequencedViewModelProvider<T> implements ViewModelProvider<T> {
   }
 
   void stop() {
-     _timer.cancel();
+     _timer?.cancel();
   }
 
   _updateToNextViewModel() {
@@ -45,7 +42,7 @@ class SequencedViewModelProvider<T> implements ViewModelProvider<T> {
   }
 
   void dispose(){
-    _timer.cancel();
+    _timer?.cancel();
     _controller.sink.close();
     _controller.close();
   }

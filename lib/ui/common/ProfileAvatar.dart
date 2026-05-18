@@ -14,16 +14,16 @@ class ProfileAvatar extends StatelessWidget {
   final ViewModelProvider<ProfileViewModel> _viewModelProvider;
   final double _width;
   final double _height;
-  final Color _backgroundColor;
-  final TextStyle _textStyle;
+  final Color? _backgroundColor;
+  final TextStyle? _textStyle;
 
   const ProfileAvatar({
-    Key key,
-    ViewModelProvider<ProfileViewModel> viewModelProvider,
-    double width,
-    double height,
-    TextStyle textStyle,
-    Color backgroundColor,
+    Key? key,
+    required ViewModelProvider<ProfileViewModel> viewModelProvider,
+    required double width,
+    required double height,
+    TextStyle? textStyle,
+    Color? backgroundColor,
   })  : this._viewModelProvider = viewModelProvider,
         this._width = width,
         this._height = height,
@@ -40,12 +40,12 @@ class ProfileAvatar extends StatelessWidget {
   }
 
   Widget _successBuilder({
-    BuildContext context,
-    AsyncSnapshot<ProfileViewModel> snapshot,
+    required BuildContext context,
+    required AsyncSnapshot<ProfileViewModel> snapshot,
   }) {
     final avatarProvider = snapshot.data?.image;
     final initials = snapshot.data?.initials;
-   
+
     Widget fallbackWidget = SizedBox(
       width: _width,
       height: _height,
@@ -53,12 +53,13 @@ class ProfileAvatar extends StatelessWidget {
     Widget initialsWidget = fallbackWidget;
     if (initials != null) {
       initialsWidget = Container(
-        height: _width,
-        width: _height, child: Center(
-          child: Text(
-        initials,
-        style: _textStyle ?? TextStyle(color: _Constants.defaultFontColor),
-      )));
+          height: _width,
+          width: _height,
+          child: Center(
+              child: Text(
+            initials,
+            style: _textStyle ?? TextStyle(color: _Constants.defaultFontColor),
+          )));
     }
     Widget avatarWidget = initialsWidget;
     if (avatarProvider != null) {

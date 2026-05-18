@@ -5,11 +5,9 @@ import 'package:farmsmart_flutter/ui/common/LoadableViewModel.dart';
 import 'package:farmsmart_flutter/ui/common/ViewModelProviderBuilder.dart';
 import 'package:farmsmart_flutter/ui/common/roundedButton.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class _Constants {
-
   static const leftButtonPadding = const EdgeInsets.fromLTRB(0, 20, 10, 20);
   static const rightButtonPadding = const EdgeInsets.fromLTRB(10, 20, 0, 20);
 
@@ -63,8 +61,8 @@ class OfflineDownloadPage extends StatelessWidget {
   final ViewModelProvider<OfflineDownloadPageViewModel> _viewModelProvider;
 
   const OfflineDownloadPage({
-    Key key,
-    ViewModelProvider<OfflineDownloadPageViewModel> provider,
+    Key? key,
+    required ViewModelProvider<OfflineDownloadPageViewModel> provider,
   })  : this._viewModelProvider = provider,
         super(key: key);
 
@@ -99,9 +97,10 @@ class OfflineDownloadPage extends StatelessWidget {
     );
   }
 
-  Widget _successBuilder(
-      {BuildContext context,
-      AsyncSnapshot<OfflineDownloadPageViewModel> snapshot}) {
+  Widget _successBuilder({
+    required BuildContext context,
+    required AsyncSnapshot<OfflineDownloadPageViewModel> snapshot,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -118,16 +117,17 @@ class OfflineDownloadPage extends StatelessWidget {
               SizedBox(
                 width: 10,
               ),
-              Expanded(child: _buildActionButton(snapshot.data)),
+              Expanded(child: _buildActionButton(snapshot.data!)),
             ]),
       ],
     );
   }
 
-  Widget _loadingBuilder(
-      {BuildContext context,
-      AsyncSnapshot<OfflineDownloadPageViewModel> snapshot}) {
-    OfflineDownloadPageViewModel viewModel = snapshot.data;
+  Widget _loadingBuilder({
+    required BuildContext context,
+    required AsyncSnapshot<OfflineDownloadPageViewModel> snapshot,
+  }) {
+    final viewModel = snapshot.data!;
     if (viewModel.progress == 1.0) {
       Future.delayed(Duration(seconds: 2)).then((_) {
         _dismiss(context);

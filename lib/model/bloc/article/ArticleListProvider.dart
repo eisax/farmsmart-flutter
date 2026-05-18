@@ -22,23 +22,23 @@ class ArticleListProvider implements ViewModelProvider<ArticleListViewModel> {
   final String _contentLinkTitle;
   final String _contentLinkDescription;
   final String _contentLinkIcon;
-  ArticleListViewModel _snapshot;
+  ArticleListViewModel? _snapshot;
 
   ArticleListProvider({
-    String title,
-    String relatedTitle,
-    String contentLinkTitle,
-    ArticleRepositoryInterface repository,
+    required String title,
+    required String relatedTitle,
+    required String contentLinkTitle,
+    required ArticleRepositoryInterface repository,
     ArticleCollectionGroup group = ArticleCollectionGroup.all,
-    String contentLinkDescription,
-    String contentLinkIcon,
-  })  : this._title = title,
-        this._relatedTitle = relatedTitle,
-        this._contentLinkTitle = contentLinkTitle,
-        this._repo = repository,
-        this._group = group,
-        this._contentLinkDescription = contentLinkDescription,
-        this._contentLinkIcon = contentLinkIcon;
+    required String contentLinkDescription,
+    required String contentLinkIcon,
+  })  : _title = title,
+        _relatedTitle = relatedTitle,
+        _contentLinkTitle = contentLinkTitle,
+        _repo = repository,
+        _group = group,
+        _contentLinkDescription = contentLinkDescription,
+        _contentLinkIcon = contentLinkIcon;
 
   final StreamController<ArticleListViewModel> _controller =
       StreamController<ArticleListViewModel>.broadcast();
@@ -65,13 +65,13 @@ class ArticleListProvider implements ViewModelProvider<ArticleListViewModel> {
   void _update(StreamController controller) {
     _repo.get(group: _group).then((articles) {
       _snapshot = _modelFromArticles(controller, articles);
-      controller.sink.add(_snapshot);
+      controller.sink.add(_snapshot!);
     });
   }
 
   ArticleListViewModel _viewModel({
-    LoadingStatus status,
-    List<ArticleListItemViewModel> items,
+    required LoadingStatus status,
+    required List<ArticleListItemViewModel> items,
   }) {
     return ArticleListViewModel(
         title: _title,
@@ -92,9 +92,9 @@ class ArticleListProvider implements ViewModelProvider<ArticleListViewModel> {
         status: LoadingStatus.LOADING,
         items: [],
       );
-      _snapshot.refresh();
+      _snapshot!.refresh();
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
@@ -104,6 +104,6 @@ class ArticleListProvider implements ViewModelProvider<ArticleListViewModel> {
 
   @override
   ArticleListViewModel snapshot() {
-    return _snapshot;
+    return _snapshot!;
   }
 }

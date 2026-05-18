@@ -9,8 +9,8 @@ class JSONDataSource {
   final File _file;
 
   JSONDataSource({
-    BuildContext context,
-    File file,
+    required BuildContext context,
+    required File file,
   })  : this._context = context,
         this._file = file;
 

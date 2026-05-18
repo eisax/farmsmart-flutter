@@ -1,8 +1,17 @@
+import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:farmsmart_flutter/model/bloc/StaticViewModelProvider.dart';
+import 'package:farmsmart_flutter/model/bloc/chatFlow/CreateAccountFlow.dart';
+import 'package:farmsmart_flutter/model/bloc/chatFlow/EditProfileFlow.dart';
+import 'package:farmsmart_flutter/model/entities/AccountEntity.dart';
+import 'package:farmsmart_flutter/model/entities/loading_status.dart';
+import 'package:farmsmart_flutter/model/repositories/account/AccountRepositoryInterface.dart';
+import 'package:farmsmart_flutter/model/repositories/locale/locale_repository_interface.dart';
 import 'package:farmsmart_flutter/model/repositories/image/implementation/MockImageEntity.dart';
 import 'package:farmsmart_flutter/ui/mockData/MockSwitchProfile.dart';
+import 'package:farmsmart_flutter/ui/offline/OfflineDownloadPage.dart';
 import 'package:farmsmart_flutter/ui/profile/Profile.dart';
 import 'package:farmsmart_flutter/ui/profile/ProfileListItem.dart';
 import 'package:farmsmart_flutter/ui/profile/SwitchProfileList.dart';
@@ -11,36 +20,124 @@ import 'package:farmsmart_flutter/model/entities/mock/MockString.dart';
 
 class MockProfileViewModel {
   static ProfileViewModel build() {
-    List<ProfileListItemViewModel> list = [];
-    for (var i = 0; i < 8; i++) {
-      list.add(MockUserProfileListItemViewModel.build(i));
-    }
+    final username = _mockUserName.random();
+    final accountRepository = _MockAccountRepository();
 
     return ProfileViewModel(
-      username: _mockUserName.random(),
+      loadingStatus: LoadingStatus.SUCCESS,
+      username: username,
+      initials: username.isNotEmpty
+          ? username
+              .split(' ')
+              .map((part) => part.isNotEmpty ? part[0] : '')
+              .join()
+              .toUpperCase()
+          : 'NA',
       activeCrops: Random().nextInt(50),
       completedCrops: Random().nextInt(50),
+      switchProfileProvider:
+          StaticViewModelProvider<SwitchProfileListViewModel>(
+              MockSwitchProfile.build()),
       image: MockImageEntity().build().urlProvider,
-      switchProfileProvider: StaticViewModelProvider<SwitchProfileListViewModel>(MockSwitchProfile.build()),
+      refresh: () {},
+      logout: () {},
+      remove: null,
+      renameProfile: (String _) {},
+      farmDetails: {},
+      switchLanguageTapped: (String language, String country) {},
+      newAccountFlow: NewAccountFlowCoordinator(accountRepository, (_) {}),
+      saveProfileImage: (File file) {},
+      editProfileFlow: EditProfileFlowCoordinator(accountRepository, (_) {}),
+      supportedLocales: [ContentLocale(Locale('en', 'KE'), 'English (Kenya)')],
+      currentLocale: ContentLocale(Locale('en', 'KE'), 'English (Kenya)'),
+      downloaderViewModelProvider:
+          StaticViewModelProvider<OfflineDownloadPageViewModel>(
+        OfflineDownloadPageViewModel(
+          LoadingStatus.SUCCESS,
+          () {},
+          0.0,
+          Error(),
+        ),
+      ),
     );
   }
 
   static ProfileViewModel buildLarger() {
+    final username = _mockUserName.random();
+    final accountRepository = _MockAccountRepository();
     List<ProfileListItemViewModel> list = [];
     for (var i = 0; i < 8; i++) {
       list.add(MockUserProfileListItemViewModel.buildLarger(i));
     }
 
     return ProfileViewModel(
-      username: _mockUserName.random(),
+      loadingStatus: LoadingStatus.SUCCESS,
+      username: username,
+      initials: username.isNotEmpty
+          ? username
+              .split(' ')
+              .map((part) => part.isNotEmpty ? part[0] : '')
+              .join()
+              .toUpperCase()
+          : 'NA',
       activeCrops: Random().nextInt(150),
       completedCrops: Random().nextInt(150),
+      switchProfileProvider:
+          StaticViewModelProvider<SwitchProfileListViewModel>(
+              MockSwitchProfile.build()),
       image: MockImageEntity().build().urlProvider,
-      switchProfileProvider: StaticViewModelProvider<SwitchProfileListViewModel>(MockSwitchProfile.build()),
+      refresh: () {},
+      logout: () {},
+      remove: null,
+      renameProfile: (String _) {},
+      farmDetails: {},
+      switchLanguageTapped: (String language, String country) {},
+      newAccountFlow: NewAccountFlowCoordinator(accountRepository, (_) {}),
+      saveProfileImage: (File file) {},
+      editProfileFlow: EditProfileFlowCoordinator(accountRepository, (_) {}),
+      supportedLocales: [ContentLocale(Locale('en', 'KE'), 'English (Kenya)')],
+      currentLocale: ContentLocale(Locale('en', 'KE'), 'English (Kenya)'),
+      downloaderViewModelProvider:
+          StaticViewModelProvider<OfflineDownloadPageViewModel>(
+        OfflineDownloadPageViewModel(
+          LoadingStatus.SUCCESS,
+          () {},
+          0.0,
+          Error(),
+        ),
+      ),
     );
   }
+}
 
+class _MockAccountRepository implements AccountRepositoryInterface {
+  @override
+  Stream<AccountEntity> observeAuthorized() async* {}
 
+  @override
+  Future<AccountEntity> authorized() async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<AccountEntity> authorize(String username, String password) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<AccountEntity> create(String username, String password) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<AccountEntity> anonymous() async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> deauthorize() async {
+    throw UnimplementedError();
+  }
 }
 
 class MockUserProfileListItemViewModel {
@@ -88,7 +185,7 @@ List<String> _mockActionTitle = [
   "Terms of Use",
   "Delete Profile",
 ];
-List<String> _mockActionIcon = [
+List<String?> _mockActionIcon = [
   "assets/icons/detail_icon_language.png",
   "assets/icons/detail_icon_best_soil.png",
   "assets/icons/detail_icon_pin.png",

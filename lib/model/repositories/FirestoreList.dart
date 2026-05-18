@@ -7,17 +7,18 @@ typedef PathProvider = Future<String> Function();
 typedef ObjectIdentifier<T> = String Function(T object);
 
 class FireStoreList<T> {
-  final Firestore firestore;
+  final FirebaseFirestore firestore;
   final ObjectTransformer<T, Map<String, dynamic>> toFirestoreTransformer;
-  final ObjectTransformer<DocumentSnapshot, T> fromFirestoreTransformer;
-  final String orderField;
+  final ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, T>
+      fromFirestoreTransformer;
+  final String? orderField;
   final bool orderDecending;
-  final _emptyList = List<T>();
+  final List<T> _emptyList = [];
   PathProvider path;
-  String _currentPath;
+  String? _currentPath;
   ObjectIdentifier<T> resourceIdentifier;
-  StreamController<List<T>> _listController;
-  StreamSubscription<QuerySnapshot> _subscription;
+  StreamController<List<T>>? _listController;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscription;
 
   FireStoreList(this.firestore, this.toFirestoreTransformer,
       this.fromFirestoreTransformer, this.path, this.resourceIdentifier,
@@ -40,7 +41,7 @@ class FireStoreList<T> {
   Future<bool> remove(T object) {
     return path().then((collectionPath) {
       final documentPath = resourceIdentifier(object);
-      return firestore.document(documentPath).delete().then((response) {
+      return firestore.doc(documentPath).delete().then((response) {
         return true;
       }, onError: (error) {
         return false;
@@ -53,7 +54,7 @@ class FireStoreList<T> {
       _listController = StreamController<List<T>>.broadcast();
     }
     renewSubscriptionIfNeeded();
-    return _listController.stream;
+    return _listController!.stream;
   }
 
   Future<List<T>> get() {
@@ -62,55 +63,54 @@ class FireStoreList<T> {
     });
   }
 
-  Future<List<T>>_fetchAndOrder(String collectionPath) {
+  Future<List<T>> _fetchAndOrder(String collectionPath) {
     return _orderedCollection(
-          collectionPath,
-          orderField,
-          descending: orderDecending,
-        ).getDocuments().then((snapshot) {
-          return _update(snapshot);
-        }, onError: (error) {
-          return _emptyList;
-        });
+      collectionPath,
+      orderField!,
+      descending: orderDecending,
+    ).get().then((snapshot) {
+      return _update(snapshot);
+    }, onError: (error) {
+      return _emptyList;
+    });
   }
 
   Future<List<T>> _fetch(String collectionPath) {
     if (orderField != null) {
-        return _fetchAndOrder(collectionPath);
-      } else {
-        return firestore.collection(collectionPath).getDocuments().then(
-            (snapshot) {
-          return _update(snapshot);
-        }, onError: (error) {
-          return _emptyList;
-        });
-      }
+      return _fetchAndOrder(collectionPath);
+    } else {
+      return firestore.collection(collectionPath).get().then((snapshot) {
+        return _update(snapshot);
+      }, onError: (error) {
+        return _emptyList;
+      });
+    }
   }
 
   void renewSubscriptionIfNeeded() {
     path().then((collectionPath) {
       if (collectionPath != _currentPath) {
         _subscription?.cancel();
-        if (collectionPath != null) {
-          _subscription = _subscribe(collectionPath);
-        }
+        _subscription = _subscribe(collectionPath);
         _currentPath = collectionPath;
       }
     });
   }
 
-  StreamSubscription<QuerySnapshot> _subscribeAndOrder(String collectionPath) {
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>> _subscribeAndOrder(
+      String collectionPath) {
     return _orderedCollection(
       collectionPath,
-      orderField,
+      orderField!,
       descending: orderDecending,
     ).snapshots().listen((snapshot) {
       _update(snapshot);
     });
   }
 
-  StreamSubscription<QuerySnapshot> _subscribe(String collectionPath) {
-    if(orderField != null) {
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>> _subscribe(
+      String collectionPath) {
+    if (orderField != null) {
       return _subscribeAndOrder(collectionPath);
     }
     return firestore.collection(collectionPath).snapshots().listen((snapshot) {
@@ -118,13 +118,15 @@ class FireStoreList<T> {
     });
   }
 
-  List<T> _update(QuerySnapshot snapshot) {
+  List<T> _update(QuerySnapshot<Map<String, dynamic>> snapshot) {
     final newValue = _transformCollection(snapshot);
-    _listController?.sink?.add(newValue);
+    if (_listController != null) {
+      _listController!.sink.add(newValue);
+    }
     return newValue;
   }
 
-  Query _orderedCollection(
+  Query<Map<String, dynamic>> _orderedCollection(
     String path,
     String field, {
     bool descending = false,
@@ -135,14 +137,16 @@ class FireStoreList<T> {
         );
   }
 
-  List<T> _transformCollection(QuerySnapshot snapshot) {
-    return snapshot.documents.map((document) {
+  List<T> _transformCollection(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    return snapshot.docs.map((document) {
       return fromFirestoreTransformer.transform(from: document);
     }).toList();
   }
 
   void dispose() {
-    _listController?.sink?.close();
-    _listController?.close();
+    if (_listController != null) {
+      _listController!.sink.close();
+      _listController!.close();
+    }
   }
 }

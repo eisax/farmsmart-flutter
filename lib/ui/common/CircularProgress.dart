@@ -10,12 +10,12 @@ class CircularProgress extends StatelessWidget {
   final EdgeInsets innerPadding = const EdgeInsets.all(1.0);
 
   const CircularProgress(
-      {Key key,
-      @required double progress,
-      @required double size,
-      @required double lineWidth,
-      Color lineColor})
-      : this._lineColor = lineColor ?? const Color(0xff24d900),
+      {Key? key,
+      required double progress,
+      required double size,
+      required double lineWidth,
+      Color? lineColor})
+      : this._lineColor = lineColor ?? const Color(0xFF3D9140),
         this._progress = progress,
         this._size = size,
         this._lineWidth = lineWidth,
@@ -51,7 +51,7 @@ class _CircularPainter extends CustomPainter {
   double width;
 
   _CircularPainter(
-      {this.trackColor, this.lineColor, this.progress, this.width});
+      {required this.trackColor, required this.lineColor, required this.progress, required this.width});
 
   @override
   void paint(Canvas canvas, Size size) {

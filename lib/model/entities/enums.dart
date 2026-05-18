@@ -23,14 +23,10 @@ final statusValues =
 
 class EnumValues<T> {
   Map<String, T> map;
-  Map<T, String> reverseMap;
+  late final Map<T, String> reverseMap =
+      map.map((key, value) => MapEntry(value, key));
 
   EnumValues(this.map);
 
-  Map<T, String> get reverse {
-    if (reverseMap == null) {
-      reverseMap = map.map((k, v) => MapEntry(v, k));
-    }
-    return reverseMap;
-  }
+  Map<T, String> get reverse => reverseMap;
 }

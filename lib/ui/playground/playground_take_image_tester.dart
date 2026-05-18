@@ -2,17 +2,13 @@ import 'dart:io';
 
 import 'package:farmsmart_flutter/ui/common/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart' as ImagePickerLib;
-
-class _Strings {
-  static final noImage = 'No image';
-}
 
 class PlaygroundTakeImageTester extends StatefulWidget {
   final ImagePickerLib.ImageSource imageSource;
 
-  PlaygroundTakeImageTester({Key key, this.imageSource});
+  const PlaygroundTakeImageTester({Key? key, required this.imageSource})
+      : super(key: key);
 
   @override
   _PlaygroundTakeImageTesterState createState() =>
@@ -20,7 +16,7 @@ class PlaygroundTakeImageTester extends StatefulWidget {
 }
 
 class _PlaygroundTakeImageTesterState extends State<PlaygroundTakeImageTester> {
-  File _file;
+  File? _file;
 
   @override
   void initState() {
@@ -36,7 +32,7 @@ class _PlaygroundTakeImageTesterState extends State<PlaygroundTakeImageTester> {
         });
       },
       onCancel: (message) {
-        Scaffold.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
           ),
@@ -47,14 +43,17 @@ class _PlaygroundTakeImageTesterState extends State<PlaygroundTakeImageTester> {
 
   @override
   void dispose() {
+    if (_file != null) {
+      _file!.delete();
+    }
     super.dispose();
-    _file?.delete();
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: _file != null ? Image.file(_file) : Text(_Strings.noImage),
+      child:
+          _file != null ? Image.file(_file!) : const Text('No image selected'),
     );
   }
 }

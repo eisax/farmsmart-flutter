@@ -26,7 +26,8 @@ class _Constants {
       const EdgeInsets.only(right: 24, left: 24, bottom: 24);
 }
 
-class SwitchProfileListViewModel implements RefreshableViewModel, LoadableViewModel {
+class SwitchProfileListViewModel
+    implements RefreshableViewModel, LoadableViewModel {
   String title;
   String actionTitle;
   bool isVisible;
@@ -38,15 +39,15 @@ class SwitchProfileListViewModel implements RefreshableViewModel, LoadableViewMo
   Function refresh;
 
   SwitchProfileListViewModel({
-    @required this.title,
-    @required this.actionTitle,
+    required this.title,
+    required this.actionTitle,
     this.isVisible = false,
-    this.items,
-    this.confirmedIndex,
-    this.selectedIndex,
-    this.loadingStatus,
-    @required this.newProfileFlow,
-    this.refresh,
+    required this.items,
+    required this.confirmedIndex,
+    required this.selectedIndex,
+    required this.loadingStatus,
+    required this.newProfileFlow,
+    required this.refresh,
   });
 }
 
@@ -54,11 +55,11 @@ class SwitchProfileListStyle {
   final TextStyle titleTextStyle;
 
   const SwitchProfileListStyle({
-    this.titleTextStyle,
+    required this.titleTextStyle,
   });
 
   SwitchProfileListStyle copyWith({
-    TextStyle titleTextStyle,
+    TextStyle? titleTextStyle,
   }) {
     return SwitchProfileListStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -67,19 +68,18 @@ class SwitchProfileListStyle {
 }
 
 class _DefaultStyle extends SwitchProfileListStyle {
-  final TextStyle titleTextStyle = const TextStyle(
-    color: Color(0xff1a1b46),
-    fontSize: 27,
-    fontWeight: FontWeight.w700,
-    fontStyle: FontStyle.normal,
-  );
-
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            color: Color(0xff1a1b46),
+            fontSize: 27,
+            fontWeight: FontWeight.w700,
+            fontStyle: FontStyle.normal,
+          ),
+        );
 }
 
-const SwitchProfileListStyle _defaultStyle = const _DefaultStyle();
+const SwitchProfileListStyle _defaultStyle = _DefaultStyle();
 
 class SwitchProfileList extends StatefulWidget {
   static const analyticsName = 'switch_profile_list';
@@ -87,8 +87,8 @@ class SwitchProfileList extends StatefulWidget {
   final SwitchProfileListStyle _style;
 
   SwitchProfileList({
-    Key key,
-    ViewModelProvider<SwitchProfileListViewModel> provider,
+    Key? key,
+    required ViewModelProvider<SwitchProfileListViewModel> provider,
     SwitchProfileListStyle style = _defaultStyle,
   })  : this._provider = provider,
         this._style = style,
@@ -101,12 +101,19 @@ class SwitchProfileList extends StatefulWidget {
 class SwitchProfileListState extends State<SwitchProfileList> {
   @override
   Widget build(BuildContext context) {
-    return ViewModelProviderBuilder(provider: widget._provider, successBuilder: _buildSuccess,);
+    return ViewModelProviderBuilder(
+      provider: widget._provider,
+      successBuilder: _buildSuccess,
+    );
   }
-  Widget _buildSuccess({BuildContext context, AsyncSnapshot<SwitchProfileListViewModel> snapshot}) {
-    final viewModel = snapshot.data;
+
+  Widget _buildSuccess({
+    BuildContext? context,
+    AsyncSnapshot<SwitchProfileListViewModel>? snapshot,
+  }) {
+    final viewModel = snapshot!.data!;
     return Scaffold(
-      appBar: _buildSimpleAppBar(context, viewModel),
+      appBar: _buildSimpleAppBar(context!, viewModel),
       body: _buildBody(viewModel),
       floatingActionButton: _buildFloatingButton(context, viewModel),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -136,7 +143,9 @@ class SwitchProfileListState extends State<SwitchProfileList> {
                 icon: viewModel.items[index].icon,
                 isSelected: viewModel.items[index].isSelected,
                 tapAction: () => _select(index, viewModel),
-                avatarViewModelProvider: viewModel.items[index].avatarViewModelProvider,
+                avatarViewModelProvider:
+                    viewModel.items[index].avatarViewModelProvider,
+                switchAction: viewModel.items[index].switchAction,
               ),
             ),
             separatorBuilder: (context, index) => ListDivider.build(),
@@ -147,7 +156,8 @@ class SwitchProfileListState extends State<SwitchProfileList> {
     );
   }
 
-  _buildFloatingButton(BuildContext context, SwitchProfileListViewModel viewModel) {
+  _buildFloatingButton(
+      BuildContext context, SwitchProfileListViewModel viewModel) {
     return Padding(
       padding: _Constants.bottomButtonEdgePadding,
       child: Visibility(
@@ -161,13 +171,14 @@ class SwitchProfileListState extends State<SwitchProfileList> {
     );
   }
 
-  AppBar _buildSimpleAppBar(BuildContext context, SwitchProfileListViewModel viewModel) {
+  AppBar _buildSimpleAppBar(
+      BuildContext context, SwitchProfileListViewModel viewModel) {
     return AppBar(
       elevation: _Constants.appBarElevation,
-      leading: FlatButton(
+      leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
         padding: _Constants.appBarEdgePadding,
-        child: Image.asset(
+        icon: Image.asset(
           _Icons.dismissModal,
           height: _Constants.appBarIconSize,
           width: _Constants.appBarIconSize,
@@ -180,7 +191,7 @@ class SwitchProfileListState extends State<SwitchProfileList> {
             child: RoundedButton(
                 viewModel: RoundedButtonViewModel(
                     icon: _Icons.topButton,
-                    onTap: () => _newProfileTapped(context,viewModel)),
+                    onTap: () => _newProfileTapped(context, viewModel)),
                 style: RoundedButtonStyle.defaultStyle()),
           ),
         ),
@@ -188,7 +199,8 @@ class SwitchProfileListState extends State<SwitchProfileList> {
     );
   }
 
-  void _newProfileTapped(BuildContext context, SwitchProfileListViewModel viewModel) {
+  void _newProfileTapped(
+      BuildContext context, SwitchProfileListViewModel viewModel) {
     viewModel.newProfileFlow.run(context);
   }
 
@@ -219,10 +231,11 @@ class SwitchProfileListState extends State<SwitchProfileList> {
     }
   }
 
-  _switchProfileTapped(BuildContext context, SwitchProfileListViewModel viewModel) {
+  _switchProfileTapped(
+      BuildContext context, SwitchProfileListViewModel viewModel) {
     setState(() {
       viewModel.isVisible = false;
-      viewModel.items[viewModel.selectedIndex].switchAction(); 
+      viewModel.items[viewModel.selectedIndex].switchAction();
       Navigator.of(context).pop();
     });
   }

@@ -14,6 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 
+import '../features/farm_tools_hub.dart';
+import '../home/weather_forecast_card.dart';
+import '../theme/app_theme.dart';
 import 'PlotDetail.dart';
 import 'PlotListItem.dart';
 import 'viewmodel/PlotDetailViewModel.dart';
@@ -23,6 +26,9 @@ class _LocalisedStrings {
       Intl.message('Get started by adding to your plot');
 
   static String addToYourPlot() => Intl.message('Add to your Plot');
+
+  static String myPlotSubtitle() =>
+      Intl.message('Track growth stages and manage your active crops.');
 }
 
 class _Strings {
@@ -30,12 +36,11 @@ class _Strings {
 }
 
 class _Constants {
-  static const titlePaddingOnEmptyState = const EdgeInsets.only(top: 31);
   static const double bottomHeightSpaceForStickButton = 100;
 }
 
 class _AnalyticsNames {
-    static const addToPlot = 'add_to_plot';
+  static const addToPlot = 'add_to_plot';
 }
 
 class PlotListViewModel implements LoadableViewModel, RefreshableViewModel {
@@ -43,16 +48,17 @@ class PlotListViewModel implements LoadableViewModel, RefreshableViewModel {
   final String buttonTitle;
   final LoadingStatus loadingStatus;
   final List<PlotListItemViewModel> items;
-  final Function refresh;
+  final VoidCallback refresh;
   final ViewModelProvider<RecommendationsListViewModel> recommendationsProvider;
 
   PlotListViewModel({
-    String title,
-    String buttonTitle,
-    LoadingStatus loadingStatus,
-    List<PlotListItemViewModel> items,
-    Function refresh,
-    ViewModelProvider<RecommendationsListViewModel> recommendationsProvider,
+    required String title,
+    required String buttonTitle,
+    required LoadingStatus loadingStatus,
+    required List<PlotListItemViewModel> items,
+    required VoidCallback refresh,
+    required ViewModelProvider<RecommendationsListViewModel>
+        recommendationsProvider,
   })  : this.title = title,
         this.loadingStatus = loadingStatus,
         this.buttonTitle = buttonTitle,
@@ -80,16 +86,15 @@ abstract class PlotListStyle {
 }
 
 class _DefaultStyle implements PlotListStyle {
-  final Color primaryColor = const Color(0xff24d900);
+  final Color primaryColor = AppTheme.accent;
 
-  final EdgeInsets edgePadding = const EdgeInsets.only(top: 20.0);
+  final EdgeInsets edgePadding = const EdgeInsets.only(top: 8.0);
   final EdgeInsets titleEdgePadding =
-      const EdgeInsets.only(left: 32, top: 30, right: 32, bottom: 0);
+      const EdgeInsets.fromLTRB(20, 24, 20, 8);
   final EdgeInsets largeButtonEdgePadding =
-      const EdgeInsets.only(left: 32, top: 31, right: 32, bottom: 20);
+      const EdgeInsets.fromLTRB(20, 16, 20, 32);
 
-  final TextStyle titleTextStyle = const TextStyle(
-      fontSize: 27, fontWeight: FontWeight.bold, color: Color(0xFF000000));
+  final TextStyle titleTextStyle = AppTheme.displayTitle;
 
   const _DefaultStyle();
 }
@@ -99,8 +104,8 @@ class PlotList extends StatefulWidget {
   final PlotListStyle _style;
 
   const PlotList({
-    Key key,
-    ViewModelProvider<PlotListViewModel> provider,
+    Key? key,
+    required ViewModelProvider<PlotListViewModel> provider,
     PlotListStyle style = const _DefaultStyle(),
   })  : this._viewModelProvider = provider,
         this._style = style,
@@ -123,11 +128,11 @@ class _PlotListState extends State<PlotList> {
   }
 
   Widget _buildPage({
-    BuildContext context,
-    AsyncSnapshot<PlotListViewModel> snapshot,
+    required BuildContext context,
+    required AsyncSnapshot<PlotListViewModel> snapshot,
   }) {
-    final viewModel = snapshot.data;
-    return snapshot.data.items.isNotEmpty
+    final viewModel = snapshot.data!;
+    return viewModel.items.isNotEmpty
         ? _buildList(
             viewModel,
             context,
@@ -139,12 +144,13 @@ class _PlotListState extends State<PlotList> {
   }
 
   Widget _buildEmptyView(PlotListViewModel viewModel, BuildContext context) {
-    return Column(
+    return Container(
+      color: AppTheme.white,
+      child: Column(
       children: <Widget>[
-        Padding(
-          padding: _Constants.titlePaddingOnEmptyState,
-          child: _buildTitle(viewModel, widget._style, context: context),
-        ),
+        _buildTitle(viewModel, widget._style, context: context),
+        const WeatherForecastCard(),
+        const FarmToolsHub(),
         Expanded(
           child: EmptyView(
             viewModel: EmptyViewViewModel(
@@ -159,11 +165,14 @@ class _PlotListState extends State<PlotList> {
           ),
         ),
       ],
+    ),
     );
   }
 
   Widget _buildList(PlotListViewModel viewModel, BuildContext context) {
-    return Stack(
+    return Container(
+      color: AppTheme.white,
+      child: Stack(
       children: <Widget>[
         NotificationListener<ScrollEndNotification>(
           onNotification: _onScrollNotification,
@@ -172,11 +181,14 @@ class _PlotListState extends State<PlotList> {
             itemBuilder: (BuildContext context, int index) {
               final itemViewModel = viewModel.items[index];
               final tapFunction = () {
-                 AnalyticsInterface.implementation().interaction(PlotDetail.analyticsName, context: itemViewModel.title);
+                AnalyticsInterface.implementation().interaction(
+                    PlotDetail.analyticsName,
+                    context: itemViewModel.title);
                 _tappedListItem(
-                    context: context,
-                    provider: itemViewModel.detailViewModelProvider,
-                  );};
+                  context: context,
+                  provider: itemViewModel.detailViewModelProvider,
+                );
+              };
               return PlotListItem().buildListItem(
                 viewModel: viewModel.items[index],
                 onTap: tapFunction,
@@ -190,6 +202,8 @@ class _PlotListState extends State<PlotList> {
                 widget._style,
                 context: context,
               ),
+              const WeatherForecastCard(),
+              const FarmToolsHub(),
             ],
             footers: [
               SizedBox(
@@ -200,19 +214,24 @@ class _PlotListState extends State<PlotList> {
         ),
         _buildBottomActionButton(viewModel, context)
       ],
+    ),
     );
   }
 
-  bool _onScrollNotification(scroll) {
-    var topActionButtonCurrentContext =
+  bool _onScrollNotification(ScrollEndNotification scroll) {
+    final topActionButtonCurrentContext =
         topActionButtonVisibilityKey.currentContext;
 
-    if (topActionButtonVisibilityKey.currentContext == null) return false;
+    if (topActionButtonCurrentContext == null) return false;
 
-    var topActionRenderObject =
+    final RenderObject? topActionRenderObject =
         topActionButtonCurrentContext.findRenderObject();
-    RenderAbstractViewport viewport =
+    if (topActionRenderObject == null) return false;
+
+    final RenderAbstractViewport? viewport =
         RenderAbstractViewport.of(topActionRenderObject);
+    if (viewport == null) return false;
+
     var offsetToRevealBottom =
         viewport.getOffsetToReveal(topActionRenderObject, 1.0);
     var offsetToRevealTop =
@@ -271,41 +290,47 @@ class _PlotListState extends State<PlotList> {
   Widget _buildTitle(
     PlotListViewModel viewModel,
     PlotListStyle myPlotStyle, {
-    BuildContext context,
+    required BuildContext context,
   }) {
-    final String roundedButtonIcon = "assets/icons/profit_add.png";
-    return Container(
+    return Padding(
       padding: myPlotStyle.titleEdgePadding,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                viewModel.title,
-                style: myPlotStyle.titleTextStyle,
-              )
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(viewModel.title, style: myPlotStyle.titleTextStyle),
+                const SizedBox(height: 4),
+                Text(_LocalisedStrings.myPlotSubtitle(), style: AppTheme.body),
+              ],
+            ),
           ),
-          RoundedButton(
-            key: topActionButtonVisibilityKey,
-            viewModel: RoundedButtonViewModel(
-                icon: roundedButtonIcon,
-                onTap: () => _tappedAdd(
-                      context: context,
-                      provider: viewModel.recommendationsProvider,
-                    )),
-            style: RoundedButtonStyle.defaultStyle(),
-          )
+          Material(
+            color: AppTheme.black,
+            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+            child: InkWell(
+              key: topActionButtonVisibilityKey,
+              onTap: () => _tappedAdd(
+                context: context,
+                provider: viewModel.recommendationsProvider,
+              ),
+              borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Icon(Icons.add, color: AppTheme.white, size: 22),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   void _tappedAdd({
-    BuildContext context,
-    ViewModelProvider<RecommendationsListViewModel> provider,
+    required BuildContext context,
+    required ViewModelProvider<RecommendationsListViewModel> provider,
   }) {
     AnalyticsInterface.implementation().interaction(_AnalyticsNames.addToPlot);
     NavigationScope.presentModal(
@@ -315,15 +340,13 @@ class _PlotListState extends State<PlotList> {
   }
 
   void _tappedListItem({
-    BuildContext context,
-    ViewModelProvider<PlotDetailViewModel> provider,
+    required BuildContext context,
+    required ViewModelProvider<PlotDetailViewModel> provider,
   }) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PlotDetail(provider: provider),
-        settings: RouteSettings(name:PlotDetail.analyticsName)
-        
-      ),
+          builder: (context) => PlotDetail(provider: provider),
+          settings: RouteSettings(name: PlotDetail.analyticsName)),
     );
   }
 }

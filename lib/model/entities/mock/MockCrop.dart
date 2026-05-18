@@ -1,56 +1,52 @@
-import 'package:farmsmart_flutter/model/entities/mock/MockString.dart';
+import 'package:farmsmart_flutter/model/entities/mock/MockArticle.dart';
+import 'package:farmsmart_flutter/model/entities/mock/crop_plant_images.dart';
+import 'package:farmsmart_flutter/model/entities/mock/mock_crop_catalog.dart';
+import 'package:farmsmart_flutter/model/entities/mock/mock_crop_image_collection.dart';
+import 'package:farmsmart_flutter/model/entities/mock/mock_crop_stage_articles.dart';
 import 'package:farmsmart_flutter/model/repositories/MockStrings.dart';
-import 'package:farmsmart_flutter/model/repositories/image/implementation/MockImageEntity.dart';
+
 import '../crop_entity.dart';
-import '../enums.dart';
-import 'MockArticle.dart';
 
 class MockCrop {
-  static CropEntity build({String cropName}) {
+  static CropEntity build({String? cropName}) {
     final name = cropName ?? plants.random();
-    final entity = CropEntity(uri: name,
-    article: MockArticle().buildCrop(name),
-    companionPlants: plants.list(),
-    complexity: CropComplexity.BEGINNER,
-    cropsInRotation: plants.list(),
-    cropType: CropType.SINGLE,
-    name: name,
-    nonCompanionPlants: plants.list(),
-    profitability: LoHi.MEDIUM,
-    setupCost: LoHi.MEDIUM,
-    soilType: _soil.list(),
-    waterRequirement: LoHi.MEDIUM,
+    final definition =
+        MockCropCatalog.findByName(name) ?? MockCropCatalog.all.first;
+
+    final entity = CropEntity(
+      uri: definition.name,
+      article: MockArticle().buildCrop(
+        definition.name,
+        summary: definition.summary,
+      ),
+      companionPlants: definition.companions,
+      complexity: definition.complexity,
+      cropsInRotation: definition.rotationCrops,
+      cropType: definition.cropType,
+      name: definition.name,
+      nonCompanionPlants: definition.nonCompanions,
+      profitability: definition.profitability,
+      setupCost: definition.setupCost,
+      soilType: definition.soilTypes,
+      waterRequirement: definition.waterRequirement,
     );
-    entity.stageArticles = MockArticleEntityCollection();
-    entity.images = MockImageEntityCollection();
+    entity.stageArticles =
+        MockCropStageArticleCollection(definition.stageTitles);
+    entity.images = MockCropImageCollection(
+      CropPlantImages.forCrop(definition.name),
+    );
     return entity;
   }
 
-  static List<CropEntity> uniqueList(){
-    List<CropEntity> items = [];
-    final allPlants = plants.libarary();
-    for (var i = 0; i < allPlants.length; i++) {
-      items.add(build(cropName: allPlants[i]));
-    }
-    return items;
+  static List<CropEntity> uniqueList() {
+    return MockCropCatalog.all.map((d) => build(cropName: d.name)).toList();
   }
 
   static List<CropEntity> list({int count = 50}) {
-    List<CropEntity> items = [];
+    final items = <CropEntity>[];
     for (var i = 0; i < count; i++) {
-      items.add(build());
+      items.add(build(cropName: plants.libarary()[i % plants.libarary().length]));
     }
     return items;
   }
 }
-
-// Mock Strings --------------
-
-MockString _soil = MockString(library: [
-  "Soil A",
-  "Soil B",
-  "Soil C",
-  "Soil D",
-  "Soil E",
-  "Soil F"
-]);

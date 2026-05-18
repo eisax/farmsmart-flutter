@@ -42,29 +42,29 @@ class SelectableOptionsStyle {
   final TextStyle optionTextStyle;
 
   const SelectableOptionsStyle({
-    this.outerContainerMargin,
-    this.wrapDirection,
-    this.wrapAlignment,
-    this.optionDecoration,
-    this.optionMargin,
-    this.optionPadding,
-    this.optionTextAlign,
-    this.optionTextStyle,
-    this.wrapRunAlignment,
-    this.wrapSpacing,
+    required this.outerContainerMargin,
+    required this.wrapDirection,
+    required this.wrapAlignment,
+    required this.optionDecoration,
+    required this.optionMargin,
+    required this.optionPadding,
+    required this.optionTextAlign,
+    required this.optionTextStyle,
+    required this.wrapRunAlignment,
+    required this.wrapSpacing,
   });
 
   SelectableOptionsStyle copyWith({
-    EdgeInsetsGeometry outerContainerMargin,
-    Axis wrapDirection,
-    WrapAlignment wrapAlignment,
-    WrapAlignment wrapRunAlignment,
-    double wrapSpacing,
-    EdgeInsetsGeometry optionMargin,
-    EdgeInsetsGeometry optionPadding,
-    Decoration optionDecoration,
-    TextAlign optionTextAlign,
-    TextStyle optionTextStyle,
+    EdgeInsetsGeometry? outerContainerMargin,
+    Axis? wrapDirection,
+    WrapAlignment? wrapAlignment,
+    WrapAlignment? wrapRunAlignment,
+    double? wrapSpacing,
+    EdgeInsetsGeometry? optionMargin,
+    EdgeInsetsGeometry? optionPadding,
+    Decoration? optionDecoration,
+    TextAlign? optionTextAlign,
+    TextStyle? optionTextStyle,
   }) {
     return SelectableOptionsStyle(
       outerContainerMargin: outerContainerMargin ?? this.outerContainerMargin,
@@ -94,33 +94,34 @@ class _DefaultStyle extends SelectableOptionsStyle {
   final TextAlign optionTextAlign = _Constants.defaultOptionTextAlign;
   final TextStyle optionTextStyle = _Constants.defaultOptionTextStyle;
 
-  const _DefaultStyle({
-    EdgeInsetsGeometry outerContainerMargin,
-    Axis wrapDirection,
-    WrapAlignment wrapAlignment,
-    WrapAlignment wrapRunAlignment,
-    double wrapSpacing,
-    EdgeInsetsGeometry optionMargin,
-    EdgeInsetsGeometry optionPadding,
-    Decoration optionDecoration,
-    TextAlign optionTextAlign,
-    TextStyle optionTextStyle,
-  });
+  const _DefaultStyle()
+      : super(
+          outerContainerMargin: _Constants.defaultOuterContainerMargin,
+          wrapDirection: _Constants.defaultWrapDirection,
+          wrapAlignment: _Constants.defaultWrapAlignment,
+          wrapRunAlignment: _Constants.defaultWrapRunAlignment,
+          wrapSpacing: _Constants.defaultWrapSpacing,
+          optionMargin: _Constants.defaultOptionMargin,
+          optionPadding: _Constants.defaultOptionPadding,
+          optionDecoration: _Constants.defaultOptionDecoration,
+          optionTextAlign: _Constants.defaultOptionTextAlign,
+          optionTextStyle: _Constants.defaultOptionTextStyle,
+        );
 }
 
-const SelectableOptionsStyle _defaultStyle = const _DefaultStyle();
+const SelectableOptionsStyle _defaultStyle = _DefaultStyle();
 
 class SelectableOptions extends StatelessWidget {
   final SelectableOptionsViewModel _viewModel;
-  final Function(SelectableOptionViewModel) _onTap;
+  final ValueChanged<SelectableOptionViewModel> _onTap;
   final SelectableOptionsStyle _style;
 
   SelectableOptions({
-    @required SelectableOptionsViewModel viewModel,
-    Function(SelectableOptionViewModel) onTap,
+    required SelectableOptionsViewModel viewModel,
+    ValueChanged<SelectableOptionViewModel>? onTap,
     SelectableOptionsStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
-        this._onTap = onTap ?? (() => {}),
+        this._onTap = onTap ?? ((_) {}),
         this._style = style;
 
   @override

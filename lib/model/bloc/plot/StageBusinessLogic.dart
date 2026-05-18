@@ -20,7 +20,7 @@ class StageBusinessLogic {
     return 0;
   }
 
-  StageEntity currentStage(List<StageEntity> stages) {
+  StageEntity? currentStage(List<StageEntity> stages) {
     if (stages.isNotEmpty) {
       for (var stage in stages) {
         if (isInProgress(stage) || !isStarted(stage)) {
@@ -58,17 +58,15 @@ class StageBusinessLogic {
   }
 
   StageStatus status(StageEntity stage) {
-    if (stage != null) {
-      if (isInProgress(stage)) {
-        return StageStatus.inProgress;
-      } else if (isComplete(stage)) {
-        return StageStatus.complete;
-      }
+    if (isInProgress(stage)) {
+      return StageStatus.inProgress;
+    } else if (isComplete(stage)) {
+      return StageStatus.complete;
     }
     return StageStatus.upcoming;
   }
 
-  StageEntity nextStage(StageEntity stage, List<StageEntity> stages) {
+  StageEntity? nextStage(StageEntity stage, List<StageEntity> stages) {
     bool next = false;
     for (var stageEntry in stages) {
       if (next) {
@@ -80,29 +78,20 @@ class StageBusinessLogic {
     return null;
   }
 
-  StageEntity prevStage(StageEntity stage, List<StageEntity> stages) {
+  StageEntity? prevStage(StageEntity stage, List<StageEntity> stages) {
     return nextStage(stage, stages.reversed.toList());
   }
 
   bool isInProgress(StageEntity stage) {
-    if (stage == null) {
-      return false;
-    }
     return isStarted(stage) && !isComplete(stage);
   }
 
   bool isStarted(StageEntity stage) {
-    if (stage == null) {
-      return false;
-    }
-    return (stage.started != null) && stage.started.isBefore(DateTime.now());
+    return (stage.started != null) && stage.started!.isBefore(DateTime.now());
   }
 
   bool isComplete(StageEntity stage) {
-    if (stage == null) {
-      return false;
-    }
-    return (stage.ended != null) && stage.ended.isBefore(DateTime.now());
+    return (stage.ended != null) && stage.ended!.isBefore(DateTime.now());
   }
 
   bool canComplete(StageEntity stage, List<StageEntity> stages) {
@@ -110,13 +99,13 @@ class StageBusinessLogic {
   }
 
   bool canBegin(StageEntity stage, List<StageEntity> stages) {
-    if (stage == null) {
-      return false;
-    }
     if (stage == stages.first) {
       return !isStarted(stage);
     }
-    return isComplete(prevStage(stage, stages)) && !isStarted(stage);
+    final previous = prevStage(stage, stages);
+    return previous != null &&
+        isComplete(previous) &&
+        !isStarted(stage);
   }
 
   bool canRevert(StageEntity stage, List<StageEntity> stages) {

@@ -15,11 +15,11 @@ class _Constants {
 }
 
 class ImageProviderView extends StatelessWidget {
-  final ImageURLProvider imageURLProvider;
-  final double height;
-  final double width;
-  final BorderRadius imageBorderRadius;
-  final Widget placeholderWidget;
+  final ImageURLProvider? imageURLProvider;
+  final double? height;
+  final double? width;
+  final BorderRadiusGeometry? imageBorderRadius;
+  final Widget? placeholderWidget;
 
   ImageProviderView({
     this.imageURLProvider,
@@ -33,8 +33,13 @@ class ImageProviderView extends StatelessWidget {
   Widget build(BuildContext context) {
     final placeholder =
         placeholderWidget ?? Image.asset(_Constants.placeholderAsset);
-    Future<String> future = (imageURLProvider != null)
-        ? imageURLProvider.urlToFit(width: width, height: height).then((url) {
+    Future<String?> future = (imageURLProvider != null)
+        ? imageURLProvider!
+            .urlToFit(
+            width: width ?? double.infinity,
+            height: height ?? double.infinity,
+          )
+            .then((url) {
             if (_isLocalImage(url)) {
               return File(url).exists().then((fileExisits) {
                 return fileExisits ? url : null;
@@ -43,18 +48,21 @@ class ImageProviderView extends StatelessWidget {
             return url;
           })
         : Future.value(null);
-    final cachedURL =
-        imageURLProvider?.cachedUrlToFit(width: width, height: height);
+    final cachedURL = imageURLProvider?.cachedUrlToFit(
+      width: width ?? double.infinity,
+      height: height ?? double.infinity,
+    );
     if (cachedURL != null) {
       return buildImage(cachedURL);
     }
 
-    return FutureBuilder(
+    return FutureBuilder<String?>(
       future: future,
-      builder: (BuildContext context, AsyncSnapshot<String> url) {
+      builder: (BuildContext context, AsyncSnapshot<String?> url) {
         if (!url.hasData || url.data == null) {
           return ClipRRect(
-            borderRadius: imageBorderRadius ?? _Constants.defaultBorderRadius,
+            borderRadius: imageBorderRadius as BorderRadius? ??
+                _Constants.defaultBorderRadius,
             child: SizedBox(
               height: height ?? double.infinity,
               width: width ?? double.infinity,
@@ -66,14 +74,27 @@ class ImageProviderView extends StatelessWidget {
           );
         }
 
-        return buildImage(url.data);
+        return buildImage(url.data!);
       },
     );
   }
 
-  buildImage(String url) {
-    final isRemote = !_isLocalImage(url);
-    final image = isRemote ? CachedNetworkImage(cacheManager: OfflineCacheManager(),
+  Widget buildImage(String url) {
+    final placeholder =
+        placeholderWidget ?? Image.asset(_Constants.placeholderAsset);
+    if (url.isEmpty) {
+      return _boxedImage(placeholder);
+    }
+
+    if (url.startsWith('assets/')) {
+      return _boxedImage(Image.asset(url, fit: BoxFit.cover));
+    }
+
+    final isLocal = _isLocalImage(url);
+    final image = isLocal
+        ? Image(image: FileImage(File(url)), fit: BoxFit.cover)
+        : CachedNetworkImage(
+            cacheManager: OfflineCacheManager(),
             width: width ?? double.infinity,
             height: height ?? double.infinity,
             fit: BoxFit.cover,
@@ -86,17 +107,25 @@ class ImageProviderView extends StatelessWidget {
             placeholder: (context, url) =>
                 Image(image: AssetImage(_Constants.placeholderAsset)),
             imageUrl: url,
-          ) : Image(image:FileImage(File(url)));
+            errorWidget: (context, url, error) =>
+                Image(image: AssetImage(_Constants.placeholderAsset)),
+          );
+    return _boxedImage(image);
+  }
+
+  Widget _boxedImage(Widget image) {
     return ClipRRect(
-        borderRadius: imageBorderRadius ?? _Constants.defaultBorderRadius,
-        child: SizedBox(
-          height: height ?? double.infinity,
-          width: width ?? double.infinity,
-          child: image,
-        ));
+      borderRadius:
+          imageBorderRadius as BorderRadius? ?? _Constants.defaultBorderRadius,
+      child: SizedBox(
+        height: height ?? double.infinity,
+        width: width ?? double.infinity,
+        child: image,
+      ),
+    );
   }
 
   bool _isLocalImage(String uri) {
-    return !(uri?.toLowerCase()?.startsWith(_Constants.webPathPrefix) ?? true);
+    return !uri.toLowerCase().startsWith(_Constants.webPathPrefix);
   }
 }

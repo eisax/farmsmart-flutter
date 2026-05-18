@@ -9,7 +9,6 @@ import 'package:farmsmart_flutter/ui/myplot/viewmodel/PlotDetailViewModel.dart';
 import 'package:intl/intl.dart';
 
 import '../Transformer.dart';
-import 'PlotToPlotListItemViewModel.dart';
 import 'StageBusinessLogic.dart';
 import 'StageToStageCardViewModel.dart';
 
@@ -20,6 +19,10 @@ class _LocalisedStrings {
 
   static String discoverMuchMore() =>
       Intl.message('Discover much more information using this link...');
+
+  static String day() => Intl.message('Day');
+
+  static String upcoming() => Intl.message('Upcoming');
 }
 
 class PlotToPlotDetailViewModel
@@ -30,6 +33,7 @@ class PlotToPlotDetailViewModel
       relatedTitle: _LocalisedStrings.relatedArticles(),
       contentLinkTitle: _LocalisedStrings.viewMore(),
       contentLinkDescription: _LocalisedStrings.discoverMuchMore(),
+      contentLinkIcon: '',
     ),
   );
   final _cropTransformer = CropDetailTransformer();
@@ -47,12 +51,10 @@ class PlotToPlotDetailViewModel
   );
 
   @override
-  PlotDetailViewModel transform({PlotEntity from}) {
+  PlotDetailViewModel transform({PlotEntity? from}) {
     if (from != null) {
       assert(from == _plot);
     }
-    final headerViewModel =
-        PlotToPlotListItemViewModel(null).transform(from: _plot);
     final stageViewModels = _plot.stages.map((stage) {
       return _stageTransformer.transform(from: stage);
     }).toList();
@@ -64,16 +66,28 @@ class PlotToPlotDetailViewModel
     final cropDetailModel = _cropTransformer.transform(from: _plot.crop);
     final detailProvider = StaticViewModelProvider(cropDetailModel);
     return PlotDetailViewModel(
-        title: headerViewModel.title,
-        detailText: headerViewModel.detail,
+        title: _plot.title,
+        detailText: _headerDetailText(),
         imageProvider: CropImageProvider(_plot.crop),
-        progress: headerViewModel.progress,
+        progress: _logic.progress(_plot.stages),
         stageCardViewModels: stageViewModels,
         stageArticleViewModels: articleViewModels,
         currentStage: _logic.currentStageIndex(_plot.stages),
         remove: () => _removeAction(_plot),
         rename: _rename,
         detailProvider: detailProvider);
+  }
+
+  String _headerDetailText() {
+    if (_plot.stages.isEmpty) {
+      return '';
+    }
+    final started = _plot.stages.first.started;
+    if (started != null) {
+      final day = _logic.daysSinceStarted(_plot.stages) + 1;
+      return _LocalisedStrings.day() + " " + day.toString();
+    }
+    return _LocalisedStrings.upcoming();
   }
 
   _rename(String name) {

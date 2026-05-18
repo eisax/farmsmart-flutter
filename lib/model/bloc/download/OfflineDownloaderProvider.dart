@@ -9,7 +9,7 @@ import '../ViewModelProvider.dart';
 class OfflineDownloaderProvider
     implements ViewModelProvider<OfflineDownloadPageViewModel> {
   final OfflineDownloader _downloader;
-  OfflineDownloadPageViewModel _snapshot;
+  OfflineDownloadPageViewModel? _snapshot;
   final _controller =
       StreamController<OfflineDownloadPageViewModel>.broadcast();
 
@@ -19,7 +19,7 @@ class OfflineDownloaderProvider
     if (_snapshot == null) {
       _snapshot = _viewModel(status: LoadingStatus.SUCCESS);
     }
-    return _snapshot;
+    return _snapshot!;
   }
 
   @override
@@ -32,9 +32,13 @@ class OfflineDownloaderProvider
     return _controller.stream;
   }
 
-  OfflineDownloadPageViewModel _viewModel(
-      {LoadingStatus status, double progress = 0.0, Error error}) {
-    return OfflineDownloadPageViewModel(status, _triggerDownload, progress, error);
+  OfflineDownloadPageViewModel _viewModel({
+    required LoadingStatus status,
+    double progress = 0.0,
+    Error? error,
+  }) {
+    return OfflineDownloadPageViewModel(
+        status, _triggerDownload, progress, error ?? Error());
   }
 
   void _triggerDownload() {
@@ -44,7 +48,10 @@ class OfflineDownloaderProvider
       _controller.add(_viewModel(status: LoadingStatus.SUCCESS));
     }).listen((update) {
       _controller.add(
-          _viewModel(status: LoadingStatus.LOADING, progress: update.progress, error: update.error));
+          _viewModel(
+              status: LoadingStatus.LOADING,
+              progress: update.progress,
+              error: update.error is Error ? update.error as Error : Error()));
     });
   }
 

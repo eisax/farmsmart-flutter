@@ -14,7 +14,7 @@ class _Constants {
 class TransactionAmount {
   final Decimal _decimal;
   final String _originalString;
-  TransactionAmount._(this._decimal, {String originalString}) : this._originalString = originalString;
+  TransactionAmount._(this._decimal, {String originalString=''}) : this._originalString = originalString;
 
   factory TransactionAmount(String value, bool forceNegative) {
     try {
@@ -25,26 +25,24 @@ class TransactionAmount {
   }
 
   String toString({bool allowNegative = false}) {
-    if(_decimal == null) {
-      return _originalString;
-    }
     final formatter = _getNumberFormat(Intl.getCurrentLocale());
-    final absDecimal = _decimal.isNegative ? -_decimal : _decimal;
+    final isNegative = _decimal < Decimal.zero;
+    final absDecimal = isNegative ? -_decimal : _decimal;
     final prefix =
-        (_decimal.isNegative && allowNegative) ? _Strings.negativeSymbol : "";
+        (isNegative && allowNegative) ? _Strings.negativeSymbol : "";
     return prefix +
         formatter
             .format(absDecimal.toDouble())
-            .replaceAll(formatter.currencyName, "");
+            .replaceAll(formatter.currencyName ?? '', '');
   }
 
   NumberFormat _getNumberFormat(String locale) {
     int compareToResult =
         _decimal.abs().compareTo(Decimal.fromInt(_Constants.thousand));
     if (compareToResult.isNegative) {
-      return NumberFormat.currency(locale: locale);
+      return NumberFormat.currency(locale: 'en_US', symbol: r'$');
     } else {
-      return NumberFormat.compactCurrency(locale: locale);
+      return NumberFormat.compactCurrency(locale: 'en_US', symbol: r'$');
     }
   }
 
@@ -53,7 +51,7 @@ class TransactionAmount {
   }
 
   bool isCost() {
-    return _decimal.isNegative;
+    return _decimal < Decimal.zero;
   }
 
   String rawString() {

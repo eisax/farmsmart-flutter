@@ -15,9 +15,10 @@ class AnalyticsEvent {
   final String name;
   final Map<String, dynamic> parameters;
 
-  AnalyticsEvent(this.name, {this.parameters});
+  AnalyticsEvent(this.name, {Map<String, dynamic>? parameters})
+      : parameters = parameters ?? {};
 
-  factory AnalyticsEvent.impression(String name, {String context}) {
+  factory AnalyticsEvent.impression(String name, {String? context}) {
     Map<String, dynamic> base = {
       _Constants.typeField: AnalyticsEventTypes.impression
     };
@@ -27,7 +28,7 @@ class AnalyticsEvent {
     return AnalyticsEvent(name, parameters: base);
   }
 
-  factory AnalyticsEvent.interaction(String name, {String context}) {
+  factory AnalyticsEvent.interaction(String name, {String? context}) {
     Map<String, dynamic> base = {
       _Constants.typeField: AnalyticsEventTypes.interaction
     };
@@ -38,7 +39,7 @@ class AnalyticsEvent {
   }
 
   factory AnalyticsEvent.effect(String name,
-      {Map<String, dynamic> parameters}) {
+      {Map<String, dynamic>? parameters}) {
     Map<String, dynamic> base = {
       _Constants.typeField: AnalyticsEventTypes.interaction
     };
@@ -51,7 +52,7 @@ class AnalyticsEvent {
 
 abstract class AnalyticsInterface {
 
-  static AnalyticsInterface _imp;
+  static late AnalyticsInterface _imp;
 
   static registerImplementation(AnalyticsInterface imp) {
     _imp = imp;
@@ -61,15 +62,15 @@ abstract class AnalyticsInterface {
     return _imp;
   }
 
-  Future<void> interaction(String named, {String context}) {
-    return send(AnalyticsEvent.interaction(named, context:context));
+  Future<void> interaction(String named, {String? context}) {
+    return send(AnalyticsEvent.interaction(named, context: context));
   }
 
-  Future<void> impression(String named, {String context}) {
+  Future<void> impression(String named, {String? context}) {
     return send(AnalyticsEvent.impression(named, context: context));
   }
 
-  Future<void> effect(String named, {Map<String, dynamic> parameters}) {
+  Future<void> effect(String named, {Map<String, dynamic>? parameters}) {
     return send(AnalyticsEvent.effect(named, parameters: parameters));
   }
 

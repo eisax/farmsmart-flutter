@@ -1,6 +1,5 @@
 import 'package:farmsmart_flutter/ui/common/stage_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class StageCardStyles {
   static StageCardStyle buildReadyToStartStageStyle() {

@@ -3,23 +3,22 @@ import 'package:flutter/widgets.dart';
 class ResetStateWidget extends StatefulWidget {
   final Widget child;
 
-  ResetStateWidget({this.child});
+  const ResetStateWidget({required this.child, super.key});
 
-  static resetState(BuildContext context) {
-    final _ResetStateWidgetState state =
-        context.findAncestorStateOfType();
-    state.restartApp();
+  static void resetState(BuildContext context) {
+    final state = context.findAncestorStateOfType<_ResetStateWidgetState>();
+    state?.restartApp();
   }
 
   @override
-  _ResetStateWidgetState createState() => _ResetStateWidgetState();
+  State<ResetStateWidget> createState() => _ResetStateWidgetState();
 }
 
 class _ResetStateWidgetState extends State<ResetStateWidget> {
   Key key = UniqueKey();
 
   void restartApp() {
-    this.setState(() {
+    setState(() {
       key = UniqueKey();
     });
   }

@@ -14,17 +14,17 @@ class SeparatorWrapperStyle {
   final EdgeInsetsGeometry childOuterMargins;
 
   const SeparatorWrapperStyle({
-    this.separatorColor,
-    this.separatorHeight,
-    this.separatorMargins,
-    this.childOuterMargins,
+    required this.separatorColor,
+    required this.separatorHeight,
+    required this.separatorMargins,
+    required this.childOuterMargins,
   });
 
   SeparatorWrapperStyle copyWith({
-    Color separatorColor,
-    double separatorHeight,
-    EdgeInsetsGeometry separatorMargins,
-    EdgeInsetsGeometry childOuterMargins,
+    Color? separatorColor,
+    double? separatorHeight,
+    EdgeInsetsGeometry? separatorMargins,
+    EdgeInsetsGeometry? childOuterMargins,
   }) {
     return SeparatorWrapperStyle(
       separatorColor: separatorColor ?? this.separatorColor,
@@ -45,25 +45,28 @@ class _DefaultStyle extends SeparatorWrapperStyle {
     _Constants.defaultChildMargin,
   );
 
-  const _DefaultStyle({
-    Color separatorColor,
-    double separatorHeight,
-    EdgeInsetsGeometry separatorMargins,
-    EdgeInsetsGeometry childOuterMargins,
-  });
+  const _DefaultStyle()
+      : super(
+          separatorColor: _Constants.defaultSeparatorColor,
+          separatorHeight: _Constants.defaultSeparatorHeight,
+          separatorMargins: const EdgeInsets.only(
+            left: _Constants.defaultSeparatorMargin,
+          ),
+          childOuterMargins: const EdgeInsets.all(
+            _Constants.defaultChildMargin,
+          ),
+        );
 }
 
-const SeparatorWrapperStyle _defaultStyle = const _DefaultStyle();
+const SeparatorWrapperStyle _defaultStyle = _DefaultStyle();
 
 class SeparatorWrapper extends StatelessWidget {
   final SeparatorWrapperStyle _style;
   final Widget _wrappedChild;
 
-  bool _notNull(Widget item) => item != null;
-
   SeparatorWrapper({
     SeparatorWrapperStyle style = _defaultStyle,
-    Widget wrappedChild,
+    required Widget wrappedChild,
   })  : this._style = style,
         this._wrappedChild = wrappedChild;
 
@@ -76,7 +79,7 @@ class SeparatorWrapper extends StatelessWidget {
       children: <Widget>[
         _buildSeparator(),
         _buildChild(),
-      ].where(_notNull).toList(),
+      ],
     );
   }
 

@@ -1,11 +1,8 @@
-
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 abstract class ListViewSection {
-    IndexedWidgetBuilder itemBuilder();
-    int itemCount();
+  IndexedWidgetBuilder itemBuilder();
+  int itemCount();
 }
 
 class ListViewWidgetSection implements ListViewSection {
@@ -16,7 +13,7 @@ class ListViewWidgetSection implements ListViewSection {
   @override
   itemBuilder() {
     return (BuildContext context, int index) {
-        return _child ?? Container();
+      return _child;
     };
   }
 
@@ -29,16 +26,17 @@ class ListViewWidgetSection implements ListViewSection {
 class ListViewWidgetListSection implements ListViewSection {
   final List<Widget> _children;
 
-  ListViewWidgetListSection._(List<Widget> children) : this._children = children;
+  ListViewWidgetListSection._(List<Widget> children)
+      : this._children = children;
 
-  factory ListViewWidgetListSection(List<Widget> childrenOrNulls) {
-    return ListViewWidgetListSection._(childrenOrNulls.where((child) => child != null).toList());
+  factory ListViewWidgetListSection(List<Widget> children) {
+    return ListViewWidgetListSection._(children);
   }
 
   @override
   itemBuilder() {
     return (BuildContext context, int index) {
-        return _children[index];
+      return _children[index];
     };
   }
 
@@ -54,7 +52,7 @@ class _SectionPosition {
 
   _SectionPosition(this.offset, this.section);
   int relativeOffset(int absoluteOffset) {
-      return absoluteOffset - offset;
+    return absoluteOffset - offset;
   }
 }
 
@@ -64,30 +62,36 @@ class SectionedListView extends StatelessWidget implements ListViewSection {
   final List<_SectionPosition> _sectionPositions;
   final int _allItemCount;
 
-  SectionedListView._(this._sectionPositions,this._allItemCount, this._shrinkWrap, this._physics);
+  SectionedListView._(this._sectionPositions, this._allItemCount,
+      this._shrinkWrap, this._physics);
 
-  factory SectionedListView({@required List<ListViewSection> sections, ScrollPhysics physics = const ScrollPhysics(), bool shrinkWrap = true}) {
+  factory SectionedListView(
+      {required List<ListViewSection> sections,
+      ScrollPhysics physics = const ScrollPhysics(),
+      bool shrinkWrap = true}) {
     int allItemCount = 0;
     final sectionPositions = sections.map((section) {
-        int offset = allItemCount;
-        allItemCount += section.itemCount();
-        return _SectionPosition(offset, section);
+      int offset = allItemCount;
+      allItemCount += section.itemCount();
+      return _SectionPosition(offset, section);
     }).toList();
-    return  SectionedListView._(sectionPositions,allItemCount,shrinkWrap,physics);
+    return SectionedListView._(
+        sectionPositions, allItemCount, shrinkWrap, physics);
   }
 
   _SectionPosition sectionForIndex(int index) {
-    return _sectionPositions.reversed.firstWhere((
-        sectionPosition) => sectionPosition.relativeOffset(index) >= 0,
-        orElse: () => null);
+    return _sectionPositions.reversed.firstWhere(
+        (sectionPosition) => sectionPosition.relativeOffset(index) >= 0,
+        orElse: () => throw Exception(
+            'Index $index out of bounds for sections with total item count $_allItemCount'));
   }
 
   @override
   IndexedWidgetBuilder itemBuilder() {
     return (context, index) {
-        final sectionPosition = sectionForIndex(index);
-        final sectionBuilder = sectionPosition.section.itemBuilder(); 
-        return sectionBuilder(context, sectionPosition.relativeOffset(index));
+      final sectionPosition = sectionForIndex(index);
+      final sectionBuilder = sectionPosition.section.itemBuilder();
+      return sectionBuilder(context, sectionPosition.relativeOffset(index));
     };
   }
 
@@ -105,5 +109,4 @@ class SectionedListView extends StatelessWidget implements ListViewSection {
       itemBuilder: itemBuilder(),
     );
   }
-
 }

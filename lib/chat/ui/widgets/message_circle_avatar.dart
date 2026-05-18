@@ -5,13 +5,13 @@ class MessageCircleAvatarStyle {
   final Color backgroundColor;
 
   const MessageCircleAvatarStyle({
-    this.backgroundColor,
-    this.circleRadius,
+    required this.backgroundColor,
+    required this.circleRadius,
   });
 
   MessageCircleAvatarStyle copyWith({
-    double circleRadius,
-    Color backgroundColor,
+    double? circleRadius,
+    Color? backgroundColor,
   }) {
     return MessageCircleAvatarStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -24,20 +24,21 @@ class _DefaultStyle extends MessageCircleAvatarStyle {
   final double circleRadius = 20.0;
   final Color backgroundColor = const Color(0xFF00CD9F);
 
-  const _DefaultStyle({
-    double circleRadius,
-    Color backgroundColor,
-  });
+  const _DefaultStyle()
+      : super(
+          circleRadius: 20.0,
+          backgroundColor: const Color(0xFF00CD9F),
+        );
 }
 
-const MessageCircleAvatarStyle _defaultStyle = const _DefaultStyle();
+const MessageCircleAvatarStyle _defaultStyle = _DefaultStyle();
 
 class MessageCircleAvatar extends StatelessWidget {
   final MessageCircleAvatarViewModel _messageCircleAvatarViewModel;
   final MessageCircleAvatarStyle _style;
 
   MessageCircleAvatar({
-    @required MessageCircleAvatarViewModel messageCircleAvatarViewModel,
+    required MessageCircleAvatarViewModel messageCircleAvatarViewModel,
     MessageCircleAvatarStyle style = _defaultStyle,
   })  : this._messageCircleAvatarViewModel = messageCircleAvatarViewModel,
         this._style = style;
@@ -46,8 +47,8 @@ class MessageCircleAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: _style.circleRadius,
-      backgroundImage: AssetImage(
-          _messageCircleAvatarViewModel.backgroundAssetImageSource ?? ""),
+      backgroundImage:
+          AssetImage(_messageCircleAvatarViewModel.backgroundAssetImageSource),
       backgroundColor: _style.backgroundColor,
     );
   }
@@ -57,6 +58,6 @@ class MessageCircleAvatarViewModel {
   final String backgroundAssetImageSource;
 
   MessageCircleAvatarViewModel({
-    this.backgroundAssetImageSource,
+    this.backgroundAssetImageSource = '',
   });
 }

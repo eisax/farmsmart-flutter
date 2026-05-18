@@ -10,10 +10,9 @@ class Startup extends StatelessWidget {
   final Widget _home;
 
   const Startup({
-    Key key,
-    ViewModelProvider<StartupViewModel> provider,
-    Widget home,
-    Widget loginSignup,
+    Key? key,
+    required ViewModelProvider<StartupViewModel> provider,
+    required Widget home,
   })  : this._provider = provider,
         this._home = home,
         super(key: key);
@@ -26,18 +25,27 @@ class Startup extends StatelessWidget {
     );
   }
 
-  Widget _successBuilder({BuildContext context, AsyncSnapshot snapshot}) {
-    final viewModel = snapshot.data;
+  Widget _successBuilder({
+    required BuildContext context,
+    required AsyncSnapshot<StartupViewModel> snapshot,
+  }) {
+    final viewModel = snapshot.data!;
     return viewModel.isLoggedIn
         ? _homeBuilder(context: context, viewModel: viewModel)
         : _loginSignupBuilder(context: context, viewModel: viewModel);
   }
 
-  Widget _loginSignupBuilder({BuildContext context, StartupViewModel viewModel}) {
-    return LandingPage(viewModel: viewModel.landingPageViewModel,);
+  Widget _loginSignupBuilder({
+    required BuildContext context,
+    required StartupViewModel viewModel,
+  }) {
+    return LandingPage(viewModel: viewModel.landingPageViewModel);
   }
 
-  Widget _homeBuilder({BuildContext context, StartupViewModel viewModel}) {
+  Widget _homeBuilder({
+    required BuildContext context,
+    required StartupViewModel viewModel,
+  }) {
     return _home;
   }
 }

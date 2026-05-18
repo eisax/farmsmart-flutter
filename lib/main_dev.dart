@@ -1,20 +1,11 @@
-import 'package:flutter/material.dart';
-
-import 'model/bloc/ResetStateWidget.dart';
-import 'model/repositories/flamelink_repository_provider.dart';
-import 'flavors/app_config.dart';
-import 'main.dart';
+import 'app_bootstrap.dart';
+import 'model/repositories/mock_repository_provider.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  var configuredApp = AppConfig(
+  runFarmSmartApp(
     environment: 'development',
     buildFlavor: 'Development',
-    child: FarmSmartApp(),
-    repositoryProvider: FlameLinkRepositoryProvider(),
+    repositoryProvider: MockRepositoryProvider(),
+    useFirebase: false,
   );
-
-
-
-  return runApp(ResetStateWidget(child:configuredApp));
 }

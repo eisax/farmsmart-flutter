@@ -66,17 +66,20 @@ class MockRecordTransactionViewModel {
   }
 
   static _mockRecordTap(RecordTransactionData save) {
+    final amountText = save.amount ?? '';
+    final dateText = save.date?.toIso8601String() ?? '';
+    final cropText = save.crop ?? '';
     print(
       "You recorded:\nAMOUNT: " +
-          save.amount +
+          amountText +
           "\nDATE: " +
-          save.date.toIso8601String() +
+          dateText +
           "\nCROP: " +
-          save.crop
+          cropText,
     );
 
     if (save.description != null) {
-      print("DESC: "+ save.description);
+      print("DESC: " + save.description!);
     }
   }
 }

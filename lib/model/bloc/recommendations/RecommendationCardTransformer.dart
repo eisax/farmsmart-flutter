@@ -30,22 +30,25 @@ class RecommendationCardTransformer
   final Function _detailProvider;
 
   RecommendationCardTransformer({
-    RecommendationEngine engine,
-    Map<String,String> ratingLookup,
-    Map<String, Map<String,String>> plotInfo,
-    Basket<CropEntity> basket,
-    Function provider,
-    double heroThreshold,
-  })  : this._engine = engine,
-        this._plotInfo = plotInfo,
-        this._ratingLookup = ratingLookup,
-        this._basket = basket,
-        this._detailProvider = provider,
-        this._heroThreshold = heroThreshold;
+    required RecommendationEngine engine,
+    required Map<String,String> ratingLookup,
+    required Map<String, Map<String,String>> plotInfo,
+    required Basket<CropEntity> basket,
+    required Function provider,
+    required double heroThreshold,
+  })  : _engine = engine,
+        _plotInfo = plotInfo,
+        _ratingLookup = ratingLookup,
+        _basket = basket,
+        _detailProvider = provider,
+        _heroThreshold = heroThreshold;
 
   @override
-  RecommendationCardViewModel transform({CropEntity from}) {
-    final recommendationName = _ratingLookup[from.uri] ?? from.name;
+  RecommendationCardViewModel transform({CropEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
+    final recommendationName = _ratingLookup[from.uri] ?? from.name ?? '';
     final score = _engine.recommend(recommendationName, _plotInfo);
     final percent = score * _Constants.cent;
     final subtitle =
@@ -54,9 +57,9 @@ class RecommendationCardTransformer
     final addAction = inBasket ? () => {} : () => _basket.addItem(from);
     final isHero = score >= _heroThreshold;
     return RecommendationCardViewModel(
-      title: from.name,
+      title: from.name ?? '',
       subtitle: subtitle,
-      description: from.article.summary,
+      description: from.article?.summary ?? '',
       detailActionText: _LocalisedStrings.viewDetails(),
       detailProvider: _detailProvider(from),
       addActionText:

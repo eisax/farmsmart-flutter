@@ -6,7 +6,7 @@ import 'package:farmsmart_flutter/model/repositories/image/implementation/MockIm
 import '../ProfileEntity.dart';
 
 class MockProfile {
-  ProfileEntity build({String name}) {
+  ProfileEntity build({String? name}) {
     final entity = ProfileEntity(mockPlainText.identifier(),
       mockPlainText.identifier(),
       name ?? _names.random(),
@@ -33,12 +33,12 @@ class MockProfile {
     return entities;
   }
 
-  final _names = MockString(library: [    
-    "Harry Lusk",
-    "Maribel Dapeton",
-    "Emma Hooper",
-    "Lee Higgins",
-    "David Franquet",
+  final _names = MockString(library: [
+    "Tendai Moyo",
+    "Rudo Chikwanha",
+    "Blessing Ncube",
+    "Farai Dube",
+    "Chipo Mutasa",
     "Farmer Joe",
   ]);
 }

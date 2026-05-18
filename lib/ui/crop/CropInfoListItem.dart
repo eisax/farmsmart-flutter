@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class _Constants {
   static final double leadingContainerHeight = 40;
@@ -25,9 +24,9 @@ class CropInfoListItemViewModel {
   List<Color> colors;
 
   CropInfoListItemViewModel({
-    this.iconPath,
-    this.title,
-    this.subtitle,
+    required this.iconPath,
+    required this.title,
+    required this.subtitle,
     this.colors = const <Color>[],
   });
 }
@@ -39,17 +38,17 @@ class CropInfoListItemStyle {
   final double circleSize;
 
   const CropInfoListItemStyle({
-    this.titleTextStyle,
-    this.subtitleTextStyle,
-    this.iconSize,
-    this.circleSize,
+    required this.titleTextStyle,
+    required this.subtitleTextStyle,
+    required this.iconSize,
+    required this.circleSize,
   });
 
   CropInfoListItemStyle copyWith({
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    double iconSize,
-    double circleSize,
+    TextStyle? titleTextStyle,
+    TextStyle? subtitleTextStyle,
+    double? iconSize,
+    double? circleSize,
   }) {
     return CropInfoListItemStyle(
       titleTextStyle: titleTextStyle ?? this.titleTextStyle,
@@ -75,12 +74,20 @@ class _DefaultStyle extends CropInfoListItemStyle {
   final double iconSize = 20;
   final double circleSize = 20;
 
-  const _DefaultStyle({
-    TextStyle titleTextStyle,
-    TextStyle subtitleTextStyle,
-    double iconSize,
-    double circleSize,
-  });
+  const _DefaultStyle()
+      : super(
+          titleTextStyle: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff4c4e6e),
+          ),
+          subtitleTextStyle: const TextStyle(
+            fontSize: 15,
+            color: Color(0xff767690),
+          ),
+          iconSize: 20,
+          circleSize: 20,
+        );
 }
 
 const CropInfoListItemStyle _defaultStyle = const _DefaultStyle();
@@ -90,8 +97,8 @@ class CropInfoListItem extends StatelessWidget {
   final CropInfoListItemViewModel _viewModel;
 
   CropInfoListItem({
-    Key key,
-    CropInfoListItemViewModel viewModel,
+    Key? key,
+    required CropInfoListItemViewModel viewModel,
     CropInfoListItemStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -156,13 +163,13 @@ class CropInfoListItem extends StatelessWidget {
   List<Widget> _buildCircles(List<Color> colors) => colors
       .map(
         (color) => Container(
-              height: _style.circleSize,
-              width: _style.circleSize,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: _Constants.circleBorderRadius,
-              ),
-            ),
+          height: _style.circleSize,
+          width: _style.circleSize,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: _Constants.circleBorderRadius,
+          ),
+        ),
       )
       .toList();
 }

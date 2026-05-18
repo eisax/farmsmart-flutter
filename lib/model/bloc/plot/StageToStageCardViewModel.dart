@@ -4,6 +4,7 @@ import 'package:farmsmart_flutter/model/entities/StageEntity.dart';
 import 'package:farmsmart_flutter/model/entities/PlotEntity.dart';
 import 'package:farmsmart_flutter/ui/common/stage_card.dart';
 import 'package:farmsmart_flutter/ui/playground/styles/stage_card_styles.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class _LocalisedStrings {
@@ -58,13 +59,16 @@ class StageToStageCardViewModel
       this._plot, this._beginAction, this._completeAction, this._revertAction);
 
   @override
-  StageCardViewModel transform({StageEntity from}) {
+  StageCardViewModel transform({StageEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
     final stageNumber = _plot.stages.indexOf(from) + 1;
     final subtitle =
         _LocalisedStrings.stage() + " " + stageNumber.toString();
     final status = _logic.status(from);
     return StageCardViewModel(
-      title: from.article.title,
+      title: from.article.title ?? '',
       subtitle: subtitle,
       statusTitle: _statusTitle(status),
       actionText: _actionTitle(status, from),
@@ -79,10 +83,8 @@ class StageToStageCardViewModel
     switch (status) {
       case StageStatus.inProgress:
         return StageCardStyles.buildInProgressStageStyle();
-        break;
       case StageStatus.complete:
         return StageCardStyles.buildCompleteStageStyle();
-        break;
       default:
         return _logic.canBegin(stage, _plot.stages)
             ? StageCardStyles.buildReadyToStartStageStyle()
@@ -94,12 +96,10 @@ class StageToStageCardViewModel
     switch (status) {
       case StageStatus.inProgress:
         return _LocalisedStrings.inProgressAction();
-        break;
       case StageStatus.complete:
         return _logic.canRevert(stage, _plot.stages)
             ? _LocalisedStrings.revertAction()
             : _LocalisedStrings.completeAction();
-        break;
       default:
         return _logic.canBegin(stage, _plot.stages)
             ? _LocalisedStrings.readyAction()
@@ -107,7 +107,7 @@ class StageToStageCardViewModel
     }
   }
 
-  Function _action(StageStatus status, StageEntity stage) {
+  VoidCallback _action(StageStatus status, StageEntity stage) {
     if (_logic.canBegin(stage, _plot.stages)) {
       return () => _beginAction(_plot, stage);
     } else if (_logic.canComplete(stage, _plot.stages)) {
@@ -115,17 +115,15 @@ class StageToStageCardViewModel
     } else if (_logic.canRevert(stage, _plot.stages)) {
       return () => _revertAction(_plot, stage);
     }
-    return null;
+    return () {};
   }
 
   String _statusTitle(StageStatus status) {
     switch (status) {
       case StageStatus.inProgress:
         return _LocalisedStrings.inProgress();
-        break;
       case StageStatus.complete:
         return _LocalisedStrings.complete();
-        break;
       default:
         return _LocalisedStrings.upcoming();
     }
@@ -143,7 +141,7 @@ class StageToStageCardViewModel
     } else if (_logic.canRevert(stage, _plot.stages)) {
       return _LocalisedStrings.revertDialogTitle();
     }
-    return null;
+    return '';
   }
 
   String _dialogDescription(StageStatus status, StageEntity stage) {
@@ -158,6 +156,6 @@ class StageToStageCardViewModel
     } else if (_logic.canRevert(stage, _plot.stages)) {
       return _LocalisedStrings.revertDialogDescription();
     }
-    return null;
+    return '';
   }
 }

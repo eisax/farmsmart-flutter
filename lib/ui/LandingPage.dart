@@ -1,9 +1,6 @@
-import 'dart:ui';
-
 import 'package:farmsmart_flutter/model/bloc/ViewModelProvider.dart';
 import 'package:farmsmart_flutter/model/bloc/chatFlow/FlowCoordinator.dart';
 import 'package:farmsmart_flutter/ui/common/roundedButton.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'common/locale_selection.dart';
@@ -20,35 +17,36 @@ class _Constants {
 }
 
 class LandingPageViewModel {
-  String detailText;
-  String actionText;
-  String footerText;
+  final String detailText;
+  final String actionText;
+  final String footerText;
 
-  String headerImage;
-  String subtitleImage;
-  FlowCoordinator newAccountFlow;
-  Function(String, String) switchLanguageTapped;
-  ViewModelProvider<OfflineDownloadPageViewModel> downloaderViewModelProvider;
+  final String headerImage;
+  final String subtitleImage;
+  final FlowCoordinator newAccountFlow;
+  final void Function(String, String) switchLanguageTapped;
+  final ViewModelProvider<OfflineDownloadPageViewModel>
+      downloaderViewModelProvider;
 
   LandingPageViewModel({
-    this.detailText,
-    this.actionText,
-    this.headerImage,
-    this.subtitleImage,
-    this.footerText,
-    this.newAccountFlow,
-    this.switchLanguageTapped,
-    this.downloaderViewModelProvider,
+    required this.detailText,
+    required this.actionText,
+    required this.headerImage,
+    required this.subtitleImage,
+    required this.footerText,
+    required this.newAccountFlow,
+    required this.switchLanguageTapped,
+    required this.downloaderViewModelProvider,
   });
 }
 
 class LandingPageStyle {
-  final TextStyle detailTextStyle;
-  final TextStyle footerTextStyle;
-  final TextStyle actionTextStyle;
+  final TextStyle? detailTextStyle;
+  final TextStyle? footerTextStyle;
+  final TextStyle? actionTextStyle;
 
-  final int detailTextMaxLines;
-  final int footerTextMaxLines;
+  final int? detailTextMaxLines;
+  final int? footerTextMaxLines;
 
   const LandingPageStyle({
     this.detailTextStyle,
@@ -59,11 +57,11 @@ class LandingPageStyle {
   });
 
   LandingPageStyle copyWith({
-    TextStyle detailTextStyle,
-    TextStyle footerTextStyle,
-    TextStyle actionTextStyle,
-    int detailTextMaxLines,
-    int footerTextMaxLines,
+    TextStyle? detailTextStyle,
+    TextStyle? footerTextStyle,
+    TextStyle? actionTextStyle,
+    int? detailTextMaxLines,
+    int? footerTextMaxLines,
   }) {
     return LandingPageStyle(
       detailTextStyle: detailTextStyle ?? this.detailTextStyle,
@@ -89,12 +87,7 @@ class _DefaultStyle extends LandingPageStyle {
   final int detailTextMaxLines = 3;
   final int footerTextMaxLines = 1;
 
-  const _DefaultStyle({
-    TextStyle detailTextStyle,
-    TextStyle footerTextStyle,
-    int detailTextMaxLines,
-    int footerTextMaxLines,
-  });
+  const _DefaultStyle();
 }
 
 const LandingPageStyle _defaultStyle = const _DefaultStyle();
@@ -104,8 +97,8 @@ class LandingPage extends StatelessWidget {
   final LandingPageStyle _style;
 
   const LandingPage({
-    Key key,
-    LandingPageViewModel viewModel,
+    Key? key,
+    required LandingPageViewModel viewModel,
     LandingPageStyle style = _defaultStyle,
   })  : this._viewModel = viewModel,
         this._style = style,
@@ -124,7 +117,8 @@ class LandingPage extends StatelessWidget {
             fit: FlexFit.loose,
             child: Container(
               child: Padding(
-                padding: const EdgeInsets.only(left:20.0, right:20.0, top: 20.0),
+                padding:
+                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
                 child: Image.asset(
                   _viewModel.headerImage,
                   width: double.infinity,
@@ -192,21 +186,21 @@ class LandingPage extends StatelessWidget {
   }
 
   void _tappedStart({
-    BuildContext context,
-    LandingPageViewModel viewModel,
+    required BuildContext context,
+    required LandingPageViewModel viewModel,
   }) {
-    viewModel.newAccountFlow.run(context, onSuccess: (){
-     _showOffline(context, viewModel);
+    viewModel.newAccountFlow.run(context, onSuccess: () {
+      _showOffline(context, viewModel);
     });
   }
 
-  _showOffline(BuildContext context,  LandingPageViewModel viewModel){
-    final offlinePage = OfflineDownloadPage(provider: viewModel.downloaderViewModelProvider);
+  _showOffline(BuildContext context, LandingPageViewModel viewModel) {
+    final offlinePage =
+        OfflineDownloadPage(provider: viewModel.downloaderViewModelProvider);
     OfflineDownloadPage.present(offlinePage, context);
   }
 
   void _languageTapped(BuildContext context) {
     LocaleSelection.present(context);
   }
-
 }

@@ -5,7 +5,6 @@ import 'package:farmsmart_flutter/model/bloc/locale/locale_selection_viewmodel.d
 import 'package:farmsmart_flutter/ui/common/ViewModelProviderBuilder.dart';
 import 'package:farmsmart_flutter/ui/common/roundedButton.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../country_flags.dart';
@@ -38,8 +37,8 @@ class LocaleSelection extends StatefulWidget {
 }
 
 class _LocaleSelectionState extends State<LocaleSelection> {
-  LocaleItemViewModel currentLocale;
-  LocaleItemViewModel selectedLocale;
+  LocaleItemViewModel? currentLocale;
+  LocaleItemViewModel? selectedLocale;
 
   @override
   Widget build(BuildContext context) {
@@ -60,22 +59,23 @@ class _LocaleSelectionState extends State<LocaleSelection> {
 
   String _countryDisplayName(Locale locale) {
     final localeDetails = CountryCodes.detailsForLocale(locale);
-    return getEmojiFlag(locale.countryCode) + ' ' + localeDetails.name;
+    final countryCode = locale.countryCode ?? '';
+    return getEmojiFlag(countryCode) + ' ' + (localeDetails.name ?? '');
   }
 
-  Widget _buildSuccess(
-      {BuildContext context,
-      AsyncSnapshot<LocaleSelectionViewModel> snapshot}) {
-    final viewmodel = snapshot.data;
+  Widget _buildSuccess({
+    required BuildContext context,
+    required AsyncSnapshot<LocaleSelectionViewModel> snapshot,
+  }) {
+    final viewmodel = snapshot.data!;
     currentLocale = viewmodel.current;
-    if (selectedLocale == null) {
-      selectedLocale = currentLocale;
-    }
-    final selectedLanguage = selectedLocale.title;
-    final selectedCountry = _countryDisplayName(selectedLocale.locale);
+    selectedLocale ??= viewmodel.current;
+    final selectedLanguage = selectedLocale!.title;
+    final selectedCountry = _countryDisplayName(selectedLocale!.locale);
 
     final countries = viewmodel.items
-        .map<String>((e) => e.locale.countryCode)
+        .map((e) => e.locale.countryCode)
+        .whereType<String>()
         .toSet()
         .toList();
 
@@ -95,8 +95,9 @@ class _LocaleSelectionState extends State<LocaleSelection> {
         .toList();
     final languages = viewmodel.items
         .where((element) =>
-            (element.locale.countryCode == selectedLocale.locale.countryCode) &&
-            element.locale.languageCode != selectedLocale.locale.languageCode)
+            (element.locale.countryCode ==
+                selectedLocale!.locale.countryCode) &&
+            element.locale.languageCode != selectedLocale!.locale.languageCode)
         .toList();
     final lanuageOptions = languages
         .map((e) => ListTile(
@@ -109,7 +110,7 @@ class _LocaleSelectionState extends State<LocaleSelection> {
             ))
         .toList();
 
-    final canSubmit = currentLocale.locale != selectedLocale.locale;
+    final canSubmit = currentLocale!.locale != selectedLocale!.locale;
 
     final languageTile = lanuageOptions.isNotEmpty
         ? ExpansionTile(
@@ -141,13 +142,12 @@ class _LocaleSelectionState extends State<LocaleSelection> {
           ],
         )),
         RoundedButton(
-
             viewModel: RoundedButtonViewModel(
                 title: _LocalisedStrings.apply(),
                 onTap: () {
-                  if(canSubmit) {
+                  if (canSubmit) {
                     Navigator.of(context).pop();
-                    viewmodel.selectLocale(selectedLocale).then((value) {
+                    viewmodel.selectLocale(selectedLocale!).then((value) {
                       ResetStateWidget.resetState(context);
                     });
                   }

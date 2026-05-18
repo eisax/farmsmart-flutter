@@ -10,9 +10,7 @@ import 'package:farmsmart_flutter/chat/repository/form/ChatRepository.dart';
 import 'package:farmsmart_flutter/chat/ui/viewmodel/ChatResponseViewModel.dart';
 import 'package:farmsmart_flutter/chat/ui/widgets/bubble_message.dart';
 import 'package:farmsmart_flutter/chat/ui/widgets/chat.dart';
-import 'package:farmsmart_flutter/chat/ui/widgets/rounded_button.dart';
-import 'package:farmsmart_flutter/chat/ui/widgets/separator_wrapper.dart';
-import 'package:farmsmart_flutter/chat/ui/widgets/styles/rounded_button_styles.dart';
+// removed unused UI imports
 import 'package:farmsmart_flutter/model/analytics_interface.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -39,12 +37,7 @@ class _AnalyticsNames {
   static const question = 'chat_question';
 }
 
-class _LocalisedStrings {
-  static String summaryError() =>
-      Intl.message("Provided summary is not correct");
-
-  static String viewDetails() => Intl.message("View Your Details");
-}
+// localised strings not currently used
 
 class ChatProvider implements ViewModelProvider<ChatViewModel> {
   final ChatRepository _repo;
@@ -53,20 +46,15 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
   final InteractiveMessageHandler _interactiveMessageHandler =
       InteractiveMessageHandlerImpl();
   final TextEditingController _textEditingController = TextEditingController();
-  final Function(Map<String, ChatResponseViewModel>) _onSuccess;
-  final Function(String) _onError;
+  // callbacks removed (not used)
 
-  ChatViewModel _chatViewModel;
+  late ChatViewModel _chatViewModel;
   int _currentMessageCount = _Constants.currentMessageIndex;
   Map<String, ChatResponseViewModel> _responseMap = {};
 
   ChatProvider({
-    @required ChatRepository repository,
-    Function(Map<String, ChatResponseViewModel>) onSuccess,
-    Function(String) onError,
-  })  : this._repo = repository,
-        this._onSuccess = onSuccess ?? (() => {}),
-        this._onError = onError ?? (() => {});
+    required ChatRepository repository,
+  }) : this._repo = repository;
 
   final StreamController<ChatViewModel> _controller =
       StreamController<ChatViewModel>.broadcast();
@@ -135,69 +123,49 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
 
   void _insertMessageFromService() {
     _repo.getFormItem(_currentMessageCount).then((formItem) {
-      if (formItem != null) {
-        if(formItem.inputRequest !=null) {
-           AnalyticsInterface.implementation().impression(_AnalyticsNames.question, context: formItem.inputRequest.uri);
-           AnalyticsInterface.implementation().impression(_AnalyticsNames.question + _Constants.divider + formItem.inputRequest.uri);
-        }
-        _insertNewMessageToList(
-            _chatMessageHandler.getMessageFromEntity(formItem, _responseMap));
-        _increaseMessageCount();
-        _updatePreviousMessages();
-        _setInteractiveWidget(formItem.inputRequest);
-        _notifyController();
-      } else {
-        _setSummaryDetailsButton();
+      final String uri = formItem.inputRequest?.uri ?? '';
+      AnalyticsInterface.implementation()
+          .impression(_AnalyticsNames.question, context: uri);
+      AnalyticsInterface.implementation()
+          .impression(_AnalyticsNames.question + _Constants.divider + uri);
+      _insertNewMessageToList(
+          _chatMessageHandler.getMessageFromEntity(formItem, _responseMap));
+      _increaseMessageCount();
+      _updatePreviousMessages();
+      if (formItem.inputRequest != null) {
+        _setInteractiveWidget(formItem.inputRequest!);
       }
+      _notifyController();
     });
   }
 
-  void _setSummaryDetailsButton() {
-    _chatViewModel.interactiveWidget = SeparatorWrapper(
-      wrappedChild: RoundedButton(
-        viewModel: RoundedButtonViewModel(
-          title: _LocalisedStrings.viewDetails(),
-          onTap: _onSummaryWidgetActionButtonTap,
-        ),
-        style: RoundedButtonStyles.chatButtonStyle(),
-      ),
-    );
-  }
-
-  void _onSummaryWidgetActionButtonTap() {
-    (_responseMap != null && _responseMap.isNotEmpty)
-        ? _onSuccess(_responseMap)
-        : _onError(_LocalisedStrings.summaryError());
-  }
-
   void _setInteractiveWidget(InputRequestEntity entity) {
-    if (entity != null && entity.type != null) {
-      InteractiveMessageType inputType = _getInputType(entity);
-      switch (inputType) {
-        case InteractiveMessageType.inputDate:
-          _setDatePickerWidget(entity: entity);
-          break;
-        case InteractiveMessageType.inputDropdown:
-          _setDropdownWidget(entity: entity);
-          break;
-        case InteractiveMessageType.multiChoice:
-          _setSelectableOptionsWidget(entity: entity);
-          break;
-        default:
-          _setInputTextWidget(
-            entity: entity,
-            inputType: inputType,
-          );
-          break;
-      }
-    } else {
-      _cleanInteractiveWidget();
-      _showMessageWithDelay();
+    final InteractiveMessageType? inputType = _getInputType(entity);
+    if (inputType == null) {
+      return;
+    }
+
+    switch (inputType) {
+      case InteractiveMessageType.inputDate:
+        _setDatePickerWidget(entity: entity);
+        break;
+      case InteractiveMessageType.inputDropdown:
+        _setDropdownWidget(entity: entity);
+        break;
+      case InteractiveMessageType.multiChoice:
+        _setSelectableOptionsWidget(entity: entity);
+        break;
+      default:
+        _setInputTextWidget(
+          entity: entity,
+          inputType: inputType,
+        );
+        break;
     }
   }
 
-  InteractiveMessageType _getInputType(InputRequestEntity entity) {
-    switch (entity.type) {
+  InteractiveMessageType? _getInputType(InputRequestEntity? entity) {
+    switch (entity?.type) {
       case _Constants.typeValueString:
         return InteractiveMessageType.inputString;
       case _Constants.typeValueEmail:
@@ -218,8 +186,8 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
   }
 
   void _setInputTextWidget({
-    InteractiveMessageType inputType,
-    InputRequestEntity entity,
+    required InteractiveMessageType inputType,
+    required InputRequestEntity entity,
   }) =>
       _chatViewModel.interactiveWidget =
           _interactiveMessageHandler.buildInputTextWidget(
@@ -230,8 +198,10 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
         isFocusedOnBuild: true,
         onValidationPassed: (value) {
           final context = entity.uri + _Constants.divider + value;
-           AnalyticsInterface.implementation().interaction(_AnalyticsNames.question, context: context);
-           AnalyticsInterface.implementation().interaction(_AnalyticsNames.question + _Constants.divider + context);
+          AnalyticsInterface.implementation()
+              .interaction(_AnalyticsNames.question, context: context);
+          AnalyticsInterface.implementation().interaction(
+              _AnalyticsNames.question + _Constants.divider + context);
           _cleanKeyboard();
           _cleanInteractiveWidget();
           _getNextMessageByProvided(value);
@@ -247,15 +217,18 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
       );
 
   void _setSelectableOptionsWidget({
-    InputRequestEntity entity,
+    required InputRequestEntity entity,
   }) =>
       _chatViewModel.interactiveWidget =
           _interactiveMessageHandler.buildSelectableOptionsWidget(
         inputRequestEntity: entity,
         onTap: (option) {
           final context = entity.uri + _Constants.divider + option.id;
-          AnalyticsInterface.implementation().interaction(_AnalyticsNames.question, context: context);
-          AnalyticsInterface.implementation().interaction(_AnalyticsNames.question + _Constants.divider + context, context: context);
+          AnalyticsInterface.implementation()
+              .interaction(_AnalyticsNames.question, context: context);
+          AnalyticsInterface.implementation().interaction(
+              _AnalyticsNames.question + _Constants.divider + context,
+              context: context);
           _cleanInteractiveWidget();
           _getNextMessageByProvided(option.title);
           _putResponseToTheMap(
@@ -270,14 +243,17 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
       );
 
   void _setDatePickerWidget({
-    InputRequestEntity entity,
+    required InputRequestEntity entity,
   }) =>
       _chatViewModel.interactiveWidget =
           _interactiveMessageHandler.buildDatePickerWidget(
         onSendPressed: (dateValue) {
-          final context = entity.uri + _Constants.divider + dateValue.toString();
-           AnalyticsInterface.implementation().interaction(_AnalyticsNames.question, context: context);
-           AnalyticsInterface.implementation().interaction(_AnalyticsNames.question + _Constants.divider + context);
+          final context =
+              entity.uri + _Constants.divider + dateValue.toString();
+          AnalyticsInterface.implementation()
+              .interaction(_AnalyticsNames.question, context: context);
+          AnalyticsInterface.implementation().interaction(
+              _AnalyticsNames.question + _Constants.divider + context);
           _cleanInteractiveWidget();
           _getNextMessageByProvided(_formatDate(dateValue));
           _putResponseToTheMap(
@@ -293,14 +269,16 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
 
   String _formatDate(DateTime date) => DateFormat('dd MMMM yyyy').format(date);
 
-  void _setDropdownWidget({InputRequestEntity entity}) =>
+  void _setDropdownWidget({required InputRequestEntity entity}) =>
       _chatViewModel.interactiveWidget =
           _interactiveMessageHandler.buildDropDownPickerWidget(
         inputRequestEntity: entity,
         onSendPressed: (option) {
           final context = entity.uri + _Constants.divider + option.id;
-           AnalyticsInterface.implementation().interaction(_AnalyticsNames.question, context: context);
-           AnalyticsInterface.implementation().interaction(_AnalyticsNames.question + _Constants.divider + context);
+          AnalyticsInterface.implementation()
+              .interaction(_AnalyticsNames.question, context: context);
+          AnalyticsInterface.implementation().interaction(
+              _AnalyticsNames.question + _Constants.divider + context);
           _cleanInteractiveWidget();
           _getNextMessageByProvided(option.title);
           _putResponseToTheMap(
@@ -314,12 +292,13 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
         },
       );
 
-  void _putResponseToTheMap({String key, ChatResponseViewModel value}) {
+  void _putResponseToTheMap(
+      {required String key, required ChatResponseViewModel value}) {
     _responseMap[key] = value;
   }
 
   void _cleanInteractiveWidget() {
-    _chatViewModel.interactiveWidget = null;
+    _chatViewModel.interactiveWidget = const SizedBox.shrink();
   }
 
   void _cleanKeyboard() {
@@ -328,11 +307,9 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
 
   void _insertHeaderMessage() {
     _repo.getForm().then((form) {
-      if (form != null) {
-        _insertNewMessageToList(_chatMessageHandler.getHeaderMessage(form));
-        _notifyController();
-        _showMessageWithDelay();
-      }
+      _insertNewMessageToList(_chatMessageHandler.getHeaderMessage(form));
+      _notifyController();
+      _showMessageWithDelay();
     });
   }
 
@@ -380,8 +357,8 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
   }
 
   void _updateReceivedMessages({
-    MessageBubbleViewModel currentViewModel,
-    MessageBubbleViewModel previousViewModel,
+    required MessageBubbleViewModel currentViewModel,
+    required MessageBubbleViewModel previousViewModel,
   }) {
     switch (previousViewModel.messageType) {
       case MessageType.sent:
@@ -404,8 +381,8 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
   }
 
   void _updateFromReceived({
-    MessageBubbleViewModel currentViewModel,
-    MessageBubbleViewModel previousViewModel,
+    required MessageBubbleViewModel currentViewModel,
+    required MessageBubbleViewModel previousViewModel,
   }) {
     if (currentViewModel.messageType == MessageType.received) {
       previousViewModel.messageType = MessageType.receivedStackTop;
@@ -414,8 +391,8 @@ class ChatProvider implements ViewModelProvider<ChatViewModel> {
   }
 
   void _updateFromReceivedStackBottom({
-    MessageBubbleViewModel currentViewModel,
-    MessageBubbleViewModel previousViewModel,
+    required MessageBubbleViewModel currentViewModel,
+    required MessageBubbleViewModel previousViewModel,
   }) {
     if (currentViewModel.messageType == MessageType.received) {
       previousViewModel.messageType = MessageType.receivedStackBetween;

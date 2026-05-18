@@ -1,7 +1,6 @@
 import 'package:farmsmart_flutter/ui/profitloss/RecordTransaction.dart';
 import 'package:farmsmart_flutter/utils/RegExInputFormatter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class _Constants {
   static final amountValidator = RegExInputFormatter.withRegex(
@@ -14,23 +13,23 @@ class _Strings {
 }
 
 class RecordTransactionHeaderViewModel {
-  final String amount;
+  final String? amount;
   final bool isEditable;
 
   RecordTransactionHeaderViewModel({
     this.amount,
-    this.isEditable,
+    this.isEditable = false,
   });
 }
 
 class RecordTransactionHeaderStyle {
-  final TextStyle hintTextStyle;
-  final TextStyle titleTextStyle;
+  final TextStyle? hintTextStyle;
+  final TextStyle? titleTextStyle;
 
-  final EdgeInsets edgePadding;
+  final EdgeInsets? edgePadding;
 
-  final double height;
-  final int maxLines;
+  final double? height;
+  final int? maxLines;
 
   const RecordTransactionHeaderStyle({
     this.hintTextStyle,
@@ -41,11 +40,11 @@ class RecordTransactionHeaderStyle {
   });
 
   RecordTransactionHeaderStyle copyWith({
-    TextStyle hintTextStyle,
-    TextStyle titleTextStyle,
-    EdgeInsets edgePadding,
-    double height,
-    int maxLines,
+    TextStyle? hintTextStyle,
+    TextStyle? titleTextStyle,
+    EdgeInsets? edgePadding,
+    double? height,
+    int? maxLines,
   }) {
     return RecordTransactionHeaderStyle(
       hintTextStyle: hintTextStyle ?? this.hintTextStyle,
@@ -76,13 +75,7 @@ class _DefaultStyle extends RecordTransactionHeaderStyle {
   final double height = 92;
   final int maxLines = 1;
 
-  const _DefaultStyle({
-    TextStyle hintTextStyle,
-    TextStyle titleTextStyle,
-    EdgeInsets edgePadding,
-    double height,
-    int maxLines,
-  });
+  const _DefaultStyle();
 }
 
 const RecordTransactionHeaderStyle _defaultStyle = const _DefaultStyle();
@@ -90,16 +83,15 @@ const RecordTransactionHeaderStyle _defaultStyle = const _DefaultStyle();
 class RecordTransactionHeader extends StatefulWidget {
   final RecordTransactionHeaderViewModel _viewModel;
   final RecordTransactionHeaderStyle _style;
-  RecordTransactionState parent;
+  final RecordTransactionState parent;
 
   RecordTransactionHeader({
-    Key key,
-    RecordTransactionHeaderViewModel viewModel,
+    Key? key,
+    required RecordTransactionHeaderViewModel viewModel,
     RecordTransactionHeaderStyle style = _defaultStyle,
-    RecordTransactionState parent,
+    required this.parent,
   })  : this._viewModel = viewModel,
         this._style = style,
-        this.parent = parent,
         super(key: key);
 
   @override
@@ -117,7 +109,6 @@ class _RecordTransactionHeaderState extends State<RecordTransactionHeader> {
     super.initState();
     _initializeAmount();
   }
-
 
   @override
   void dispose() {
@@ -152,10 +143,11 @@ class _RecordTransactionHeaderState extends State<RecordTransactionHeader> {
 
   _buildAmountText(RecordTransactionHeaderViewModel viewModel,
       RecordTransactionHeaderStyle style) {
-    return Text(viewModel.amount, style: style.titleTextStyle);
+    return Text(viewModel.amount ?? '', style: style.titleTextStyle);
   }
 
-  _buildAmountEditableTextField(RecordTransactionHeaderStyle style, RecordTransactionHeaderViewModel viewModel) {
+  _buildAmountEditableTextField(RecordTransactionHeaderStyle style,
+      RecordTransactionHeaderViewModel viewModel) {
     return TextField(
       decoration: InputDecoration(
           hintText: hint,
@@ -217,7 +209,7 @@ class _RecordTransactionHeaderState extends State<RecordTransactionHeader> {
 
   void _initializeAmount() {
     var amount = widget._viewModel.amount;
-    if(amount != null && amount.isNotEmpty) {
+    if (amount != null && amount.isNotEmpty) {
       _textFieldController.text = '';
     }
   }

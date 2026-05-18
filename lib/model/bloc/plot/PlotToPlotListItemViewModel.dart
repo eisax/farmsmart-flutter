@@ -19,27 +19,27 @@ class PlotToPlotListItemViewModel
   PlotToPlotListItemViewModel(this._detailProvider);
 
   @override
-  PlotListItemViewModel transform({PlotEntity from}) {
-    if (from.stages.isNotEmpty) {
-      final title = from.title;
-      final detailText = _detailString(from: from);
-      final progress = _logic.progress(from.stages);
-      return PlotListItemViewModel(
-          title: title,
-          subtitle: _subtitleString(from: from),
-          detail: detailText,
-          progress: progress,
-          provider: _detailProvider,
-          imageProvider: CropImageProvider(from.crop));
+  PlotListItemViewModel transform({PlotEntity? from}) {
+    if (from == null || from.stages.isEmpty) {
+      throw ArgumentError('PlotEntity must have stages');
     }
-    return null;
+    final title = from.title;
+    final detailText = _detailString(from: from);
+    final progress = _logic.progress(from.stages);
+    return PlotListItemViewModel(
+        title: title,
+        subtitle: _subtitleString(from: from),
+        detail: detailText,
+        progress: progress,
+        provider: _detailProvider,
+        imageProvider: CropImageProvider(from.crop));
   }
 
-  String _subtitleString({PlotEntity from}) {
-    return _logic.currentStage(from.stages)?.article?.title ?? '';
+  String _subtitleString({required PlotEntity from}) {
+    return _logic.currentStage(from.stages)?.article.title ?? '';
   }
 
-  String _detailString({PlotEntity from}) {
+  String _detailString({required PlotEntity from}) {
     if (from.stages.isNotEmpty) {
       final firstStage = from.stages.first;
       final started = firstStage.started;

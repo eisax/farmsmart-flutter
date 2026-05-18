@@ -25,7 +25,7 @@ class InputRequestEntity {
   String validationRegex;
   bool localStore;
   bool inline;
-  SelectableOptionsEntity args;
+  SelectableOptionsEntity? args;
 
   factory InputRequestEntity.fromJson(Map<String, dynamic> json) =>
       _$InputRequestEntityFromJson(json);

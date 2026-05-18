@@ -6,15 +6,19 @@ import 'RecommendationsListViewModel.dart';
 class MockRecommendationsListViewModel {
   RecommendationsListViewModel build() {
     return RecommendationsListViewModel(
-        title: "test",
-        loadingStatus: LoadingStatus.SUCCESS,
-        canApply: false,
-        items: [
-          MockRecommendationCardViewModel.buildRandomState(),
-          MockRecommendationCardViewModel.buildRandomState(),
-          MockRecommendationCardViewModel.buildRandomState(),
-          MockRecommendationCardViewModel.buildRandomState(),
-          MockRecommendationCardViewModel.buildRandomState()
-        ]);
+      title: "test",
+      loadingStatus: LoadingStatus.SUCCESS,
+      canApply: false,
+      items: [
+        MockRecommendationCardViewModel.buildRandomState(),
+        MockRecommendationCardViewModel.buildRandomState(),
+        MockRecommendationCardViewModel.buildRandomState(),
+        MockRecommendationCardViewModel.buildRandomState(),
+        MockRecommendationCardViewModel.buildRandomState()
+      ],
+      refresh: () {},
+      apply: () {},
+      clear: () {},
+    );
   }
 }

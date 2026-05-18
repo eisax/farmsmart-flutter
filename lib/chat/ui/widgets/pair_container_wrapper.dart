@@ -18,21 +18,21 @@ class PairContainerWrapperStyle {
   final int rightChildFlex;
 
   const PairContainerWrapperStyle({
-    this.outerContainerMargin,
-    this.rowMainAxisSize,
-    this.rowMainAxisAlignment,
-    this.sizedBoxSeparatorWidth,
-    this.leftChildFlex,
-    this.rightChildFlex,
+    required this.outerContainerMargin,
+    required this.rowMainAxisSize,
+    required this.rowMainAxisAlignment,
+    required this.sizedBoxSeparatorWidth,
+    required this.leftChildFlex,
+    required this.rightChildFlex,
   });
 
   PairContainerWrapperStyle copyWith({
-    EdgeInsetsGeometry outerContainerMargin,
-    MainAxisSize rowMainAxisSize,
-    MainAxisAlignment rowMainAxisAlignment,
-    double sizedBoxSeparatorWidth,
-    int childFlex,
-    int buttonFlex,
+    EdgeInsetsGeometry? outerContainerMargin,
+    MainAxisSize? rowMainAxisSize,
+    MainAxisAlignment? rowMainAxisAlignment,
+    double? sizedBoxSeparatorWidth,
+    int? childFlex,
+    int? buttonFlex,
   }) {
     return PairContainerWrapperStyle(
       outerContainerMargin: outerContainerMargin ?? this.outerContainerMargin,
@@ -57,17 +57,18 @@ class _DefaultStyle extends PairContainerWrapperStyle {
   final int leftChildFlex = _Constants.defaultLeftChildFlex;
   final int rightChildFlex = _Constants.defaultRightChildFlex;
 
-  const _DefaultStyle({
-    EdgeInsetsGeometry outerContainerMargin,
-    MainAxisSize rowMainAxisSize,
-    MainAxisAlignment rowMainAxisAlignment,
-    double sizedBoxSeparatorWidth,
-    int childFlex,
-    int buttonFlex,
-  });
+  const _DefaultStyle()
+      : super(
+          outerContainerMargin: _Constants.defaultOuterContainerMargin,
+          rowMainAxisSize: _Constants.defaultRowMainAxisSize,
+          rowMainAxisAlignment: _Constants.defaultRowMainAxisAlignment,
+          sizedBoxSeparatorWidth: _Constants.defaultSizedBoxSeparatorWidth,
+          leftChildFlex: _Constants.defaultLeftChildFlex,
+          rightChildFlex: _Constants.defaultRightChildFlex,
+        );
 }
 
-const PairContainerWrapperStyle _defaultStyle = const _DefaultStyle();
+const PairContainerWrapperStyle _defaultStyle = _DefaultStyle();
 
 class PairContainerWrapper extends StatelessWidget {
   final PairContainerWrapperStyle _style;
@@ -76,8 +77,8 @@ class PairContainerWrapper extends StatelessWidget {
 
   PairContainerWrapper({
     PairContainerWrapperStyle style = _defaultStyle,
-    @required Widget leftChild,
-    @required Widget rightChild,
+    required Widget leftChild,
+    required Widget rightChild,
   })  : this._style = style,
         this._leftChild = leftChild,
         this._rightChild = rightChild;

@@ -11,28 +11,33 @@ class _Fields {
 }
 
 class DocumentToTransactionEntityTransformer
-    extends ObjectTransformer<DocumentSnapshot, TransactionEntity> {
+    extends ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, TransactionEntity> {
   @override
-  TransactionEntity transform({DocumentSnapshot from}) {
-    final data = from.data;
-    final uri = castOrNull<String>(from.reference.path);
-    final tag = castOrNull<String>(data[_Fields.tag]);
-    final description = castOrNull<String>(data[_Fields.description]);
-    final timestamp = castOrNull<Timestamp>(data[_Fields.timestamp])?.toDate();
-    final value = castOrNull<String>(data[_Fields.amount]);
-    return TransactionEntity(uri, TransactionAmount(value, false), tag, description, timestamp);
+  TransactionEntity transform({DocumentSnapshot<Map<String, dynamic>>? from}) {
+    final data = from?.data() as Map<String, dynamic>? ?? <String, dynamic>{};
+    final uri = from?.reference.path ?? '';
+    final tag = castOrNull<String>(data[_Fields.tag]) ?? '';
+    final description = castOrNull<String>(data[_Fields.description]) ?? '';
+    final timestamp =
+        castOrNull<Timestamp>(data[_Fields.timestamp])?.toDate() ??
+            DateTime.now();
+    final value = castOrNull<String>(data[_Fields.amount]) ?? '';
+    return TransactionEntity(
+        uri, TransactionAmount(value, false), tag, description, timestamp);
   }
 }
 
 class TransactionEntityToDocumentTransformer
     extends ObjectTransformer<TransactionEntity, Map<String, dynamic>> {
   @override
-  Map<String, dynamic> transform({TransactionEntity from}) {
+  Map<String, dynamic> transform({TransactionEntity? from}) {
+    final source = from!;
     return {
-      _Fields.tag: from.tag,
-      _Fields.description: from.description,
-      _Fields.timestamp: Timestamp.fromDate(from.timestamp),
-      _Fields.amount:from.amount.rawString(),  //LH we save as a string to ensure we preserve the Decimal number and not involve floating points
+      _Fields.tag: source.tag,
+      _Fields.description: source.description,
+      _Fields.timestamp: Timestamp.fromDate(source.timestamp),
+      _Fields.amount: source.amount
+          .rawString(), //LH we save as a string to ensure we preserve the Decimal number and not involve floating points
     };
   }
 }

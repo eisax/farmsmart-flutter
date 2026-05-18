@@ -8,13 +8,13 @@ class ChatStyle {
   final CrossAxisAlignment crossAxisAlignment;
 
   const ChatStyle({
-    this.mainContainerColor,
-    this.crossAxisAlignment,
+    required this.mainContainerColor,
+    required this.crossAxisAlignment,
   });
 
   ChatStyle copyWith({
-    Color mainContainerColor,
-    CrossAxisAlignment crossAxisAlignment,
+    Color? mainContainerColor,
+    CrossAxisAlignment? crossAxisAlignment,
   }) {
     return ChatStyle(
       mainContainerColor: mainContainerColor ?? this.mainContainerColor,
@@ -24,28 +24,26 @@ class ChatStyle {
 }
 
 class _DefaultStyle extends ChatStyle {
-  final Color mainContainerColor = const Color(0xFFFFFFFF);
-  final CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start;
-
-  const _DefaultStyle({
-    Color mainContainerColor,
-    CrossAxisAlignment crossAxisAlignment,
-  });
+  const _DefaultStyle()
+      : super(
+          mainContainerColor: const Color(0xFFFFFFFF),
+          crossAxisAlignment: CrossAxisAlignment.start,
+        );
 }
 
-const ChatStyle _defaultStyle = const _DefaultStyle();
+const ChatStyle _defaultStyle = _DefaultStyle();
 
 class Chat extends StatelessWidget {
   final ChatProvider _chatProvider;
   final ChatStyle _style;
 
-  bool _notNull(Widget item) => item != null;
-
-  Chat({
-    @required ChatProvider chatProvider,
+  const Chat({
+    Key? key,
+    required ChatProvider chatProvider,
     ChatStyle style = _defaultStyle,
-  })  : this._chatProvider = chatProvider,
-        this._style = style;
+  })  : _chatProvider = chatProvider,
+        _style = style,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -54,30 +52,29 @@ class Chat extends StatelessWidget {
       stream: _chatProvider.observe().stream,
       builder: (BuildContext context,
           AsyncSnapshot<ChatViewModel> chatProviderSnapshot) {
+        final chatViewModel = chatProviderSnapshot.data;
         return Container(
           color: _style.mainContainerColor,
           child: Column(
             crossAxisAlignment: _style.crossAxisAlignment,
             children: <Widget>[
-              _buildList(chatProviderSnapshot.data),
-              _buildInteractiveWidget(chatProviderSnapshot.data),
-            ].where(_notNull).toList(),
+              if (chatViewModel != null) _buildList(chatViewModel),
+              if (chatViewModel != null) _buildInteractiveWidget(chatViewModel),
+            ],
           ),
         );
       },
     );
   }
 
-  _buildList(ChatViewModel chatViewModel) {
-    if (chatViewModel.messageViewModels != null) {
-      return ChatList(
-        messages: chatViewModel.messageViewModels,
-        scrollController: chatViewModel.scrollController,
-      );
-    }
+  Widget _buildList(ChatViewModel chatViewModel) {
+    return ChatList(
+      messages: chatViewModel.messageViewModels,
+      scrollController: chatViewModel.scrollController,
+    );
   }
 
-  _buildInteractiveWidget(ChatViewModel chatViewModel) {
+  Widget _buildInteractiveWidget(ChatViewModel chatViewModel) {
     return chatViewModel.interactiveWidget;
   }
 }
@@ -88,10 +85,10 @@ class ChatViewModel {
   Widget interactiveWidget;
 
   ChatViewModel({
-    List<MessageBubbleViewModel> messageViewModels,
-    Widget interactiveWidget,
-    ScrollController scrollController,
-  })  : this.messageViewModels = messageViewModels ?? [],
-        this.interactiveWidget = interactiveWidget,
-        this.scrollController = scrollController ?? ScrollController();
+    List<MessageBubbleViewModel>? messageViewModels,
+    Widget? interactiveWidget,
+    ScrollController? scrollController,
+  })  : messageViewModels = messageViewModels ?? [],
+        interactiveWidget = interactiveWidget ?? const SizedBox.shrink(),
+        scrollController = scrollController ?? ScrollController();
 }

@@ -42,8 +42,6 @@ class Basket<T> {
   }
 
   void _update(List<T> old) {
-    if(_didChange != null){
-       _didChange(old);
+     _didChange(old);
     }
-  }
 }

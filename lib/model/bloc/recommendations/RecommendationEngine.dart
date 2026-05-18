@@ -25,13 +25,14 @@ class RecommendationEngine {
   RecommendationEngine._(
       Map<String, Map<String, Map<String, double>>> inputFactors,
       Map<String, Map<String, double>> weightingFactors)
-      : this._inputFactors = inputFactors,
-        this._weightingFactors = weightingFactors;
+      : _inputFactors = inputFactors,
+        _weightingFactors = weightingFactors;
 
-  factory RecommendationEngine(
-      {Map<String, Map<String, Map<String, double>>> inputFactors,
-      double inputScale = 1.0,
-      Map<String, Map<String, double>> weightMatrix}) {
+  factory RecommendationEngine({
+    required Map<String, Map<String, Map<String, double>>> inputFactors,
+    double inputScale = 1.0,
+    required Map<String, Map<String, double>> weightMatrix,
+  }) {
     final normalisedWeights = weightMatrix.map((subject, weights) {
       final totalWeight = weights.values.reduce((a, b) {
         return a + b;
@@ -52,7 +53,7 @@ class RecommendationEngine {
     double score = _Constants.defaultScore;
     final weightMatrix = _weightingFactors[subject];
     final inputMatrix = _inputFactors[subject];
-    if (weightMatrix != null) {
+    if (weightMatrix != null && inputMatrix != null) {
       for (var key in inputMatrix.keys) {
         final subjectInput = inputMatrix[key];
         final subjectWeighting = weightMatrix[key] ?? _Constants.defaultScore;
@@ -68,9 +69,6 @@ class RecommendationEngine {
 
   static Map<String, double> _normalise(
       Map<String, double> values, double scale) {
-    if (values == null) {
-      return null;
-    }
     return values.map((key, value) {
       return MapEntry(key, (_Constants.unit / scale) * value);
     });

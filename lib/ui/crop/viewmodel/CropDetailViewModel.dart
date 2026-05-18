@@ -1,6 +1,7 @@
 import 'package:farmsmart_flutter/model/entities/ImageURLProvider.dart';
 import 'package:farmsmart_flutter/model/entities/loading_status.dart';
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleDetailViewModel.dart';
+import 'package:farmsmart_flutter/ui/article/viewModel/ArticleListItemViewModel.dart';
 
 import '../CropInfoListItem.dart';
 
@@ -19,6 +20,7 @@ class CropDetailViewModel extends ArticleDetailViewModel {
     String contentLink,
     String contentLinkDescription,
     String contentLinkIcon,
+    GetList<ArticleListItemViewModel> getRelated,
     List<CropInfoListItemViewModel> infoItems,
   )   : this.infoItems = infoItems,
         super(
@@ -33,6 +35,7 @@ class CropDetailViewModel extends ArticleDetailViewModel {
           contentLink,
           contentLinkDescription,
           contentLinkIcon,
+          getRelated,
         );
 
   CropDetailViewModel.fromArticle(ArticleDetailViewModel articleViewModel,
@@ -50,5 +53,6 @@ class CropDetailViewModel extends ArticleDetailViewModel {
           articleViewModel.contentLink,
           articleViewModel.contentLinkDescription,
           articleViewModel.contentLinkIcon,
+          articleViewModel.getRelated,
         );
 }

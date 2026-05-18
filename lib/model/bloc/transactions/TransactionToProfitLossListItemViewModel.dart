@@ -27,7 +27,10 @@ class TransactionToProfitLossListItemViewModel
   TransactionToProfitLossListItemViewModel(this._detailTransformer);
 
   @override
-  ProfitLossListItemViewModel transform({TransactionEntity from}) {
+  ProfitLossListItemViewModel transform({TransactionEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
     return ProfitLossListItemViewModel(
       title: _title(from),
       subtitle: _subtitle(from),
@@ -40,14 +43,15 @@ class TransactionToProfitLossListItemViewModel
   }
 
   String _title(TransactionEntity from) {
-    final dateString =
-        (from.timestamp == null) ? "" : _dateFormatter.format(from.timestamp);
+    final dateString = _dateFormatter.format(from.timestamp);
     return dateString +
-        ((from?.tag == null) ? "" : _Strings.divider + from.tag);
+        (from.tag.isEmpty ? "" : _Strings.divider + from.tag);
   }
 
   String _subtitle(TransactionEntity from) {
-    return from.description ?? _LocalisedStrings.descriptionPlaceholder();
+    return from.description.isEmpty
+        ? _LocalisedStrings.descriptionPlaceholder()
+        : from.description;
   }
 
   String _detail(TransactionEntity from) {

@@ -38,7 +38,8 @@ class _Icons {
 }
 
 class _Constants {
-  static const titlePaddingOnEmptyState = const EdgeInsets.only(top: 62, left: 32);
+  static const titlePaddingOnEmptyState =
+      const EdgeInsets.only(top: 62, left: 32);
   static final TextStyle titleTextStyle = const TextStyle(
       fontSize: 27, fontWeight: FontWeight.bold, color: Color(0xFF000000));
 }
@@ -54,13 +55,13 @@ class ProfitLossListViewModel implements RefreshableViewModel {
   final List<ProfitLossListItemViewModel> transactions;
 
   ProfitLossListViewModel({
-    this.title,
-    this.detailText,
-    this.loadingStatus,
-    this.transactions,
-    this.refresh,
-    this.saleViewModel,
-    this.costViewModel,
+    required this.title,
+    required this.detailText,
+    required this.loadingStatus,
+    required this.transactions,
+    required this.refresh,
+    required this.saleViewModel,
+    required this.costViewModel,
   });
 }
 
@@ -94,8 +95,8 @@ class ProfitLossPage extends StatelessWidget {
   final ProfitLossStyle _style;
 
   const ProfitLossPage(
-      {Key key,
-      ViewModelProvider<ProfitLossListViewModel> viewModelProvider,
+      {required Key key,
+      required ViewModelProvider<ProfitLossListViewModel> viewModelProvider,
       ProfitLossStyle style = const _DefaultStyle()})
       : this._viewModelProvider = viewModelProvider,
         this._style = style,
@@ -109,7 +110,9 @@ class ProfitLossPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPage({BuildContext context, ProfitLossListViewModel viewModel}) {
+  Widget _buildPage(
+      {required BuildContext context,
+      required ProfitLossListViewModel viewModel}) {
     return viewModel.transactions.isNotEmpty
         ? _buildList(viewModel)
         : _buildEmptyView(viewModel, context);
@@ -117,30 +120,31 @@ class ProfitLossPage extends StatelessWidget {
 
   Widget _buildEmptyView(
       ProfitLossListViewModel viewModel, BuildContext context) {
-    return Column( crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-      Padding(
-        padding: _Constants.titlePaddingOnEmptyState,
-        child: Text(
-          _LocalisedStrings.profitAndLoss(),
-          style: _Constants.titleTextStyle,
-        ),
-      ),
-      Expanded(
-        child: EmptyView(
-          viewModel: EmptyViewViewModel(
-            imagePath: _Strings.emptyImagePath,
-            description:
-                _LocalisedStrings.getStartedAddingYourFirstTransaction(),
-            actionText: _LocalisedStrings.addATransaction(),
-            action: () => _addTapped(
-              context: context,
-              viewModel: viewModel,
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: _Constants.titlePaddingOnEmptyState,
+            child: Text(
+              _LocalisedStrings.profitAndLoss(),
+              style: _Constants.titleTextStyle,
             ),
           ),
-        ),
-      )
-    ]);
+          Expanded(
+            child: EmptyView(
+              viewModel: EmptyViewViewModel(
+                imagePath: _Strings.emptyImagePath,
+                description:
+                    _LocalisedStrings.getStartedAddingYourFirstTransaction(),
+                actionText: _LocalisedStrings.addATransaction(),
+                action: () => _addTapped(
+                  context: context,
+                  viewModel: viewModel,
+                ),
+              ),
+            ),
+          )
+        ]);
   }
 
   HeaderAndFooterListView _buildList(ProfitLossListViewModel viewModel) {
@@ -167,8 +171,9 @@ class ProfitLossPage extends StatelessWidget {
   }
 
   Widget _buildPageWithFloatingButton(
-      {BuildContext context, AsyncSnapshot<ProfitLossListViewModel> snapshot}) {
-    final viewModel = snapshot.data;
+      {required BuildContext context,
+      required AsyncSnapshot<ProfitLossListViewModel> snapshot}) {
+    final viewModel = snapshot.data!;
     final String roundedButtonIcon = "assets/icons/profit_add.png";
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -197,20 +202,23 @@ class ProfitLossPage extends StatelessWidget {
     final actions = [
       ActionSheetListItemViewModel(
           title: _LocalisedStrings.saleText(),
+          icon: _Icons.saleIcon,
+          checkBoxIcon: '',
           isDestructive: false,
           type: ActionType.simple,
-          icon: _Icons.saleIcon,
           onTap: () => _recordSaleTapped(context, viewModel)),
       ActionSheetListItemViewModel(
           title: _LocalisedStrings.costText(),
-          isDestructive: false,
           icon: _Icons.costIcon,
+          checkBoxIcon: '',
+          isDestructive: false,
           type: ActionType.simple,
           onTap: () => _recordCostTapped(context, viewModel)),
     ];
     final actionSheetViewModel = ActionSheetViewModel(
-      actions,
-      _LocalisedStrings.cancel(),
+      actions: actions,
+      cancelButtonTitle: _LocalisedStrings.cancel(),
+      confirmButtonTitle: _LocalisedStrings.cancel(),
     );
     return ActionSheet(
       viewModel: actionSheetViewModel,
@@ -239,8 +247,8 @@ class ProfitLossPage extends StatelessWidget {
   }
 
   void _addTapped({
-    BuildContext context,
-    ProfitLossListViewModel viewModel,
+    required BuildContext context,
+    required ProfitLossListViewModel viewModel,
   }) {
     ActionSheet.present(_moreMenu(context, viewModel), context);
   }

@@ -14,6 +14,7 @@ class MockFarmDetailsViewModel {
     return FarmDetailsViewModel(
       items: list,
       buttonTitle: "Confirm Details",
+      confirm: () {},
       removeProfile: () => _mockRemoveProfile(),
       editProfile: () => _mockEditProfile(),
     );

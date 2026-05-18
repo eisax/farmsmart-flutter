@@ -1,6 +1,5 @@
 import 'package:farmsmart_flutter/ui/bottombar/tab_navigator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class PlaygroundPersistentBottomNavigationBar {
   double _bottomBarIconSize = 25;
@@ -48,7 +47,7 @@ class PlaygroundPersistentBottomNavigationBar {
           iconPath,
           height: _bottomBarIconSize,
         ),
-        title: SizedBox.shrink(),
+        label: '',
       ),
       analyticsName: 'mock',
     );
@@ -77,7 +76,7 @@ class PlaygroundPersistentBottomNavigationBar {
             child: Image.asset('assets/raw/mock_profile_image.png'),
           ),
         ),
-        title: SizedBox.shrink(),
+        label: '',
       ),
       analyticsName: 'Mock',
     );
@@ -85,7 +84,7 @@ class PlaygroundPersistentBottomNavigationBar {
 }
 
 class MockTabPage extends StatelessWidget {
-  const MockTabPage({Key key, this.pageNumber = 0}) : super(key: key);
+  const MockTabPage({Key? key, this.pageNumber = 0}) : super(key: key);
 
   final int pageNumber;
 
@@ -100,8 +99,8 @@ class MockTabPage extends StatelessWidget {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => MockDetailPage(
-                      pageNumber: pageNumber,
-                    ),
+                  pageNumber: pageNumber,
+                ),
               ),
             );
           },
@@ -112,7 +111,7 @@ class MockTabPage extends StatelessWidget {
 }
 
 class MockDetailPage extends StatelessWidget {
-  const MockDetailPage({Key key, this.pageNumber = 0}) : super(key: key);
+  const MockDetailPage({Key? key, this.pageNumber = 0}) : super(key: key);
 
   final int pageNumber;
 
@@ -127,8 +126,8 @@ class MockDetailPage extends StatelessWidget {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => MockDetailPage(
-                      pageNumber: pageNumber,
-                    ),
+                  pageNumber: pageNumber,
+                ),
               ),
             );
           },

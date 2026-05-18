@@ -6,17 +6,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AccountRepositoryFirebase implements AccountRepositoryInterface {
   final FirebaseAuth _auth;
-  final _transformer;
+  final FirebaseUserToAccountTransformer _transformer;
 
   AccountRepositoryFirebase(
       FirebaseAuth authProvider, ProfileRepositoryInterface profileRepository)
-      : this._auth = authProvider,
-        this._transformer = FirebaseUserToAccountTransformer(profileRepository);
+      : _auth = authProvider,
+        _transformer = FirebaseUserToAccountTransformer(profileRepository);
   @override
-  Future<AccountEntity> authorized() {
-    return _auth.currentUser().then((user) {
-      return _transformer.transform(from: user);
-    });
+  Future<AccountEntity> authorized() async {
+    return _transformer.transform(from: _auth.currentUser);
   }
 
   @override
@@ -52,15 +50,14 @@ class AccountRepositoryFirebase implements AccountRepositoryInterface {
 
   @override
   Future<bool> deauthorize() {
-    return _auth.signOut().then((value) {
-      return authorized().then((user) {
-        return (user == null);
-      });
-    });
+    return _auth.signOut().then((_) => _auth.currentUser == null);
   }
 
   @override
   Stream<AccountEntity> observeAuthorized() {
-    return _auth.onAuthStateChanged.transform(_transformer.streamTransformer());
+    return _auth
+        .authStateChanges()
+        .where((user) => user != null)
+        .map((user) => _transformer.transform(from: user));
   }
 }

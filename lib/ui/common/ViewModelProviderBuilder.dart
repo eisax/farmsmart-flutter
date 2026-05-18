@@ -1,10 +1,8 @@
-import 'package:farmsmart_flutter/model/bloc/Transformer.dart';
 import 'package:farmsmart_flutter/model/bloc/ViewModelProvider.dart';
 import 'package:farmsmart_flutter/model/entities/loading_status.dart';
 import 'package:farmsmart_flutter/ui/common/ErrorRetry.dart';
 import 'package:farmsmart_flutter/ui/common/RefreshableViewModel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'LoadableViewModel.dart';
 
@@ -15,21 +13,21 @@ class _LocalisedStrings {
 }
 
 typedef WidgetBuilder<T> = Widget Function(
-    {BuildContext context, AsyncSnapshot<T> snapshot});
+    {required BuildContext context, required AsyncSnapshot<T> snapshot});
 
 class ViewModelProviderBuilder<T> extends StatelessWidget {
   final ViewModelProvider<T> _provider;
   final WidgetBuilder<T> _successBuilder;
-  final WidgetBuilder<T> _errorBuilder;
-  final WidgetBuilder<T> _loadingBuilder;
+  final WidgetBuilder<T>? _errorBuilder;
+  final WidgetBuilder<T>? _loadingBuilder;
 
-  const ViewModelProviderBuilder(
-      {Key key,
-      ViewModelProvider<T> provider,
-      WidgetBuilder<T> successBuilder,
-      WidgetBuilder<T> errorBuilder,
-      WidgetBuilder<T> loadingBuilder})
-      : this._provider = provider,
+  const ViewModelProviderBuilder({
+    Key? key,
+    required ViewModelProvider<T> provider,
+    required WidgetBuilder<T> successBuilder,
+    WidgetBuilder<T>? errorBuilder,
+    WidgetBuilder<T>? loadingBuilder,
+  })  : this._provider = provider,
         this._successBuilder = successBuilder,
         this._errorBuilder = errorBuilder,
         this._loadingBuilder = loadingBuilder,
@@ -50,17 +48,15 @@ class ViewModelProviderBuilder<T> extends StatelessWidget {
           LoadingStatus status = (snapshot.error != null)
               ? LoadingStatus.ERROR
               : LoadingStatus.SUCCESS;
-          final loadable = castOrNull<LoadableViewModel>(snapshot.data);
-          if (loadable != null) {
-            status = loadable.loadingStatus;
-          }
+          final loadable = snapshot.data is LoadableViewModel
+              ? snapshot.data as LoadableViewModel
+              : null;
+          status = loadable?.loadingStatus ?? status;
           switch (status) {
             case LoadingStatus.ERROR:
               return errorBuilder(context: context, snapshot: snapshot);
-              break;
             case LoadingStatus.LOADING:
               return loadingBuilder(context: context, snapshot: snapshot);
-              break;
             default:
               return _successBuilder(context: context, snapshot: snapshot);
           }
@@ -68,18 +64,22 @@ class ViewModelProviderBuilder<T> extends StatelessWidget {
   }
 
   Widget _defaultLoadingBuilder(
-      {BuildContext context, AsyncSnapshot<T> snapshot}) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.white),
+      {required BuildContext context, required AsyncSnapshot<T> snapshot}) {
+    return const Center(
       child: CircularProgressIndicator(),
-      alignment: Alignment.center,
     );
   }
 
-  Widget _defaultErrorBuilder({BuildContext context, AsyncSnapshot<T> snapshot}) {
-    final refreshable = castOrNull<RefreshableViewModel>(snapshot.data);
-    final Function refreshFunction =
-        (refreshable != null) ? refreshable.refresh : null;
+  Widget _defaultErrorBuilder(
+      {required BuildContext context, required AsyncSnapshot<T> snapshot}) {
+    final refreshable = snapshot.data is RefreshableViewModel
+        ? snapshot.data as RefreshableViewModel
+        : null;
+    final VoidCallback refreshFunction = () {
+      if (refreshable != null) {
+        refreshable.refresh();
+      }
+    };
     return ErrorRetry(
       errorMessage: _LocalisedStrings.loadingError(),
       retryActionLabel: _LocalisedStrings.retryAction(),

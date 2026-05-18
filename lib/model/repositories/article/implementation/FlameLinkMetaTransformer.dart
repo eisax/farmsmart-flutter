@@ -13,15 +13,19 @@ class _Fields {
 }
 
 class FlamelinkMetaTransformer
-    extends ObjectTransformer<DocumentSnapshot, FlamelinkMeta> {
+    extends ObjectTransformer<DocumentSnapshot<Map<String, dynamic>>, FlamelinkMeta> {
   @override
-  FlamelinkMeta transform({DocumentSnapshot from}) {
-    final metaData = from[FlamelinkMeta.metaFieldName];
+  FlamelinkMeta transform({DocumentSnapshot<Map<String, dynamic>>? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
+    final data = from.data();
+    final metaData = data?[FlamelinkMeta.metaFieldName];
     if (metaData == null) {
-      return null;
+      throw StateError('Document has no flamelink metadata');
     }
     final createdBy = castOrNull<String>(metaData[_Fields.createdBy]);
-    final created =  castOrNull<Timestamp>(metaData[_Fields.createdDate]) ;
+    final created = castOrNull<Timestamp>(metaData[_Fields.createdDate]);
     final modified = castOrNull<Timestamp>(metaData[_Fields.modified]);
     final locale = castOrNull<String>(metaData[_Fields.locale]);
     final docId = castOrNull<String>(metaData[_Fields.docId]);

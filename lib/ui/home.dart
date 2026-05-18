@@ -1,4 +1,3 @@
-import 'package:farmsmart_flutter/farmsmart_localizations.dart';
 import 'package:farmsmart_flutter/model/bloc/article/ArticleListProvider.dart';
 import 'package:farmsmart_flutter/model/bloc/home/HomeViewModelProvider.dart';
 import 'package:farmsmart_flutter/model/bloc/plot/PlotListProvider.dart';
@@ -19,13 +18,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'article/ArticleListStyles.dart';
+import 'theme/app_theme.dart';
 import 'common/ProfileAvatar.dart';
 import 'myplot/PlotList.dart';
 
 class _Constants {
-  static final double bottomBarIconSize = 25;
-  static final double iconSize = 27;
-  static final Color bottomBarColor = Colors.white;
+  static final double bottomBarIconSize = 24;
+  static final double iconSize = 28;
+  static final Color bottomBarColor = AppTheme.white;
 
   static final myPlotSelectedIcon = 'assets/icons/my_plot_selected.png';
   static final myPlotIcon = 'assets/icons/my_plot.png';
@@ -50,8 +50,13 @@ class _LocalisedStrings {
 
   static community() => Intl.message('Community');
 
+  static viewMore() => Intl.message('Read full article');
+
+  static discoverMuchMore() =>
+      Intl.message('Practical guides for Zimbabwe natural regions and markets.');
+
   static joinWhatsAppGroup() =>
-      Intl.message('Join the WhatsApp group and discuss with fellow farmers.');
+      Intl.message('Tap a group to connect with farmers in your province.');
 }
 
 class _AnalyticsNames {
@@ -68,21 +73,17 @@ class _Icons {
 }
 
 class Home extends StatelessWidget {
-  FarmsmartLocalizations localizations;
   final RepositoryProvider repositoryProvider;
   final HomeViewModelProvider homeViewModelProvider;
-  List<TabNavigator> tabList;
 
   Home({
-    Key key,
-    this.repositoryProvider,
-    this.homeViewModelProvider,
+    Key? key,
+    required this.repositoryProvider,
+    required this.homeViewModelProvider,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    localizations = FarmsmartLocalizations.of(context);
-
     return ViewModelProviderBuilder(
       provider: homeViewModelProvider,
       successBuilder: _buildSuccess,
@@ -90,39 +91,45 @@ class Home extends StatelessWidget {
   }
 
   Widget _buildSuccess(
-      {BuildContext context, AsyncSnapshot<HomeViewModel> snapshot}) {
+      {required BuildContext context,
+      required AsyncSnapshot<HomeViewModel> snapshot}) {
     return PersistentBottomNavigationBar(
       backgroundColor: _Constants.bottomBarColor,
-      tabs: tabs(snapshot.data),
+      selectedItemColor: AppTheme.accent,
+      unselectedItemColor: AppTheme.greyLight,
+      tabs: tabs(snapshot.data!),
     );
   }
 
-  _initTabsList(HomeViewModel viewModel) {
-    tabList = [
+  List<TabNavigator> tabs(HomeViewModel viewModel) {
+    final tabList = [
       _buildTabNavigator(
         _buildMyPlot(viewModel),
         _Constants.myPlotSelectedIcon,
         _Constants.myPlotIcon,
         _AnalyticsNames.myPlot,
-        
+        _LocalisedStrings.myPlot(),
       ),
       _buildTabNavigator(
         _buildProfitAndLoss(viewModel),
         _Constants.profitLossSelectedIcon,
         _Constants.profitLossIcon,
         _AnalyticsNames.profitAndLoss,
+        'P&L',
       ),
       _buildTabNavigator(
         _buildDiscover(),
         _Constants.discoverSelectedIcon,
         _Constants.discoverIcon,
         _AnalyticsNames.discover,
+        _LocalisedStrings.discover(),
       ),
       _buildTabNavigator(
         _buildCommunity(),
         _Constants.communitySelectedIcon,
         _Constants.communityIcon,
         _AnalyticsNames.community,
+        _LocalisedStrings.community(),
       ),
       _buildTabNavigatorWithCircleImageWidget(
           _buildUserProfile(viewModel), viewModel),
@@ -135,14 +142,11 @@ class Home extends StatelessWidget {
         ),
       );
     }
-  }
 
-  List<TabNavigator> tabs(HomeViewModel viewModel) {
-    _initTabsList(viewModel);
     return tabList;
   }
 
-  _buildMyPlot(HomeViewModel viewModel) {
+  Widget _buildMyPlot(HomeViewModel viewModel) {
     final recommendationsProvider = RecommendationListProvider(
       title: _LocalisedStrings.recommendations(),
       heroThreshold: 0.8,
@@ -162,6 +166,7 @@ class Home extends StatelessWidget {
 
   _buildProfitAndLoss(HomeViewModel viewModel) {
     return ProfitLossPage(
+      key: const Key('profit_loss'),
       viewModelProvider: ProfitLossListProvider(
         transactionsRepository: repositoryProvider
             .getTransactionRepository(viewModel.currentProfile),
@@ -179,6 +184,9 @@ class Home extends StatelessWidget {
         repository: repositoryProvider.getArticleRepository(),
         group: ArticleCollectionGroup.discovery,
         relatedTitle: _LocalisedStrings.relatedArticles(),
+        contentLinkTitle: _LocalisedStrings.viewMore(),
+        contentLinkDescription: _LocalisedStrings.discoverMuchMore(),
+        contentLinkIcon: '',
       ),
     );
   }
@@ -191,6 +199,7 @@ class Home extends StatelessWidget {
         repository: repositoryProvider.getArticleRepository(),
         group: ArticleCollectionGroup.chatGroups,
         relatedTitle: _LocalisedStrings.relatedGroups(),
+        contentLinkTitle: _LocalisedStrings.community(),
         contentLinkDescription: _LocalisedStrings.joinWhatsAppGroup(),
         contentLinkIcon: _Icons.whatsApp,
       ),
@@ -220,6 +229,7 @@ class Home extends StatelessWidget {
     String activeIconPath,
     String iconPath,
     String analyticsName,
+    String label,
   ) {
     return TabNavigator(
       child: page,
@@ -232,7 +242,7 @@ class Home extends StatelessWidget {
           iconPath,
           height: _Constants.bottomBarIconSize,
         ),
-        title: SizedBox.shrink(),
+        label: label,
       ),
       analyticsName: analyticsName,
     );
@@ -246,10 +256,10 @@ class Home extends StatelessWidget {
       barItem: BottomNavigationBarItem(
         activeIcon: Text(
           'Debug',
-          style: TextStyle(color: Color(0xff24d900)),
+          style: TextStyle(color: AppTheme.accent),
         ),
         icon: Text('Debug'),
-        title: SizedBox.shrink(),
+        label: '',
       ),
       analyticsName: _AnalyticsNames.debug,
     );
@@ -276,10 +286,11 @@ class Home extends StatelessWidget {
       barItem: BottomNavigationBarItem(
         activeIcon: Container(
           decoration: BoxDecoration(
-            color: Color(0xff24d900),
+            color: AppTheme.black,
             shape: BoxShape.circle,
+            border: Border.all(color: AppTheme.accent, width: 2),
           ),
-          padding: EdgeInsets.all(2.0),
+          padding: const EdgeInsets.all(2),
           height: _Constants.iconSize,
           width: _Constants.iconSize,
           child: profileIcon,
@@ -289,7 +300,7 @@ class Home extends StatelessWidget {
           width: _Constants.iconSize,
           child: profileIcon,
         ),
-        title: SizedBox.shrink(),
+        label: 'Profile',
       ),
       analyticsName: _AnalyticsNames.profile,
     );

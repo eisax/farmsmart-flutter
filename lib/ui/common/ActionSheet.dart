@@ -8,12 +8,15 @@ class _Constants {
 }
 
 class ActionSheetViewModel {
-  List<ActionSheetListItemViewModel> actions;
-  String cancelButtonTitle;
-  String confirmButtonTitle;
+  final List<ActionSheetListItemViewModel> actions;
+  final String cancelButtonTitle;
+  final String confirmButtonTitle;
 
-  ActionSheetViewModel(this.actions, this.cancelButtonTitle,
-      {this.confirmButtonTitle});
+  ActionSheetViewModel({
+    required this.actions,
+    required this.cancelButtonTitle,
+    required this.confirmButtonTitle,
+  });
 }
 
 class ActionSheetStyle {
@@ -34,19 +37,19 @@ class ActionSheetStyle {
   final double indicatorLineWidth;
   final double buttonSpacing;
 
-  ActionSheetStyle({
-    this.backgroundColor,
-    this.indicatorLineColor,
-    this.confirmButtonBackgroundColor,
-    this.cancelButtonBackgroundColor,
-    this.confirmButtonTextStyle,
-    this.indicatorLineEdgePadding,
-    this.largeButtonEdgePadding,
-    this.cornerRadius,
-    this.indicatorLineRadius,
-    this.indicatorLineThickness,
-    this.indicatorLineWidth,
-    this.buttonSpacing,
+  const ActionSheetStyle({
+    required this.backgroundColor,
+    required this.indicatorLineColor,
+    required this.confirmButtonBackgroundColor,
+    required this.cancelButtonBackgroundColor,
+    required this.confirmButtonTextStyle,
+    required this.indicatorLineEdgePadding,
+    required this.largeButtonEdgePadding,
+    required this.cornerRadius,
+    required this.indicatorLineRadius,
+    required this.indicatorLineThickness,
+    required this.indicatorLineWidth,
+    required this.buttonSpacing,
   });
 
   factory ActionSheetStyle.defaultStyle() {
@@ -69,18 +72,18 @@ class ActionSheetStyle {
   }
 
   ActionSheetStyle copyWith({
-    Color backgroundColor,
-    Color indicatorLineColor,
-    Color confirmButtonBackgroundColor,
-    Color cancelButtonBackgroundColor,
-    TextStyle confirmButtonTextStyle,
-    EdgeInsets indicatorLineEdgePadding,
-    EdgeInsets largeButtonEdgePadding,
-    Radius cornerRadius,
-    Radius indicatorLineRadius,
-    double indicatorLineThickness,
-    double indicatorLineWidth,
-    double buttonSpacing,
+    Color? backgroundColor,
+    Color? indicatorLineColor,
+    Color? confirmButtonBackgroundColor,
+    Color? cancelButtonBackgroundColor,
+    TextStyle? confirmButtonTextStyle,
+    EdgeInsets? indicatorLineEdgePadding,
+    EdgeInsets? largeButtonEdgePadding,
+    Radius? cornerRadius,
+    Radius? indicatorLineRadius,
+    double? indicatorLineThickness,
+    double? indicatorLineWidth,
+    double? buttonSpacing,
   }) {
     return ActionSheetStyle(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -109,16 +112,33 @@ class ActionSheet extends StatefulWidget {
   final ActionSheetViewModel _viewModel;
   final ActionSheetStyle _style;
 
-  static present(ActionSheet sheet, BuildContext context) {
+  static void present(ActionSheet sheet, BuildContext context) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         context: context,
         builder: (widgetBuilder) => sheet);
   }
 
-  const ActionSheet(
-      {Key key, ActionSheetViewModel viewModel, ActionSheetStyle style})
-      : this._viewModel = viewModel,
+  const ActionSheet({
+    Key? key,
+    required ActionSheetViewModel viewModel,
+    ActionSheetStyle style = const ActionSheetStyle(
+      backgroundColor: Color(0xFFFFFFFF),
+      indicatorLineColor: Color(0xFFe0e1ee),
+      confirmButtonBackgroundColor: Color(0xFF24d900),
+      cancelButtonBackgroundColor: Color(0xFFe9eaf2),
+      confirmButtonTextStyle: TextStyle(
+          fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFFFFFFFF)),
+      indicatorLineEdgePadding: EdgeInsets.only(top: 8, bottom: 40),
+      largeButtonEdgePadding:
+          EdgeInsets.only(left: 32, top: 31, right: 32, bottom: 32),
+      cornerRadius: Radius.circular(40),
+      indicatorLineRadius: Radius.circular(2.5),
+      indicatorLineThickness: 5,
+      indicatorLineWidth: 40,
+      buttonSpacing: 16,
+    ),
+  })  : this._viewModel = viewModel,
         this._style = style,
         super(key: key);
 
@@ -173,7 +193,7 @@ class _ActionSheetState extends State<ActionSheet> {
   }
 
   _buildList(ActionSheetStyle style, ActionSheetViewModel viewModel) {
-    List<Widget> actionSheetItems = List<Widget>();
+    final List<Widget> actionSheetItems = <Widget>[];
 
     viewModel.actions.asMap().forEach((index, actionItemViewModel) {
       if (index != 0) {
@@ -195,7 +215,12 @@ class _ActionSheetState extends State<ActionSheet> {
       );
     });
 
-    return Expanded(child:  ListView(children:actionSheetItems, scrollDirection: Axis.vertical, shrinkWrap: true,));
+    return Expanded(
+        child: ListView(
+      children: actionSheetItems,
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+    ));
   }
 
   List<Widget> _buildListFooter(ActionSheetStyle style,
@@ -211,26 +236,24 @@ class _ActionSheetState extends State<ActionSheet> {
       )
     ];
 
-    if (viewModel.confirmButtonTitle != null) {
-      listBuilder.clear();
-      listBuilder.add(
-        Expanded(
-          child: RoundedButton(
-            viewModel: RoundedButtonViewModel(
-                title: viewModel.cancelButtonTitle, onTap: dismissActionSheet),
-            style: RoundedButtonStyle.actionSheetLargeRoundedButton(),
-          ),
+    listBuilder.clear();
+    listBuilder.add(
+      Expanded(
+        child: RoundedButton(
+          viewModel: RoundedButtonViewModel(
+              title: viewModel.cancelButtonTitle, onTap: dismissActionSheet),
+          style: RoundedButtonStyle.actionSheetLargeRoundedButton(),
         ),
-      );
-      listBuilder.add(
-        SizedBox(width: style.buttonSpacing),
-      );
-      listBuilder.add(
-        Expanded(
-          child: hasSelectedItem(context, style),
-        ),
-      );
-    }
+      ),
+    );
+    listBuilder.add(
+      SizedBox(width: style.buttonSpacing),
+    );
+    listBuilder.add(
+      Expanded(
+        child: hasSelectedItem(context, style),
+      ),
+    );
     return listBuilder;
   }
 
@@ -247,10 +270,7 @@ class _ActionSheetState extends State<ActionSheet> {
 
   void _confirmAction(Function action) {
     dismissActionSheet();
-    if (action != null) {
-      action();
-    }
-    
+    action();
   }
 
   void select(int index) {

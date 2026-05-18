@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:farmsmart_flutter/ui/common/Dogtag.dart';
 
 class DogTagStyles {

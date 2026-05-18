@@ -4,6 +4,7 @@ import 'package:farmsmart_flutter/model/bloc/startup/ChatResponseToPlotInfoTrans
 import 'package:farmsmart_flutter/model/entities/ProfileEntity.dart';
 import 'package:farmsmart_flutter/model/repositories/MockStrings.dart';
 import 'package:farmsmart_flutter/model/repositories/account/AccountRepositoryInterface.dart';
+import 'package:farmsmart_flutter/model/repositories/image/implementation/PathImageProvider.dart';
 import 'package:farmsmart_flutter/ui/common/modal_navigator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -36,9 +37,9 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
   FlowCoordinatorStatus _status = FlowCoordinatorStatus.Idle;
 
   NewProfileFlowCoordinator(this._accountRepository, Function onStatusChanged)
-      : this._onStatusChanged = onStatusChanged;
+      : _onStatusChanged = onStatusChanged;
 
-  void run(BuildContext context, {Function onSuccess, Function onFail}) {
+  void run(BuildContext context, {Function? onSuccess, Function? onFail}) {
     if (_status != FlowCoordinatorStatus.InProgress) {
       _setStatus(FlowCoordinatorStatus.InProgress);
       NavigationScope.presentModal(
@@ -47,42 +48,36 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
               viewModel: _chatPageViewModel(onSuccess: () {
             _setStatus(FlowCoordinatorStatus.Complete);
             
-            if (onSuccess != null) {
-              onSuccess();
-            }
+            onSuccess?.call();
           }, onFail: (error) {
             _setStatus(FlowCoordinatorStatus.Complete);
-            if (onFail != null) {
-              onFail(error);
-            }
+            onFail?.call(error);
           })));
     } else {
-       if (onFail != null) {
-          onFail(UnsupportedError(_LocalisedStrings.alreadyInProgress()));
-       }
+       onFail?.call(UnsupportedError(_LocalisedStrings.alreadyInProgress()));
     }
   }
 
-  ChatPageViewModel _chatPageViewModel({Function onSuccess, Function onFail}) {
+  ChatPageViewModel _chatPageViewModel({Function? onSuccess, Function? onFail}) {
     return ChatPageViewModel(_LocalisedAssets.onboardingFlow(), (data) {
-      final Map<String, ChatResponseViewModel> chatInput =
+      final Map<String, ChatResponseViewModel>? chatInput =
           castOrNull<Map<String, ChatResponseViewModel>>(data);
       if (chatInput != null) {
         _updateAccount(
-          data,
+          chatInput,
           (){
                  final valueMap = chatInput.map<String, String>(
                 (key, value) => MapEntry(key, value.value.toString()));
             AnalyticsInterface.implementation()
                 .effect(_AnalyticsNames.newProfile, parameters: valueMap);
-            onSuccess();
+            onSuccess?.call();
           },
           onFail,
         );
       } else {
-        onFail();
+        onFail?.call();
       }
-    }, onFail);
+    }, onFail ?? () {});
   }
 
   void _setStatus(FlowCoordinatorStatus newStatus) {
@@ -93,7 +88,7 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
   }
 
   void _updateAccount(Map<String, ChatResponseViewModel> chatInput,
-      Function onSuccess, Function onFail) {
+      Function? onSuccess, Function? onFail) {
     final name = chatInput[_Strings.nameField];
     final transformer = ChatResponseToPlotInfoTransformer();
     final plotInfo = transformer.transform(from: chatInput);
@@ -103,17 +98,17 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
         final newProfile = ProfileEntity(mockPlainText.identifier(),
           mockPlainText.identifier(),
           name.value,
-          null,
+          PathImageProvider(''),
           plotInfo,
         );
         account.profileRepository.add(newProfile).then((profile) {
           account.profileRepository.switchTo(profile).then((result) {
-            result ? onSuccess() : onFail();
+            result ? onSuccess?.call() : onFail?.call();
           });
         });
       });
     } else {
-      onFail();
+      onFail?.call();
     }
   }
 

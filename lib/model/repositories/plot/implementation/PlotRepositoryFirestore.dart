@@ -8,6 +8,7 @@ import 'package:farmsmart_flutter/model/entities/PlotEntity.dart';
 import 'package:farmsmart_flutter/model/entities/ProfileEntity.dart';
 import 'package:farmsmart_flutter/model/entities/StageEntity.dart';
 import 'package:farmsmart_flutter/model/entities/crop_entity.dart';
+import 'package:farmsmart_flutter/model/entities/article_entity.dart';
 import 'package:farmsmart_flutter/model/repositories/article/implementation/FlameLinkMetaTransformer.dart';
 import 'package:farmsmart_flutter/model/repositories/crop/implementation/transformers/FirebaseCropStageTransformer.dart';
 import 'package:farmsmart_flutter/model/repositories/crop/implementation/transformers/FirebaseCropTransformer.dart';
@@ -39,13 +40,13 @@ class _AnalyticsNames {
 }
 
 class PlotRepositoryFireStore implements PlotRepositoryInterface {
-  static final invalidCropError = Exception('Selected crop invalid'); 
-  final Firestore firestore;
+  static final invalidCropError = Exception('Selected crop invalid');
+  final FirebaseFirestore firestore;
   final FlameLink flamelink;
   final ProfileRepositoryInterface profileRepository;
   final _controller = StreamController<List<PlotEntity>>.broadcast();
   PlotRepositoryFireStore(
-    Firestore firestore,
+    FirebaseFirestore firestore,
     FlameLink flameLink,
     ProfileRepositoryInterface profileRepository,
   )   : this.firestore = firestore,
@@ -60,7 +61,7 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
           )
           .snapshots()
           .listen((snapshot) {
-        Future.wait(snapshot.documents.map((document) {
+        Future.wait(snapshot.docs.map((document) {
           return _transformFromFirebase(document);
         })).then((plots) {
           _controller.sink.add(plots.toList());
@@ -71,20 +72,26 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
 
   @override
   Future<PlotEntity> addPlot({
-    Map<String, Map<String, String>> plotInfo,
-    CropEntity crop,
+    Map<String, Map<String, String>>? plotInfo,
+    CropEntity? crop,
   }) {
-    return crop.stageArticles.getEntities().then((articles) {
+    if (crop == null) {
+      return Future.error(ArgumentError.notNull('crop'));
+    }
+    final Future<List<ArticleEntity>> articlesFuture =
+        crop.stageArticles?.getEntities() ?? Future.value(<ArticleEntity>[]);
+    return articlesFuture.then((articles) {
       if (articles.isNotEmpty) {
         final stages = articles.map((article) {
           return StageEntity(
-            id: article.uri,
+            id: article.uri ?? '',
             article: article,
           );
         }).toList();
 
         final plot = PlotEntity(
-          title: crop.name,
+          uri: '',
+          title: crop.name ?? '',
           crop: crop,
           score: 0.0,
           stages: stages,
@@ -96,8 +103,9 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
               .collection(path)
               .add(firestorePlot)
               .then((documentRef) {
-              AnalyticsInterface.implementation().effect(_AnalyticsNames.addToPlot,
-              parameters: _analyticsParameters(crop: crop));
+            AnalyticsInterface.implementation().effect(
+                _AnalyticsNames.addToPlot,
+                parameters: _analyticsParameters(crop: crop));
             return documentRef.get().then((document) {
               return _transformFromFirebase(document);
             });
@@ -121,8 +129,8 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
     final updatedPlot = _replaceStage(forPlot, stage, startedStage);
     final firebasePlot = _transformToFirebase(updatedPlot);
     return firestore
-        .document(forPlot.uri)
-        .setData(firebasePlot, merge: true)
+        .doc(forPlot.uri)
+        .set(firebasePlot, SetOptions(merge: true))
         .then((result) {
       AnalyticsInterface.implementation().effect(_AnalyticsNames.beganStage,
           parameters: _analyticsParameters(plot: forPlot, stage: startedStage));
@@ -147,8 +155,8 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
     );
     final firebasePlot = _transformToFirebase(updatedPlot);
     return firestore
-        .document(forPlot.uri)
-        .setData(firebasePlot, merge: true)
+        .doc(forPlot.uri)
+        .set(firebasePlot, SetOptions(merge: true))
         .then((result) {
       AnalyticsInterface.implementation().effect(_AnalyticsNames.completedStage,
           parameters: _analyticsParameters(plot: forPlot, crop: forPlot.crop));
@@ -177,9 +185,9 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
             _Fields.orderField,
             descending: true,
           )
-          .getDocuments()
+          .get()
           .then((snapshot) {
-        return Future.wait(snapshot.documents.map((document) {
+        return Future.wait(snapshot.docs.map((document) {
           return _transformFromFirebase(document);
         })).then((plots) {
           _controller.sink.add(plots);
@@ -191,7 +199,7 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
 
   @override
   Future<PlotEntity> getSingle(String uri) {
-    return firestore.document(uri).get().then((document) {
+    return firestore.doc(uri).get().then((document) {
       return _transformFromFirebase(document);
     });
   }
@@ -203,10 +211,10 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
 
   @override
   Stream<PlotEntity> observeSingle(String uri) {
-    return firestore.document(uri).snapshots().transform(
-        StreamTransformer<DocumentSnapshot, PlotEntity>.fromHandlers(
-            handleData: (document, sink) {
-      if (document.data == null) return;
+    return firestore.doc(uri).snapshots().transform(StreamTransformer<
+        DocumentSnapshot<Map<String, dynamic>>,
+        PlotEntity>.fromHandlers(handleData: (document, sink) {
+      if (document.data() == null) return;
       _transformFromFirebase(document).then((plot) {
         sink.add(plot);
       });
@@ -215,7 +223,7 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
 
   @override
   Future<bool> remove(PlotEntity plot) {
-    return firestore.document(plot.uri).delete().then((_) {
+    return firestore.doc(plot.uri).delete().then((_) {
       AnalyticsInterface.implementation().effect(
           _AnalyticsNames.removedFromPlot,
           parameters: _analyticsParameters(plot: plot));
@@ -231,11 +239,11 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
     String name,
   ) {
     final data = {PlotEntityFields.title: name};
-    final documentRef = firestore.document(plot.uri);
+    final documentRef = firestore.doc(plot.uri);
     return documentRef
-        .setData(
+        .set(
       data,
-      merge: true,
+      SetOptions(merge: true),
     )
         .then((_) {
       AnalyticsInterface.implementation().effect(_AnalyticsNames.renamedPlot,
@@ -254,10 +262,10 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
     final updatedPlot = _revertStage(forPlot, stage);
     final firebasePlot = _transformToFirebase(updatedPlot);
     return firestore
-        .document(forPlot.uri)
-        .setData(
+        .doc(forPlot.uri)
+        .set(
           firebasePlot,
-          merge: true,
+          SetOptions(merge: true),
         )
         .then((result) {
       AnalyticsInterface.implementation().effect(_AnalyticsNames.revertedStage,
@@ -267,12 +275,12 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
   }
 
   Map<String, dynamic> _analyticsParameters(
-      {PlotEntity plot, CropEntity crop, StageEntity stage}) {
+      {PlotEntity? plot, CropEntity? crop, StageEntity? stage}) {
     Map<String, dynamic> parameters = {};
     if (plot != null) {
       parameters.addAll({
         _AnalyticsNames.plotTitle: plot.title,
-        _AnalyticsNames.plotScoreParameter: plot.score ?? 0
+        _AnalyticsNames.plotScoreParameter: plot.score
       });
     }
     if (crop != null) {
@@ -306,14 +314,14 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
   }
 
   Future<PlotEntity> _transformFromFirebase(DocumentSnapshot plotDocument) {
-    if (plotDocument.data != null) {
+    if (plotDocument.data() != null) {
       final transformer = DocumentToPlotEntityTransformer();
       final cropURI = transformer.cropURI(from: plotDocument);
       final cropTransformer = FlamelinkCropTransformer(
         cms: flamelink,
         metaTransformer: FlamelinkMetaTransformer(),
       );
-      return firestore.document(cropURI).get().then((cropDocument) {
+      return firestore.doc(cropURI).get().then((cropDocument) {
         final crop = cropTransformer.transform(from: cropDocument);
         return _transformStagesFromFirebase(plotDocument).then((stages) {
           return transformer.transform(
@@ -324,24 +332,27 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
         });
       });
     }
-    return Future.value(null);
+    return Future.error(StateError('Plot document has no data'));
   }
 
   Future<List<StageEntity>> _transformStagesFromFirebase(
       DocumentSnapshot plotDocument) {
-    final stages =
-        castListOrNull<Map>(plotDocument.data[PlotEntityFields.stages]);
+    final data = plotDocument.data() as Map<String, dynamic>?;
+    final stages = castListOrNull<Map>(data?[PlotEntityFields.stages]);
     return Future.wait(stages.map((stage) {
       final articlePath =
           castOrNull<String>(stage[PlotEntityFields.articlePath]);
+      if (articlePath == null) {
+        return Future.error(StateError('Missing article path'));
+      }
       final started = castOrNull<Timestamp>(stage[PlotEntityFields.started]);
       final ended = castOrNull<Timestamp>(stage[PlotEntityFields.ended]);
-      final id = castOrNull<String>(stage[PlotEntityFields.id]);
+      final id = castOrNull<String>(stage[PlotEntityFields.id]) ?? '';
       final stageArticleTransformer = FlamelinkCropArticleTransformer(
         cms: flamelink,
         metaTransformer: FlamelinkMetaTransformer(),
       );
-      return firestore.document(articlePath).get().then((artcileDocument) {
+      return firestore.doc(articlePath).get().then((artcileDocument) {
         final stageArticle =
             stageArticleTransformer.transform(from: artcileDocument);
         return StageEntity(
@@ -394,8 +405,8 @@ class PlotRepositoryFireStore implements PlotRepositoryInterface {
 
   StageEntity _stageWithDates(
     StageEntity stage,
-    DateTime start,
-    DateTime end,
+    DateTime? start,
+    DateTime? end,
   ) {
     return StageEntity(
       id: stage.id,

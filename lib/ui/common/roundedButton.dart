@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
 class RoundedButtonViewModel {
-  String title;
-  String icon;
-  Function onTap;
+  final String? title;
+  final String? icon;
+  final VoidCallback? onTap;
 
-  RoundedButtonViewModel({this.title, this.icon, this.onTap});
+  const RoundedButtonViewModel({this.title, this.icon, this.onTap});
 }
 
 class RoundedButtonStyle {
-  final Color iconButtonColor;
-  final Color backgroundColor;
-  final BoxShape buttonShape;
-  final BorderRadius borderRadius;
-  final TextStyle buttonTextStyle;
-  final double height;
-  final double width;
-  final double iconEdgePadding;
-  final double buttonIconSize;
+  final Color? iconButtonColor;
+  final Color? backgroundColor;
+  final BoxShape? buttonShape;
+  final BorderRadius? borderRadius;
+  final TextStyle? buttonTextStyle;
+  final double? height;
+  final double? width;
+  final double? iconEdgePadding;
+  final double? buttonIconSize;
 
   const RoundedButtonStyle({
     this.height,
@@ -32,12 +32,12 @@ class RoundedButtonStyle {
   });
 
   factory RoundedButtonStyle.defaultStyle() {
-    return RoundedButtonStyle(
+    return const RoundedButtonStyle(
       iconButtonColor: Color(0xFFFFFFFF),
-      backgroundColor: Color(0xff24d900),
+      backgroundColor: Color(0xFF3D9140),
       buttonShape: BoxShape.rectangle,
       borderRadius: BorderRadius.all(Radius.circular(20)),
-      buttonTextStyle: null,
+      buttonTextStyle: TextStyle(),
       height: 24.0,
       width: 24.0,
       iconEdgePadding: 0,
@@ -57,9 +57,10 @@ class RoundedButtonStyle {
 //TODO: Needs to style refactor, should be outside of the class.
   factory RoundedButtonStyle.largeRoundedButtonStyle() {
     return RoundedButtonStyle.defaultStyle().copyWith(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
-      buttonTextStyle: TextStyle(
-          fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xffffffff)),
+      backgroundColor: const Color(0xFF121212),
+      borderRadius: BorderRadius.all(Radius.circular(40)),
+      buttonTextStyle: const TextStyle(
+          fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xffffffff)),
       iconEdgePadding: 5,
       height: 56,
       width: double.infinity,
@@ -70,23 +71,23 @@ class RoundedButtonStyle {
 //TODO: Needs to style refactor, should be outside of the class.
   factory RoundedButtonStyle.actionSheetLargeRoundedButton() {
     return RoundedButtonStyle.largeRoundedButtonStyle().copyWith(
-      backgroundColor: Color(0xFFe9eaf2),
-      buttonTextStyle: TextStyle(
-          fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF4c4e6e)),
+      backgroundColor: const Color(0xFFF6F7F6),
+      buttonTextStyle: const TextStyle(
+          fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF121212)),
     );
   }
 
   RoundedButtonStyle copyWith(
-      {Color iconButtonColor,
-      Color backgroundColor,
-      BoxShape buttonShape,
-      BorderRadius borderRadius,
-      EdgeInsets edgePadding,
-      TextStyle buttonTextStyle,
-      double height,
-      double width,
-      double iconEdgePadding,
-      double buttonIconSize}) {
+      {Color? iconButtonColor,
+      Color? backgroundColor,
+      BoxShape? buttonShape,
+      BorderRadius? borderRadius,
+      EdgeInsets? edgePadding,
+      TextStyle? buttonTextStyle,
+      double? height,
+      double? width,
+      double? iconEdgePadding,
+      double? buttonIconSize}) {
     return RoundedButtonStyle(
       iconButtonColor: iconButtonColor ?? this.iconButtonColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -106,15 +107,15 @@ class RoundedButton extends StatelessWidget {
   final RoundedButtonStyle _style;
 
   const RoundedButton(
-      {Key key, RoundedButtonViewModel viewModel, RoundedButtonStyle style})
-      : this._viewModel = viewModel,
-        this._style = style,
+      {Key? key, RoundedButtonViewModel? viewModel, RoundedButtonStyle? style})
+      : this._viewModel = viewModel ?? const RoundedButtonViewModel(),
+        this._style = style ?? const RoundedButtonStyle(),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:_viewModel.onTap,
+      onTap: _viewModel.onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
@@ -124,10 +125,8 @@ class RoundedButton extends StatelessWidget {
             height: _style.height,
             width: _style.width,
             decoration: BoxDecoration(
-                color: _style.backgroundColor != null
-                    ? _style.backgroundColor
-                    : _style.backgroundColor,
-                shape: _style.buttonShape,
+                color: _style.backgroundColor ?? Colors.transparent,
+                shape: _style.buttonShape ?? BoxShape.rectangle,
                 borderRadius: _style.borderRadius),
             child: Wrap(
               direction: Axis.horizontal,
@@ -143,10 +142,10 @@ class RoundedButton extends StatelessWidget {
     List<Widget> listBuilder = [];
     if (_viewModel.icon != null) {
       listBuilder
-          .add(Image.asset(_viewModel.icon, height: _style.buttonIconSize));
+          .add(Image.asset(_viewModel.icon!, height: _style.buttonIconSize));
     }
     if (_viewModel.title != null) {
-      listBuilder.add(Text(_viewModel.title, style: _style.buttonTextStyle));
+      listBuilder.add(Text(_viewModel.title!, style: _style.buttonTextStyle));
     }
     return listBuilder;
   }

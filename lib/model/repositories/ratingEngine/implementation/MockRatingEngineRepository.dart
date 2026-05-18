@@ -11,7 +11,8 @@ class MockRatingEngineRepository implements RatingEngineRepositoryInterface {
   @override
   Future<Map<String, RatingInfo>> getRatingInfo() {
     final inputFactors = harryInputFactors.map((subject, value) {
-      return MapEntry(subject, RatingInfo(harryWeights[subject], value));
+      return MapEntry(
+          subject, RatingInfo(harryWeights[subject] ?? {}, value));
     });
     _streamController.sink.add(inputFactors);
     return Future.value(inputFactors);

@@ -10,7 +10,7 @@ class _Fields {
 
 class _Constants {
   static const lookupCollection = "/fs_crop_score_cms_link";
-  static const pathDivider= "/";
+  static const pathDivider = "/";
 }
 
 class CropRecommendationLookup {
@@ -18,22 +18,28 @@ class CropRecommendationLookup {
 
   CropRecommendationLookup(this._flameLink);
 
-  Future<Map<String,String>> lookupTable() {
-      final contentPath = _flameLink.content().path + _Constants.pathDivider;
-      return _flameLink.store.collection(_Constants.lookupCollection).getDocuments().then((snapshot){
-          return snapshot.documents.asMap().map((_,document){
-              return MapEntry(contentPath + _identifier(document),_recomendationName(document));
-          });
+  Future<Map<String, String>> lookupTable() {
+    final contentPath = _flameLink.content().path + _Constants.pathDivider;
+    return _flameLink.store
+        .collection(_Constants.lookupCollection)
+        .get()
+        .then((snapshot) {
+      return snapshot.docs.asMap().map((_, document) {
+        return MapEntry(
+            contentPath + _identifier(document), _recomendationName(document));
       });
+    });
   }
 
   String _identifier(DocumentSnapshot snapshot) {
-    return castOrNull<String>(snapshot.data[_Fields.identifier]);
-  } 
+    final data = snapshot.data() as Map<String, dynamic>?;
+    return castOrNull<String>(data?[_Fields.identifier]) ?? '';
+  }
 
   String _recomendationName(DocumentSnapshot snapshot) {
-    final score = snapshot.data[_Fields.score];
-    final cropname = snapshot.data[_Fields.cropName];
-    return castOrNull<String>(score ?? cropname); //LH the old system used crop name, new system uses the score field. this should handle both.
+    final data = snapshot.data() as Map<String, dynamic>?;
+    final score = data?[_Fields.score];
+    final cropname = data?[_Fields.cropName];
+    return castOrNull<String>(score ?? cropname) ?? '';
   }
 }

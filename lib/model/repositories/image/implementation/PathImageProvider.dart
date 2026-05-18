@@ -1,16 +1,16 @@
 import 'package:farmsmart_flutter/model/entities/ImageURLProvider.dart';
 
 class PathImageProvider implements ImageURLProvider {
-  final _path;
+  final String _path;
 
   PathImageProvider(this._path);
   @override
-  Future<String> urlToFit({double width, double height}) {
+  Future<String> urlToFit({double width = 0, double height = 0}) {
     return Future.value(cachedUrlToFit(width: width, height: height));
   }
 
   @override
-  String cacheIdentifier({double width, double height}) {
+  String cacheIdentifier({double width = 0, double height = 0}) {
     return _path +
         ImageURLProvider.sizeIdentifier(
           width: width,
@@ -19,7 +19,7 @@ class PathImageProvider implements ImageURLProvider {
   }
 
   @override
-  String cachedUrlToFit({double width, double height}) {
+  String cachedUrlToFit({double width = 0, double height = 0}) {
     return _path;
   }
 }

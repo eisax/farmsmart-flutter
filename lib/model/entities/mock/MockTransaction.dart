@@ -12,7 +12,7 @@ class MockTransaction {
     final entity = TransactionEntity(
       _descriptions.identifier(),
       TransactionAmount(_amounts.random(), _random.nextBool()),
-      MockCrop.build().name,
+      MockCrop.build().name ?? '',
       _descriptions.random(),
       MockDate().randomMonthAgo(),
     );

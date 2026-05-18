@@ -6,6 +6,7 @@ class LinkBoxStyles {
     return LinkBoxStyle(
       cardBackgroundColor: Color(0xfff5f8fa),
       imageContainerColor: Color(0xff25d366),
+      iconColor: Colors.white,
     );
   }
 

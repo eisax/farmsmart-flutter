@@ -18,7 +18,7 @@ class SelectableOptionEntity {
   String title;
   String description;
   String responseText;
-  SelectableOptionMediaEntity media;
+  SelectableOptionMediaEntity? media;
 
   factory SelectableOptionEntity.fromJson(Map<String, dynamic> json) =>
       _$SelectableOptionEntityFromJson(json);

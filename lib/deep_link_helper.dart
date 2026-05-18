@@ -1,12 +1,10 @@
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-
 class DeepLink {
   final String deepLinkParameter;
   final Function(String) action;
 
   DeepLink({
-    this.deepLinkParameter,
-    this.action,
+    required this.deepLinkParameter,
+    required this.action,
   });
 }
 
@@ -14,7 +12,7 @@ class DeepLinkHelper {
   final List<DeepLink> deepLinks;
 
   DeepLinkHelper({
-    this.deepLinks,
+    required this.deepLinks,
   });
 
   void init() {
@@ -22,53 +20,32 @@ class DeepLinkHelper {
   }
 
   void initDynamicLinks() async {
-    final PendingDynamicLinkData data =
-        await FirebaseDynamicLinks.instance.getInitialLink();
-
-    Uri deepLink = data?.link;
-
-    if (data?.link != null) {
-      _parseDeepLink(deepLink);
-    }
-
-    FirebaseDynamicLinks.instance.onLink(
-      onSuccess: (PendingDynamicLinkData dynamicLink) async {
-        final Uri deepLink = dynamicLink?.link;
-
-        if (deepLink != null) {
-          _parseDeepLink(deepLink);
-        }
-      },
-      onError: (OnLinkErrorException e) async {
-        print('onLinkError');
-        print(e.message);
-      },
-    );
+    // Mock implementation - no Firebase Dynamic Links
+    print('Mock Deep Link Helper: Waiting for deep links...');
   }
 
-  void _saveDynamicLink(){
+  void _saveDynamicLink() {
     //TODO: we need to implement this to be able to support opening deep links on very first open (no account created)
   }
 
-  void runPendingDynamicLink(){
+  void runPendingDynamicLink() {
     //TODO Implement run pending dynamic link (saved on the disk
   }
 
   void _parseDeepLink(Uri deepLink) {
-    var decodedDynamicLink = Uri.decodeComponent(deepLink.toString());
-    var stringURLtoURI = Uri.parse(decodedDynamicLink);
+    final decodedDynamicLink = Uri.decodeComponent(deepLink.toString());
+    final stringURLtoURI = Uri.parse(decodedDynamicLink);
 
-    if (stringURLtoURI != null) {
-      var deepLinkCatch = deepLinks.firstWhere(
-        (deepLink) => stringURLtoURI.queryParameters
-            .containsKey(deepLink.deepLinkParameter),
-      );
+    final deepLinkCatch = deepLinks.firstWhere(
+      (deepLink) => stringURLtoURI.queryParameters
+          .containsKey(deepLink.deepLinkParameter),
+      orElse: () => throw StateError('No matching deep link'),
+    );
 
-      if (deepLinkCatch != null) {
-        deepLinkCatch.action(
-          stringURLtoURI.queryParameters[deepLinkCatch.deepLinkParameter],
-        );
-      }
+    final deepLinkValue =
+        stringURLtoURI.queryParameters[deepLinkCatch.deepLinkParameter];
+    if (deepLinkValue != null) {
+      deepLinkCatch.action(deepLinkValue);
     }
   }
 }

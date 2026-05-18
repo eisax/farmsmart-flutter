@@ -21,7 +21,10 @@ class TransactionToRecordTransactionViewModel
   TransactionToRecordTransactionViewModel(this._repo, this._tagList);
 
   @override
-  RecordTransactionViewModel transform({TransactionEntity from}) {
+  RecordTransactionViewModel transform({TransactionEntity? from}) {
+    if (from == null) {
+      throw ArgumentError.notNull('from');
+    }
     if (from.amount.isCost()) {
       return costViewModel(from: from, editable: false);
     }
@@ -29,8 +32,8 @@ class TransactionToRecordTransactionViewModel
   }
 
   RecordTransactionViewModel costViewModel(
-      {TransactionEntity from, bool editable = true}) {
-    final amount = from?.amount?.toString() ?? "";
+      {TransactionEntity? from, bool editable = true}) {
+    final amount = from?.amount.toString() ?? "";
     return RecordTransactionViewModel(
       uri: from?.uri,
       amount: amount,
@@ -46,8 +49,8 @@ class TransactionToRecordTransactionViewModel
   }
 
   RecordTransactionViewModel saleViewModel(
-      {TransactionEntity from, bool editable = true}) {
-    final amount = from?.amount?.toString() ?? "";
+      {TransactionEntity? from, bool editable = true}) {
+    final amount = from?.amount.toString() ?? "";
     return RecordTransactionViewModel(
       uri: from?.uri,
       amount: amount,
@@ -62,9 +65,8 @@ class TransactionToRecordTransactionViewModel
     );
   }
 
-  List<RecordTransactionListItemViewModel> _actions({TransactionEntity from}) {
-    final timestamp =
-        (from?.timestamp == null) ? DateTime.now() : from.timestamp;
+  List<RecordTransactionListItemViewModel> _actions({TransactionEntity? from}) {
+    final timestamp = from?.timestamp ?? DateTime.now();
     final description = from?.description ?? "";
     final selectedItem = from?.tag;
     return [
@@ -98,15 +100,15 @@ class TransactionToRecordTransactionViewModel
   ) {
     final isCost = (type == TransactionType.cost);
     final amount = TransactionAmount(
-      data.amount,
+      data.amount ?? '',
       isCost,
     );
     return TransactionEntity(
-      data.uri,
+      data.uri ?? '',
       amount,
-      data.crop,
-      data.description,
-      data.date,
+      data.crop ?? '',
+      data.description ?? '',
+      data.date ?? DateTime.now(),
     );
   }
 

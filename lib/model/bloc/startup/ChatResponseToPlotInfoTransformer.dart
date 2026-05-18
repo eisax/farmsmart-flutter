@@ -18,7 +18,10 @@ class ChatResponseToPlotInfoTransformer extends ObjectTransformer<
 
   @override
   Map<String, Map<String, String>> transform(
-      {Map<String, ChatResponseViewModel> from}) {
+      {Map<String, ChatResponseViewModel>? from}) {
+    if (from == null) {
+      return {};
+    }
     return from.map((key, value) {
       return MapEntry(key, _transformOptions(value));
     });
@@ -33,7 +36,7 @@ class ChatResponseToPlotInfoTransformer extends ObjectTransformer<
     if (date != null) {
       responseMap[_Fields.value] = dateFormat.format(date);
     } else {
-      responseMap[_Fields.value] = chatResponseViewModel.value;
+      responseMap[_Fields.value] = chatResponseViewModel.value?.toString() ?? '';
     }
 
     return responseMap;

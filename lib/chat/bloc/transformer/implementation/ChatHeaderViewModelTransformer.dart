@@ -6,7 +6,7 @@ import 'package:farmsmart_flutter/chat/bloc/transformer/Transformer.dart';
 class ChatHeaderViewModelTransformer
     implements ObjectTransformer<FormEntity, HeaderMessageViewModel> {
   @override
-  HeaderMessageViewModel transform({from}) {
+  HeaderMessageViewModel transform({required FormEntity from}) {
     return HeaderMessageViewModel(
       title: from.title,
       subtitle: from.subtitle,

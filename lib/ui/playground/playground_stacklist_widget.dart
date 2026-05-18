@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
 class PlaygroundStackList extends StatelessWidget {
@@ -13,11 +12,11 @@ class PlaygroundStackList extends StatelessWidget {
   final Color appBarColor;
   final String allWidgetsText;
 
-  PlaygroundStackList(
-      {Key key,
-        @required this.widgetList,
-        this.appBarColor = _defaultAppBarColor,
-        this.allWidgetsText})
+  const PlaygroundStackList(
+      {Key? key,
+      required this.widgetList,
+      this.appBarColor = _defaultAppBarColor,
+      this.allWidgetsText = ''})
       : super(key: key);
 
   @override
