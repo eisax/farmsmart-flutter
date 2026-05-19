@@ -1,3 +1,4 @@
+import 'package:farmsmart_flutter/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class ProfitLossHeaderViewModel {
@@ -26,22 +27,15 @@ class ProfitLossHeaderStyle {
 
   factory ProfitLossHeaderStyle.defaultStyle() {
     return ProfitLossHeaderStyle(
-        titleTextStyle: const TextStyle(
-            fontSize: 47,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1a1b46)),
-        detailTextStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.normal,
-            color: Color(0xFF767690)),
-        subtitleTextStyle: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.normal,
-            color: Color(0xFF25df0c)),
-        titleEdgePadding:
-            const EdgeInsets.only(left: 33, top: 36.5, bottom: 12.5, right: 33),
-        detailTextSpacing: 10,
-        maxLines: 1);
+        titleTextStyle: AppTheme.displayTitle.copyWith(fontSize: 32),
+        detailTextStyle: AppTheme.bodyDark.copyWith(fontSize: 15),
+        subtitleTextStyle: AppTheme.body.copyWith(
+          color: AppTheme.accent,
+          fontWeight: FontWeight.w600,
+        ),
+        titleEdgePadding: const EdgeInsets.all(24),
+        detailTextSpacing: 16,
+        maxLines: 2);
   }
 
   ProfitLossHeaderStyle copyWith(
@@ -76,33 +70,23 @@ class ProfitLossHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: _style.titleEdgePadding,
-      child: Column(children: <Widget>[
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: <Widget>[
-            Text(_viewModel.title,
-                style: _style.titleTextStyle,
-                maxLines: _style.maxLines,
-                overflow: TextOverflow.ellipsis),
-            SizedBox(
-              width: _style.detailTextSpacing,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(_viewModel.detail,
-                      style: _style.detailTextStyle,
-                      maxLines: _style.maxLines,
-                      overflow: TextOverflow.ellipsis),
-                ],
-              ),
-            )
-          ],
-        ),
-      ]),
+      margin: const EdgeInsets.fromLTRB(20, 24, 20, 18),
+      decoration: AppTheme.whiteCard(radius: AppTheme.radiusLg),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(_viewModel.title,
+              style: _style.titleTextStyle,
+              maxLines: _style.maxLines,
+              overflow: TextOverflow.ellipsis),
+          SizedBox(height: _style.detailTextSpacing),
+          Text(_viewModel.detail,
+              style: _style.detailTextStyle,
+              maxLines: _style.maxLines,
+              overflow: TextOverflow.ellipsis),
+        ],
+      ),
     );
   }
 

@@ -2,9 +2,13 @@ import 'package:farmsmart_flutter/model/bloc/ViewModelProvider.dart';
 import 'package:farmsmart_flutter/model/bloc/chatFlow/FlowCoordinator.dart';
 import 'package:farmsmart_flutter/ui/common/roundedButton.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'common/locale_selection.dart';
 import 'offline/OfflineDownloadPage.dart';
+import 'auth/AuthDialog.dart';
+import 'package:farmsmart_flutter/model/repositories/repository_provider.dart';
+import 'package:farmsmart_flutter/model/bloc/chatFlow/NewProfileFlow.dart';
 
 class _Constants {
   static final EdgeInsets generalPadding =
@@ -189,15 +193,54 @@ class LandingPage extends StatelessWidget {
     required BuildContext context,
     required LandingPageViewModel viewModel,
   }) {
-    viewModel.newAccountFlow.run(context, onSuccess: () {
-      _showOffline(context, viewModel);
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AuthDialog(),
+    ).then((authenticated) {
+      if (authenticated == true) {
+        _handleAuthSuccess(context, viewModel);
+      }
     });
   }
 
-  _showOffline(BuildContext context, LandingPageViewModel viewModel) {
+  Future<void> _handleAuthSuccess(
+      BuildContext context, LandingPageViewModel viewModel) async {
+    final repo = Provider.of<RepositoryProvider>(context, listen: false);
+    final accountRepo = repo.getAccountRepository();
+    try {
+      final account = await accountRepo.authorized();
+      try {
+        await account.profileRepository.getCurrent();
+        _showOffline(context, viewModel);
+      } catch (error) {
+        if (error is StateError && error.message == 'No current profile') {
+          final newProfileFlow = NewProfileFlowCoordinator(accountRepo, (_) {});
+          newProfileFlow.run(context, onSuccess: () {
+            _showOffline(context, viewModel);
+          }, onFail: (error) {
+            _showMessage(context,
+                'Profile creation failed: ${error is StateError ? error.message : error}');
+          });
+        } else {
+          _showMessage(
+              context, 'Login succeeded but profile load failed: $error');
+        }
+      }
+    } catch (error) {
+      _showMessage(
+          context, 'Authentication succeeded, but account load failed: $error');
+    }
+  }
+
+  void _showOffline(BuildContext context, LandingPageViewModel viewModel) {
     final offlinePage =
         OfflineDownloadPage(provider: viewModel.downloaderViewModelProvider);
     OfflineDownloadPage.present(offlinePage, context);
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _languageTapped(BuildContext context) {

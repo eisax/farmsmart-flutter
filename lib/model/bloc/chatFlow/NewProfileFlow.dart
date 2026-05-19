@@ -47,26 +47,27 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
           ChatPage(
               viewModel: _chatPageViewModel(onSuccess: () {
             _setStatus(FlowCoordinatorStatus.Complete);
-            
+
             onSuccess?.call();
           }, onFail: (error) {
             _setStatus(FlowCoordinatorStatus.Complete);
             onFail?.call(error);
           })));
     } else {
-       onFail?.call(UnsupportedError(_LocalisedStrings.alreadyInProgress()));
+      onFail?.call(UnsupportedError(_LocalisedStrings.alreadyInProgress()));
     }
   }
 
-  ChatPageViewModel _chatPageViewModel({Function? onSuccess, Function? onFail}) {
+  ChatPageViewModel _chatPageViewModel(
+      {Function? onSuccess, Function? onFail}) {
     return ChatPageViewModel(_LocalisedAssets.onboardingFlow(), (data) {
       final Map<String, ChatResponseViewModel>? chatInput =
           castOrNull<Map<String, ChatResponseViewModel>>(data);
       if (chatInput != null) {
         _updateAccount(
           chatInput,
-          (){
-                 final valueMap = chatInput.map<String, String>(
+          () {
+            final valueMap = chatInput.map<String, String>(
                 (key, value) => MapEntry(key, value.value.toString()));
             AnalyticsInterface.implementation()
                 .effect(_AnalyticsNames.newProfile, parameters: valueMap);
@@ -95,7 +96,8 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
     //TODO: Remove the Mock ID´s once implemented
     if (name != null) {
       _accountRepository.authorized().then((account) {
-        final newProfile = ProfileEntity(mockPlainText.identifier(),
+        final newProfile = ProfileEntity(
+          mockPlainText.identifier(),
           mockPlainText.identifier(),
           name.value,
           PathImageProvider(''),
@@ -103,12 +105,20 @@ class NewProfileFlowCoordinator implements FlowCoordinator {
         );
         account.profileRepository.add(newProfile).then((profile) {
           account.profileRepository.switchTo(profile).then((result) {
-            result ? onSuccess?.call() : onFail?.call();
+            result
+                ? onSuccess?.call()
+                : onFail?.call(StateError('switch_failed'));
+          }, onError: (error) {
+            onFail?.call(error);
           });
+        }, onError: (error) {
+          onFail?.call(error);
         });
+      }, onError: (error) {
+        onFail?.call(error);
       });
     } else {
-      onFail?.call();
+      onFail?.call(StateError('missing_name'));
     }
   }
 

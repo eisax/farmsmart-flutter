@@ -36,20 +36,23 @@ class MockRepositoryProvider implements RepositoryProvider {
       return;
     }
     _initialized = true;
-    _account.anonymous();
   }
-  
+
   @override
   ArticleRepositoryInterface getArticleRepository() => MockArticlesRepository();
 
   @override
-  PlotRepositoryInterface getMyPlotRepository(ProfileRepositoryInterface profileRepository) => _plot;
+  PlotRepositoryInterface getMyPlotRepository(
+          ProfileRepositoryInterface profileRepository) =>
+      _plot;
 
   @override
   CropRepositoryInterface getCropRepository() => _crop;
 
-    @override
-  TransactionRepositoryInterface getTransactionRepository(ProfileRepositoryInterface profileRepository) => _trans;
+  @override
+  TransactionRepositoryInterface getTransactionRepository(
+          ProfileRepositoryInterface profileRepository) =>
+      _trans;
 
   @override
   RatingEngineRepositoryInterface getRatingsRepository() => _ratings;
@@ -62,7 +65,8 @@ class MockRepositoryProvider implements RepositoryProvider {
 
   @override
   OfflineDownloader getDownloader() {
-    return OfflineDownloader(getArticleRepository(),getCropRepository(), getRatingsRepository());
+    return OfflineDownloader(
+        getArticleRepository(), getCropRepository(), getRatingsRepository());
   }
 
   @override

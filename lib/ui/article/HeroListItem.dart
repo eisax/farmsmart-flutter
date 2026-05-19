@@ -1,6 +1,6 @@
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleListItemViewModel.dart';
-import 'package:farmsmart_flutter/ui/common/ListDivider.dart';
 import 'package:farmsmart_flutter/ui/common/image_provider_view.dart';
+import 'package:farmsmart_flutter/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'ArticleListItemStyle.dart';
@@ -15,8 +15,9 @@ class _DefaultStyle implements ArticleListItemStyle {
       fontSize: 15, fontWeight: FontWeight.w400, color: textColor);
 
   final EdgeInsets listEdgePadding =
-      const EdgeInsets.only(left: 32.0, right: 32.0, bottom: 28);
-  final EdgeInsets cardMargin = const EdgeInsets.all(0);
+      const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 28);
+  final EdgeInsets cardMargin =
+      const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0);
 
   final double imageHeight = 152;
   final double imageLineSpace = 22;
@@ -53,31 +54,29 @@ class HeroListItem extends StatelessWidget {
       {ArticleListItemStyle itemStyle = const _DefaultStyle()}) {
     return GestureDetector(
       onTap: _onTap,
-      child: Column(
-        children: <Widget>[
-          Card(
-            margin: itemStyle.cardMargin,
-            elevation: itemStyle.cardElevation,
-            child: Container(
-              padding: itemStyle.listEdgePadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _buildHeroArticleImage(viewModel, itemStyle),
-                  SizedBox(height: itemStyle.imageLineSpace),
-                  Text(viewModel.title,
-                      maxLines: itemStyle.maxLinesPerTitle,
-                      style: itemStyle.titleTextStyle),
-                  SizedBox(height: itemStyle.textLineSpace),
-                  Text(viewModel.summary,
-                      maxLines: itemStyle.maxLinesPerSummary,
-                      style: itemStyle.summaryTextStyle)
-                ],
-              ),
-            ),
+      child: Card(
+        margin: itemStyle.cardMargin,
+        elevation: itemStyle.cardElevation,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        ),
+        child: Container(
+          padding: itemStyle.listEdgePadding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _buildHeroArticleImage(viewModel, itemStyle),
+              SizedBox(height: itemStyle.imageLineSpace),
+              Text(viewModel.title,
+                  maxLines: itemStyle.maxLinesPerTitle,
+                  style: itemStyle.titleTextStyle),
+              SizedBox(height: itemStyle.textLineSpace),
+              Text(viewModel.summary,
+                  maxLines: itemStyle.maxLinesPerSummary,
+                  style: itemStyle.summaryTextStyle)
+            ],
           ),
-          ListDivider.build(),
-        ],
+        ),
       ),
     );
   }

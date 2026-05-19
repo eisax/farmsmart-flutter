@@ -1,3 +1,4 @@
+import 'package:farmsmart_flutter/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class _Constants {
@@ -9,17 +10,14 @@ class _Constants {
       EdgeInsets.only(left: 32, right: 32, top: 38.5);
   static final double imageLineSpace = 20;
   static final double titleLineSpace = 3;
-  static final TextStyle titleTextStyle = TextStyle(
-    color: Color(0xff1a1b46),
+  static final TextStyle titleTextStyle = AppTheme.bodyDark.copyWith(
     fontSize: 15,
-    height: 1.05,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w700,
   );
   static final int detailTextMaxLines = 2;
-  static final TextStyle detailTextStyle = TextStyle(
-    color: Color(0xff4c4e6e),
+  static final TextStyle detailTextStyle = AppTheme.body.copyWith(
     fontSize: 13,
-    fontWeight: FontWeight.w400,
+    color: AppTheme.grey,
   );
   static final double imageContainerSize = 40;
   static final EdgeInsets imageEdgePadding = EdgeInsets.all(6);
@@ -92,49 +90,61 @@ class LinkBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _viewModel.onTap();
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: _style.cardBackgroundColor,
+    return Padding(
+      padding: _Constants.cardEdgePadding,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _viewModel.onTap,
           borderRadius: _Constants.cardBorderRadius,
-        ),
-        padding: _Constants.cardInnerPadding,
-        margin: _Constants.cardEdgePadding,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ClipRRect(
+          child: Ink(
+            decoration: BoxDecoration(
+              color: _style.cardBackgroundColor,
               borderRadius: _Constants.cardBorderRadius,
-              child: Container(
-                height: _Constants.imageContainerSize,
-                width: _Constants.imageContainerSize,
-                padding: _Constants.imageEdgePadding,
-                color: _style.imageContainerColor,
-                child: _buildImage(),
-              ),
+              border: Border.all(color: AppTheme.border),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.black.withOpacity(0.04),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            SizedBox(
-              width: _Constants.imageLineSpace,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  _buildTitleText(),
-                  SizedBox(
-                    height: _Constants.titleLineSpace,
+            padding: _Constants.cardInnerPadding,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ClipRRect(
+                  borderRadius: _Constants.cardBorderRadius,
+                  child: Container(
+                    height: _Constants.imageContainerSize,
+                    width: _Constants.imageContainerSize,
+                    padding: _Constants.imageEdgePadding,
+                    color: _style.imageContainerColor,
+                    child: _buildImage(),
                   ),
-                  _buildDetailText(),
-                ],
-              ),
+                ),
+                SizedBox(
+                  width: _Constants.imageLineSpace,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      _buildTitleText(),
+                      SizedBox(
+                        height: _Constants.titleLineSpace,
+                      ),
+                      _buildDetailText(),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

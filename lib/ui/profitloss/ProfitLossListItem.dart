@@ -1,7 +1,7 @@
-import 'package:farmsmart_flutter/ui/common/ListDivider.dart';
-import 'package:farmsmart_flutter/ui/profitloss/RecordTransaction.dart';
-import 'package:flutter/material.dart';
 import 'package:farmsmart_flutter/ui/common/Dogtag.dart';
+import 'package:farmsmart_flutter/ui/profitloss/RecordTransaction.dart';
+import 'package:farmsmart_flutter/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
 
 class ProfitLossListItemViewModel {
   final String? title;
@@ -39,20 +39,16 @@ class ProfitLossItemStyle {
 
   factory ProfitLossItemStyle.defaultStyle() {
     return ProfitLossItemStyle(
-        titleStyle: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.normal,
-            color: Color(0xff767690)),
-        subtitleStyle: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.normal,
-            color: Color(0xff1a1b46)),
-        edgePadding: const EdgeInsets.only(
-            left: 32.0, top: 21.3, right: 32.0, bottom: 21.3),
+        titleStyle: AppTheme.caption
+            .copyWith(fontWeight: FontWeight.w500, color: AppTheme.greyLight),
+        subtitleStyle: AppTheme.bodyDark
+            .copyWith(fontWeight: FontWeight.w600, color: AppTheme.black),
+        edgePadding:
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
         elevation: 0.0,
-        detailLineSpace: 20.5,
+        detailLineSpace: 14,
         maxLines: 1,
-        titleLineSpace: 7);
+        titleLineSpace: 6);
   }
 
   ProfitLossItemStyle copyWith(
@@ -88,27 +84,33 @@ class ProfitLossListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () => _navigateToDetail(context, _viewModel.detailViewModel),
-        child: Card(
-            margin: EdgeInsets.all(0),
-            elevation: _style.elevation ?? 0,
-            child: Column(children: <Widget>[
-              Container(
-                  padding: _style.edgePadding ?? EdgeInsets.zero,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        _buildMainTextView(_viewModel, _style),
-                        SizedBox(width: _style.detailLineSpace ?? 0),
-                        DogTag(
-                          viewModel:
-                              DogTagViewModel(number: _viewModel.detail ?? ''),
-                          style: _viewModel.style,
-                        )
-                      ])),
-              ListDivider.build(),
-            ])));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _navigateToDetail(context, _viewModel.detailViewModel),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          child: Ink(
+            decoration: AppTheme.whiteCard(radius: AppTheme.radiusMd),
+            child: Padding(
+              padding: _style.edgePadding ?? EdgeInsets.zero,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    _buildMainTextView(_viewModel, _style),
+                    SizedBox(width: _style.detailLineSpace ?? 0),
+                    DogTag(
+                      viewModel:
+                          DogTagViewModel(number: _viewModel.detail ?? ''),
+                      style: _viewModel.style,
+                    )
+                  ]),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -117,7 +119,8 @@ void _navigateToDetail(
   if (viewModel != null) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RecordTransaction(viewModel: viewModel, key: UniqueKey()),
+        builder: (context) =>
+            RecordTransaction(viewModel: viewModel, key: UniqueKey()),
         settings: RouteSettings(name: RecordTransaction.analyticsName),
       ),
     );

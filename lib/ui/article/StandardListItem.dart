@@ -1,6 +1,6 @@
 import 'package:farmsmart_flutter/ui/article/viewModel/ArticleListItemViewModel.dart';
-import 'package:farmsmart_flutter/ui/common/ListDivider.dart';
 import 'package:farmsmart_flutter/ui/common/image_provider_view.dart';
+import 'package:farmsmart_flutter/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'ArticleListItemStyle.dart';
@@ -15,8 +15,9 @@ class _DefaultStyle implements ArticleListItemStyle {
       fontSize: 15, fontWeight: FontWeight.w400, color: bodyColor);
 
   final EdgeInsets listEdgePadding =
-      const EdgeInsets.only(left: 32.0, right: 32.0, top: 23, bottom: 23);
-  final EdgeInsets cardMargin = const EdgeInsets.all(0);
+      const EdgeInsets.only(left: 24.0, right: 24.0, top: 23, bottom: 23);
+  final EdgeInsets cardMargin =
+      const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0);
 
   final double imageLineSpace = 22;
   final double imageHeight = 80;
@@ -56,22 +57,20 @@ class StandardListItem extends StatelessWidget {
       child: Card(
         margin: itemStyle.cardMargin,
         elevation: itemStyle.cardElevation,
-        child: Column(
-          children: <Widget>[
-            Container(
-              padding: itemStyle.listEdgePadding,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  _buildArticleInformation(viewModel, itemStyle),
-                  SizedBox(width: itemStyle.imageLineSpace),
-                  _buildListItemImage(viewModel, itemStyle),
-                ],
-              ),
-            ),
-            ListDivider.build(),
-          ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        ),
+        child: Container(
+          padding: itemStyle.listEdgePadding,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _buildArticleInformation(viewModel, itemStyle),
+              SizedBox(width: itemStyle.imageLineSpace),
+              _buildListItemImage(viewModel, itemStyle),
+            ],
+          ),
         ),
       ),
     );
