@@ -53,7 +53,7 @@ flutter doctor
 
 Fix any missing dependencies shown.
 
-🧑‍💻 Install VS Code
+Install VS Code
 Download:
 
 https://code.visualstudio.com/
@@ -61,7 +61,7 @@ https://code.visualstudio.com/
 Install extensions:
 Flutter
 Dart
-🤖 Install Android Studio
+Install Android Studio
 Download:
 
 https://developer.android.com/studio
